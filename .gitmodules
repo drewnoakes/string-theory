@@ -1,0 +1,3 @@
+[submodule "clrmd"]
+	path = clrmd
+	url = git@github.com:Microsoft/clrmd.git

@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="StringTheory.UI.StringList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:StringTheory.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" 
+             d:DesignWidth="800" 
+             d:DataContext="{d:DesignInstance local:StringList}">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" x:Key="StatisticStyle">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style TargetType="{x:Type TextBlock}" x:Key="StringStyle">
+            <Setter Property="TextWrapping" Value="NoWrap" />
+            <Setter Property="ToolTip" Value="{Binding Path=(local:StringItem.Content)}"/>
+        </Style>
+    </UserControl.Resources>
+
+    <DataGrid
+        x:Name="_grid"
+        ItemsSource="{Binding Path=StringItems}" 
+        IsReadOnly="True"
+        AutoGenerateColumns="False"
+        HeadersVisibility="Column"
+        VerticalGridLinesBrush="Transparent"
+        HorizontalGridLinesBrush="Transparent"
+        RowBackground="White"
+        AlternatingRowBackground="AliceBlue">
+
+        <DataGrid.CommandBindings>
+            <CommandBinding Command="Copy" Executed="OnCopyExecuted" />
+        </DataGrid.CommandBindings>
+
+        <DataGrid.InputBindings>
+            <KeyBinding Modifiers="Control" Key="C" Command="Copy" CommandParameter="Strings" />
+        </DataGrid.InputBindings>
+
+        <DataGrid.Columns>
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Wasted Bytes" Binding="{Binding WastedBytes, StringFormat=n0}" SortDirection="Descending" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Count" Binding="{Binding Count, StringFormat=n0}" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Length" Binding="{Binding Length, StringFormat=n0}" />
+            <DataGridTextColumn Width="*"    ElementStyle="{StaticResource StringStyle}" Header="String" Binding="{Binding FirstLine}" />
+        </DataGrid.Columns>
+
+        <DataGrid.ContextMenu>
+            <ContextMenu>
+                <MenuItem Header="Copy string(s)" Command="Copy" CommandParameter="Strings" InputGestureText="Ctrl+C" />
+                <MenuItem Header="Copy CSV"       Command="Copy" CommandParameter="CSV" InputGestureText="" />
+                <MenuItem Header="Copy Markdown"  Command="Copy" CommandParameter="Markdown" InputGestureText="" />
+            </ContextMenu>
+        </DataGrid.ContextMenu>
+
+    </DataGrid>
+
+</UserControl>

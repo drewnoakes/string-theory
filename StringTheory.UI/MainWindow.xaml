@@ -1,0 +1,25 @@
+﻿<Window x:Class="StringTheory.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StringTheory.UI"
+        mc:Ignorable="d"
+        Title="String Theory"
+        Height="450"
+        Width="800"
+        d:DataContext="{d:DesignInstance local:MainWindow}">
+
+    <TabControl>
+
+        <TabItem Header="Open">
+            <Button Content="Open dump..." Command="{Binding OpenDumpCommand}" />
+        </TabItem>
+
+        <TabItem Header="Strings">
+            <local:StringList StringItems="{Binding StringItems}" />
+        </TabItem>
+
+    </TabControl>
+
+</Window>
