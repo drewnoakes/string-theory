@@ -17,7 +17,13 @@
         </TabItem>
 
         <TabItem Header="Strings">
-            <local:StringList StringItems="{Binding StringItems}" />
+            <local:StringList
+                StringItems="{Binding StringItems}"
+                CopyStringsCommand="{Binding CopyStringsCommand}"
+                CopyCsvCommand="{Binding CopyCsvCommand}"
+                CopyMarkdownCommand="{Binding CopyMarkdownCommand}"
+                ShowReferrersCommand="{Binding ShowReferrersCommand}"
+                />
         </TabItem>
 
     </TabControl>

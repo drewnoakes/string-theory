@@ -17,10 +17,14 @@
             <Setter Property="TextWrapping" Value="NoWrap" />
             <Setter Property="ToolTip" Value="{Binding Path=(local:StringItem.Content)}"/>
         </Style>
+        <Style TargetType="{x:Type MenuItem}">
+            <Setter Property="CommandParameter"
+                    Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}},
+                                    Path=SelectedItems}" />
+        </Style>
     </UserControl.Resources>
 
     <DataGrid
-        x:Name="_grid"
         ItemsSource="{Binding Path=StringItems}" 
         IsReadOnly="True"
         AutoGenerateColumns="False"
@@ -30,26 +34,22 @@
         RowBackground="White"
         AlternatingRowBackground="AliceBlue">
 
-        <DataGrid.CommandBindings>
-            <CommandBinding Command="Copy" Executed="OnCopyExecuted" />
-        </DataGrid.CommandBindings>
-
         <DataGrid.InputBindings>
-            <KeyBinding Modifiers="Control" Key="C" Command="Copy" CommandParameter="Strings" />
+            <KeyBinding Modifiers="Control" Key="C" Command="{Binding CopyStringsCommand}" />
         </DataGrid.InputBindings>
 
         <DataGrid.Columns>
             <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Wasted Bytes" Binding="{Binding WastedBytes, StringFormat=n0}" SortDirection="Descending" />
-            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Count" Binding="{Binding Count, StringFormat=n0}" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Count"  Binding="{Binding Count, StringFormat=n0}" />
             <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Length" Binding="{Binding Length, StringFormat=n0}" />
-            <DataGridTextColumn Width="*"    ElementStyle="{StaticResource StringStyle}" Header="String" Binding="{Binding FirstLine}" />
+            <DataGridTextColumn Width="*"    ElementStyle="{StaticResource StringStyle}"    Header="String" Binding="{Binding FirstLine}" />
         </DataGrid.Columns>
 
         <DataGrid.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="Copy string(s)" Command="Copy" CommandParameter="Strings" InputGestureText="Ctrl+C" />
-                <MenuItem Header="Copy CSV"       Command="Copy" CommandParameter="CSV" InputGestureText="" />
-                <MenuItem Header="Copy Markdown"  Command="Copy" CommandParameter="Markdown" InputGestureText="" />
+                <MenuItem Header="Copy string(s)" Command="{Binding CopyStringsCommand}" InputGestureText="Ctrl+C" />
+                <MenuItem Header="Copy CSV"       Command="{Binding CopyCsvCommand}" />
+                <MenuItem Header="Copy Markdown"  Command="{Binding CopyMarkdownCommand}" />
             </ContextMenu>
         </DataGrid.ContextMenu>
 

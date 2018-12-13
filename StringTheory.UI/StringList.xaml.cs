@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Input;
 
@@ -8,11 +6,11 @@ namespace StringTheory.UI
 {
     public sealed partial class StringList
     {
-        /// <summary>Identifies the <see cref="StringItems"/> dependency property.</summary>
-        public static readonly DependencyProperty StringItemsProperty = DependencyProperty.Register(
-            nameof(StringItems),
-            typeof(IEnumerable<StringItem>),
-            typeof(StringList));
+        public static readonly DependencyProperty StringItemsProperty          = DependencyProperty.Register(nameof(StringItems),          typeof(IEnumerable<StringItem>), typeof(StringList));
+        public static readonly DependencyProperty CopyStringsCommandProperty   = DependencyProperty.Register(nameof(CopyStringsCommand),   typeof(ICommand), typeof(StringList));
+        public static readonly DependencyProperty CopyCsvCommandProperty       = DependencyProperty.Register(nameof(CopyCsvCommand),       typeof(ICommand), typeof(StringList));
+        public static readonly DependencyProperty CopyMarkdownCommandProperty  = DependencyProperty.Register(nameof(CopyMarkdownCommand),  typeof(ICommand), typeof(StringList));
+        public static readonly DependencyProperty ShowReferrersCommandProperty = DependencyProperty.Register(nameof(ShowReferrersCommand), typeof(ICommand), typeof(StringList));
 
         public StringList()
         {
@@ -25,52 +23,28 @@ namespace StringTheory.UI
             set => SetValue(StringItemsProperty, value);
         }
 
-        private void OnCopyExecuted(object sender, ExecutedRoutedEventArgs e)
+        public ICommand CopyStringsCommand
         {
-            var sb = new StringBuilder();
+            get { return (ICommand) GetValue(CopyStringsCommandProperty); }
+            set { SetValue(CopyStringsCommandProperty, value); }
+        }
 
-            switch (e.Parameter)
-            {
-                case "Strings":
-                    foreach (StringItem item in _grid.SelectedItems)
-                    {
-                        sb.AppendLine(item.Content);
-                    }
-                    break;
-                case "CSV":
-                    sb.AppendLine("WastedBytes,Count,Length,String");
-                    foreach (StringItem item in _grid.SelectedItems)
-                    {
-                        sb.Append(item.WastedBytes).Append(',');
-                        sb.Append(item.Count).Append(',');
-                        sb.Append(item.Length).Append(',');
-                        sb.Append(item.Content).AppendLine();
-                    }
-                    break;
-                case "Markdown":
-                    sb.AppendLine("| WastedBytes | Count | Length | String |");
-                    sb.AppendLine("|------------:|------:|-------:|--------|");
-                    foreach (StringItem item in _grid.SelectedItems)
-                    {
-                        sb.Append("| ");
-                        sb.Append(item.WastedBytes.ToString("n0")).Append(" | ");
-                        sb.Append(item.Count.ToString("n0")).Append(" | ");
-                        sb.Append(item.Length.ToString("n0")).Append(" | ");
-                        sb.Append(item.Content).AppendLine(" |");
-                    }
-                    break;
-            }
+        public ICommand CopyCsvCommand
+        {
+            get { return (ICommand) GetValue(CopyCsvCommandProperty); }
+            set { SetValue(CopyCsvCommandProperty, value); }
+        }
 
-            try
-            {
-                Clipboard.SetText(sb.ToString());
+        public ICommand CopyMarkdownCommand
+        {
+            get { return (ICommand) GetValue(CopyMarkdownCommandProperty); }
+            set { SetValue(CopyMarkdownCommandProperty, value); }
+        }
 
-                e.Handled = true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Unable to set clipboard text: " + ex.Message);
-            }
+        public ICommand ShowReferrersCommand
+        {
+            get { return (ICommand) GetValue(ShowReferrersCommandProperty); }
+            set { SetValue(ShowReferrersCommandProperty, value); }
         }
     }
 }
