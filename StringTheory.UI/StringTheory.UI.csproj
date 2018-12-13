@@ -52,6 +52,7 @@
     </ApplicationDefinition>
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="HeapAnalyzer.cs" />
+    <Compile Include="PercentageConverter.cs" />
     <Compile Include="StringItem.cs" />
     <Compile Include="StringList.xaml.cs">
       <DependentUpon>StringList.xaml</DependentUpon>
