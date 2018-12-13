@@ -33,21 +33,22 @@
         VerticalGridLinesBrush="Transparent"
         HorizontalGridLinesBrush="Transparent"
         RowBackground="White"
-        AlternatingRowBackground="AliceBlue">
+        AlternatingRowBackground="AliceBlue"
+        local:DataGridExtensions.SortDesc="True">
 
         <DataGrid.InputBindings>
             <KeyBinding Modifiers="Control" Key="C" Command="{Binding CopyStringsCommand}" />
         </DataGrid.InputBindings>
 
         <DataGrid.Columns>
-            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Wasted Bytes" Binding="{Binding WastedBytes, StringFormat=n0}" SortDirection="Descending" />
-            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Count"  Binding="{Binding Count, StringFormat=n0}" />
-            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Length" Binding="{Binding Length, StringFormat=n0}" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Wasted Bytes" Binding="{Binding WastedBytes, StringFormat=n0}" SortDirection="Descending" local:DataGridExtensions.SortDesc="True" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Count"  Binding="{Binding Count, StringFormat=n0}"  local:DataGridExtensions.SortDesc="True" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Length" Binding="{Binding Length, StringFormat=n0}" local:DataGridExtensions.SortDesc="True" />
             <DataGridTextColumn Width="*"    ElementStyle="{StaticResource StringStyle}"    Header="String" Binding="{Binding FirstLine}" />
-            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen0%"  Binding="{Binding Gen0Percent, Converter={StaticResource PercentageConverter}}" />
-            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen1%"  Binding="{Binding Gen1Percent, Converter={StaticResource PercentageConverter}}" />
-            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen2%"  Binding="{Binding Gen2Percent, Converter={StaticResource PercentageConverter}}" />
-            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="LOH%"   Binding="{Binding LohPercent,  Converter={StaticResource PercentageConverter}}" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen0%"  Binding="{Binding Gen0Percent, Converter={StaticResource PercentageConverter}}" local:DataGridExtensions.SortDesc="True" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen1%"  Binding="{Binding Gen1Percent, Converter={StaticResource PercentageConverter}}" local:DataGridExtensions.SortDesc="True" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen2%"  Binding="{Binding Gen2Percent, Converter={StaticResource PercentageConverter}}" local:DataGridExtensions.SortDesc="True" />
+            <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="LOH%"   Binding="{Binding LohPercent,  Converter={StaticResource PercentageConverter}}" local:DataGridExtensions.SortDesc="True" />
         </DataGrid.Columns>
 
         <DataGrid.ContextMenu>

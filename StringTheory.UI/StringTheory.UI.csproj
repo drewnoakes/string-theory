@@ -51,6 +51,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="DataGridExtensions.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="HeapAnalyzer.cs" />
     <Compile Include="PercentageConverter.cs" />
