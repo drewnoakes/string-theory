@@ -42,6 +42,9 @@ namespace StringTheory.UI
 
                     StringItems = summary.Strings;
                     OnPropertyChanged(nameof(StringItems));
+
+                    SelectedTabIndex = 1;
+                    OnPropertyChanged(nameof(SelectedTabIndex));
                 }
             }
 
@@ -112,6 +115,8 @@ namespace StringTheory.UI
         public ICommand CopyCsvCommand { get; }
         public ICommand CopyMarkdownCommand { get; }
         public IEnumerable<StringItem> StringItems { get; private set; }
+
+        public int SelectedTabIndex { get; set; }
 
         #region INotifyPropertyChanged
 

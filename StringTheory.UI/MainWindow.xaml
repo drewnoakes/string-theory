@@ -10,7 +10,7 @@
         Width="800"
         d:DataContext="{d:DesignInstance local:MainWindow}">
 
-    <TabControl>
+    <TabControl SelectedIndex="{Binding SelectedTabIndex}">
 
         <TabItem Header="Open">
             <Button Content="Open dump..." Command="{Binding OpenDumpCommand}" />
