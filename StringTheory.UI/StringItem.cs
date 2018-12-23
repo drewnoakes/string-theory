@@ -10,6 +10,7 @@ namespace StringTheory.UI
         public uint Count { get; }
         public uint Length { get; }
         public ulong InstanceSize { get; }
+        public List<ulong> ValueAddresses { get; }
         public ulong[] CountBySegmentType { get; }
         public ulong[] CountByGeneration { get; } // offset by zero so -1 becomes 0
 
@@ -26,6 +27,7 @@ namespace StringTheory.UI
             Count = count;
             Length = length;
             InstanceSize = instanceSize;
+            ValueAddresses = valueAddresses;
             CountBySegmentType = countBySegmentType;
             CountByGeneration = countByGeneration;
 

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
@@ -13,9 +14,13 @@ namespace StringTheory.UI
 {
     public sealed partial class MainWindow : INotifyPropertyChanged
     {
+        private string _dumpFilePath;
+        private HeapAnalyzer _analyzer;
+
         public MainWindow()
         {
             OpenDumpCommand      = new DelegateCommand(OpenDump);
+            ShowReferrersCommand = new DelegateCommand<IList>(ShowReferrers);
             CopyStringsCommand   = new DelegateCommand<IList>(CopyStrings);
             CopyCsvCommand       = new DelegateCommand<IList>(CopyCsv);
             CopyMarkdownCommand  = new DelegateCommand<IList>(CopyMarkdown);
@@ -36,9 +41,13 @@ namespace StringTheory.UI
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    var file = openFileDialog.FileName;
+                    _dumpFilePath = openFileDialog.FileName;
 
-                    var summary = HeapAnalyzer.GetStringSummary(file);
+                    _analyzer?.Dispose();
+
+                    _analyzer = new HeapAnalyzer(_dumpFilePath);
+
+                    var summary = _analyzer.GetStringSummary();
 
                     StringItems = summary.Strings;
                     OnPropertyChanged(nameof(StringItems));
@@ -46,6 +55,11 @@ namespace StringTheory.UI
                     SelectedTabIndex = 1;
                     OnPropertyChanged(nameof(SelectedTabIndex));
                 }
+            }
+
+            void ShowReferrers(IList selectedItems)
+            {
+                var tree = _analyzer.GetReferenceTree(new HashSet<ulong>(selectedItems.Cast<StringItem>().SelectMany(i => i.ValueAddresses)));
             }
 
             void CopyStrings(IList selectedItems)
