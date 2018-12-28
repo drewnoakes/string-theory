@@ -149,13 +149,11 @@ namespace StringTheory.UI
 
         private sealed class HeapWalkStack
         {
-            private readonly ClrHeap _heap;
             private HeapWalkStackLevel[] _levels;
             private int _last = -1;
 
             public HeapWalkStack(ClrHeap heap, int capacity = 128)
             {
-                _heap = heap;
                 _levels = new HeapWalkStackLevel[capacity];
             }
 

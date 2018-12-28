@@ -8,13 +8,11 @@ namespace StringTheory.UI
 {
     public sealed class HeapAnalyzer : IDisposable
     {
-        private readonly string _dumpFilePath;
         private readonly DataTarget _dataTarget;
         private readonly ClrHeap _heap;
 
         public HeapAnalyzer(string dumpFilePath)
         {
-            _dumpFilePath = dumpFilePath;
             _dataTarget = DataTarget.LoadCrashDump(dumpFilePath);
 
             _heap = _dataTarget.ClrVersions.First().CreateRuntime().Heap;
