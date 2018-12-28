@@ -59,6 +59,7 @@
     <Compile Include="ReferrerTree.xaml.cs">
       <DependentUpon>ReferrerTree.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ReferrerTreeViewModel.cs" />
     <Compile Include="StringItem.cs" />
     <Compile Include="StringList.xaml.cs">
       <DependentUpon>StringList.xaml</DependentUpon>
