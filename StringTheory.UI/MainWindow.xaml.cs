@@ -14,7 +14,6 @@ namespace StringTheory.UI
 {
     public sealed partial class MainWindow : INotifyPropertyChanged
     {
-        private string _dumpFilePath;
         private HeapAnalyzer _analyzer;
 
         public MainWindow()
@@ -41,13 +40,13 @@ namespace StringTheory.UI
 
                 if (openFileDialog.ShowDialog() == true)
                 {
-                    _dumpFilePath = openFileDialog.FileName;
+                    var dumpFilePath = openFileDialog.FileName;
 
-                    Title = $"String Theory - {_dumpFilePath}";
+                    SetCurrentValue(TitleProperty, $"String Theory - {dumpFilePath}");
 
                     _analyzer?.Dispose();
 
-                    _analyzer = new HeapAnalyzer(_dumpFilePath);
+                    _analyzer = new HeapAnalyzer(dumpFilePath);
 
                     var summary = _analyzer.GetStringSummary();
 
