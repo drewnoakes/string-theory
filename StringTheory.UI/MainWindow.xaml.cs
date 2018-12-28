@@ -43,20 +43,25 @@ namespace StringTheory.UI
                 {
                     var dumpFilePath = openFileDialog.FileName;
 
-                    SetCurrentValue(TitleProperty, $"String Theory - {dumpFilePath}");
-
-                    _analyzer?.Dispose();
-
-                    _analyzer = new HeapAnalyzer(dumpFilePath);
-
-                    var summary = _analyzer.GetStringSummary();
-
-                    StringItems = summary.Strings;
-                    OnPropertyChanged(nameof(StringItems));
-
-                    SelectedTabIndex = 1;
-                    OnPropertyChanged(nameof(SelectedTabIndex));
+                    OpenDumpFile(dumpFilePath);
                 }
+            }
+
+            void OpenDumpFile(string dumpFilePath)
+            {
+                SetCurrentValue(TitleProperty, $"String Theory - {dumpFilePath}");
+
+                _analyzer?.Dispose();
+
+                _analyzer = new HeapAnalyzer(dumpFilePath);
+
+                var summary = _analyzer.GetStringSummary();
+
+                StringItems = summary.Strings;
+                OnPropertyChanged(nameof(StringItems));
+
+                SelectedTabIndex = 1;
+                OnPropertyChanged(nameof(SelectedTabIndex));
             }
 
             void ShowReferrers(IList selectedItems)
