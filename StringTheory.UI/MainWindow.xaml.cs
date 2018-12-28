@@ -206,7 +206,6 @@ namespace StringTheory.UI
         public void Expand()
         {
             // Create child nodes by grouping backing items
-            // TODO order by count
             // TODO include counts in display
             // TODO display information about field ids
             // TODO insert levels for nested struct sub-fields
@@ -214,7 +213,7 @@ namespace StringTheory.UI
 
             Children.Clear();
 
-            var groups = _backingItems.SelectMany(i => i.Referrers).GroupBy(i => (type: i.node.Object.Type, i.field));
+            var groups = _backingItems.SelectMany(i => i.Referrers).GroupBy(i => (type: i.node.Object.Type, i.field)).OrderByDescending(g => g.Count());
 
             foreach (var group in groups)
             {
