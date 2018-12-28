@@ -49,27 +49,36 @@ namespace StringTheory.UI
             // Create child nodes by grouping backing items
             // TODO display information about field ids
             // TODO insert levels for nested struct sub-fields
+            // TODO don't add placeholder child then clear it during auto expand construction (unless logic becomes ugly)
 
-            Children.Clear();
+            var node = this;
 
-            var groups = _backingItems
-                .SelectMany(i => i.Referrers)
-                .GroupBy(i => (type: i.node.Object.Type, i.field))
-                .OrderByDescending(g => g.Count());
-
-            foreach (var group in groups)
+            while (true)
             {
-                var backingItems = group.Select(i => i.node).ToList();
-                var title = $"{group.Key.type?.Name} ({group.Key.field})";
+                node.Children.Clear();
+                node.IsExpanded = true;
 
-                Children.Add(new ReferrerTreeNode(backingItems, title));
-            }
+                var groups = node._backingItems
+                    .SelectMany(i => i.Referrers)
+                    .GroupBy(i => (type: i.node.Object.Type, i.field))
+                    .OrderByDescending(g => g.Count());
 
-            if (Children.Count == 1)
-            {
-                // TODO do this without risk of stack overflow
-                ((ReferrerTreeNode)Children[0]).Expand();
-                IsExpanded = true;
+                foreach (var group in groups)
+                {
+                    var backingItems = group.Select(i => i.node).ToList();
+                    var title = $"{group.Key.type?.Name} ({group.Key.field})";
+
+                    node.Children.Add(new ReferrerTreeNode(backingItems, title));
+                }
+
+                if (node.Children.Count == 1)
+                {
+                    node = (ReferrerTreeNode)node.Children[0];
+                }
+                else
+                {
+                    break;
+                }
             }
         }
     }
