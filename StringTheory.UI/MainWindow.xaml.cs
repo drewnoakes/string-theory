@@ -129,6 +129,7 @@ namespace StringTheory.UI
         public ICommand CopyStringsCommand { get; }
         public ICommand CopyCsvCommand { get; }
         public ICommand CopyMarkdownCommand { get; }
+
         public IEnumerable<StringItem> StringItems { get; private set; }
 
         public int SelectedTabIndex { get; set; }

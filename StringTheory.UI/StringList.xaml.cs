@@ -25,26 +25,26 @@ namespace StringTheory.UI
 
         public ICommand CopyStringsCommand
         {
-            get { return (ICommand) GetValue(CopyStringsCommandProperty); }
-            set { SetValue(CopyStringsCommandProperty, value); }
+            get => (ICommand) GetValue(CopyStringsCommandProperty);
+            set => SetValue(CopyStringsCommandProperty, value);
         }
 
         public ICommand CopyCsvCommand
         {
-            get { return (ICommand) GetValue(CopyCsvCommandProperty); }
-            set { SetValue(CopyCsvCommandProperty, value); }
+            get => (ICommand) GetValue(CopyCsvCommandProperty);
+            set => SetValue(CopyCsvCommandProperty, value);
         }
 
         public ICommand CopyMarkdownCommand
         {
-            get { return (ICommand) GetValue(CopyMarkdownCommandProperty); }
-            set { SetValue(CopyMarkdownCommandProperty, value); }
+            get => (ICommand) GetValue(CopyMarkdownCommandProperty);
+            set => SetValue(CopyMarkdownCommandProperty, value);
         }
 
         public ICommand ShowReferrersCommand
         {
-            get { return (ICommand) GetValue(ShowReferrersCommandProperty); }
-            set { SetValue(ShowReferrersCommandProperty, value); }
+            get => (ICommand) GetValue(ShowReferrersCommandProperty);
+            set => SetValue(ShowReferrersCommandProperty, value);
         }
     }
 }
