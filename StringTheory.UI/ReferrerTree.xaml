@@ -21,6 +21,14 @@
 
     <TreeView
         ItemsSource="{Binding ReferrerTree.Roots}"
-        TreeViewItem.Expanded="OnItemExpanded" />
+        TreeViewItem.Expanded="OnItemExpanded">
+        
+        <TreeView.ItemContainerStyle>
+            <Style TargetType="TreeViewItem">
+                <Setter Property="IsExpanded" Value="{Binding (local:ReferrerTreeNode.IsExpanded)}" />
+            </Style>
+        </TreeView.ItemContainerStyle>
+
+    </TreeView>
 
 </UserControl>

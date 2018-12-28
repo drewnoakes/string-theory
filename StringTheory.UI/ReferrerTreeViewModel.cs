@@ -38,12 +38,13 @@ namespace StringTheory.UI
 
         public int Count => _backingItems.Count;
 
+        public bool IsExpanded { get; set; }
+
         public void Expand()
         {
             // Create child nodes by grouping backing items
             // TODO display information about field ids
             // TODO insert levels for nested struct sub-fields
-            // TODO auto expand where single child exists
 
             Children.Clear();
 
@@ -58,6 +59,13 @@ namespace StringTheory.UI
                 var title = $"{group.Key.type?.Name} ({group.Key.field})";
 
                 Children.Add(new ReferrerTreeNode(backingItems, title));
+            }
+
+            if (Children.Count == 1)
+            {
+                // TODO do this without risk of stack overflow
+                ((ReferrerTreeNode)Children[0]).Expand();
+                IsExpanded = true;
             }
         }
     }
