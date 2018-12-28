@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -60,7 +61,30 @@ namespace StringTheory.UI
 
             void ShowReferrers(IList selectedItems)
             {
-                var tree = _analyzer.GetReferenceTree(new HashSet<ulong>(selectedItems.Cast<StringItem>().SelectMany(i => i.ValueAddresses)));
+                var stringItems = selectedItems.Cast<StringItem>().ToList();
+
+                if (stringItems.Count == 0)
+                {
+                    MessageBox.Show("Must select a string.");
+                    return;
+                }
+
+                if (stringItems.Count != 1)
+                {
+                    // TODO support multiple
+                    MessageBox.Show("Can only show referrers of a single string at a time.");
+                    return;
+                }
+
+                var stringItem = stringItems.Single();
+
+                var tree = _analyzer.GetReferenceTree(new HashSet<ulong>(stringItem.ValueAddresses));
+
+                ReferrerTree = new ReferrerTreeViewModel(tree, stringItem.Content);
+                OnPropertyChanged(nameof(ReferrerTree));
+
+                SelectedTabIndex = 2;
+                OnPropertyChanged(nameof(SelectedTabIndex));
             }
 
             void CopyStrings(IList selectedItems)
@@ -131,6 +155,7 @@ namespace StringTheory.UI
         public ICommand CopyMarkdownCommand { get; }
 
         public IEnumerable<StringItem> StringItems { get; private set; }
+        public ReferrerTreeViewModel ReferrerTree { get; private set; }
 
         public int SelectedTabIndex { get; set; }
 
@@ -144,5 +169,57 @@ namespace StringTheory.UI
         }
 
         #endregion
+    }
+
+    public sealed class ReferrerTreeViewModel
+    {
+        public string TargetString { get; }
+        public IReadOnlyList<ReferrerNode> Roots { get; }
+
+        public ReferrerTreeViewModel(ReferenceTree tree, string targetString)
+        {
+            TargetString = targetString;
+            Roots = new[] { new ReferrerNode(tree.TargetSet, targetString) };
+        }
+    }
+
+    public sealed class ReferrerNode
+    {
+        private static readonly object _placeholderChild = new object();
+
+        private readonly IReadOnlyList<ReferenceTreeNode> _backingItems;
+
+        public ObservableCollection<object> Children { get; } = new ObservableCollection<object>();
+        public string Title { get; }
+
+        public ReferrerNode(IReadOnlyList<ReferenceTreeNode> backingItems, string title)
+        {
+            Title = title;
+            _backingItems = backingItems;
+
+            if (_backingItems.Count != 0)
+            {
+                Children.Add(_placeholderChild);
+            }
+        }
+
+        public void Expand()
+        {
+            // Create child nodes by grouping backing items
+            // TODO order by count
+            // TODO include counts in display
+            // TODO display information about field ids
+            // TODO insert levels for nested struct sub-fields
+            // TODO auto expand where single child exists
+
+            Children.Clear();
+
+            var groups = _backingItems.SelectMany(i => i.Referrers).GroupBy(i => (type: i.node.Object.Type, i.field));
+
+            foreach (var group in groups)
+            {
+                Children.Add(new ReferrerNode(group.Select(i => i.node).ToList(), $"{group.Key.type?.Name} ({group.Key.field})"));
+            }
+        }
     }
 }

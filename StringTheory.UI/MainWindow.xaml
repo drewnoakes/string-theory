@@ -26,6 +26,10 @@
                 />
         </TabItem>
 
+        <TabItem Header="Referrers" Visibility="{Binding ReferrerTree, Converter={x:Static local:CollapsedIfNullConverter.Default}}">
+            <local:ReferrerTree Tree="{Binding ReferrerTree}" />
+        </TabItem>
+
     </TabControl>
 
 </Window>

@@ -56,6 +56,9 @@
     <Compile Include="HeapAnalyzer.cs" />
     <Compile Include="Converters.cs" />
     <Compile Include="ReferenceTree.cs" />
+    <Compile Include="ReferrerTree.xaml.cs">
+      <DependentUpon>ReferrerTree.xaml</DependentUpon>
+    </Compile>
     <Compile Include="StringItem.cs" />
     <Compile Include="StringList.xaml.cs">
       <DependentUpon>StringList.xaml</DependentUpon>
@@ -73,6 +76,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ReferrerTree.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="StringList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
