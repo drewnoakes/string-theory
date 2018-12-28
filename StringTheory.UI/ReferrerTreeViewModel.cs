@@ -12,7 +12,11 @@ namespace StringTheory.UI
         public ReferrerTreeViewModel(ReferenceGraph graph, string targetString)
         {
             TargetString = targetString;
-            Roots = new[] { new ReferrerTreeNode(graph.TargetSet, targetString) };
+            var rootNode = new ReferrerTreeNode(graph.TargetSet, targetString);
+
+            rootNode.Expand();
+
+            Roots = new[] { rootNode };
         }
     }
 
