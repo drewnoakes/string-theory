@@ -233,4 +233,5 @@ namespace StringTheory.UI
         public List<(ReferenceGraphNode node, int field)> Referrers { get; } = new List<(ReferenceGraphNode node, int field)>(2);
 
         public override string ToString() => Object.ToString();
-    }}
+    }
+}
