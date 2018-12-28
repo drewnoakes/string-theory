@@ -17,12 +17,12 @@ namespace StringTheory.UI
                 return ((int) (d * 100)).ToString();
             }
 
-            return DependencyProperty.UnsetValue;
+            return Binding.DoNothing;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return DependencyProperty.UnsetValue;
+            return Binding.DoNothing;
         }
     }
 }
