@@ -213,11 +213,17 @@ namespace StringTheory.UI
 
             Children.Clear();
 
-            var groups = _backingItems.SelectMany(i => i.Referrers).GroupBy(i => (type: i.node.Object.Type, i.field)).OrderByDescending(g => g.Count());
+            var groups = _backingItems
+                .SelectMany(i => i.Referrers)
+                .GroupBy(i => (type: i.node.Object.Type, i.field))
+                .OrderByDescending(g => g.Count());
 
             foreach (var group in groups)
             {
-                Children.Add(new ReferrerTreeNode(group.Select(i => i.node).ToList(), $"{group.Key.type?.Name} ({group.Key.field})"));
+                var backingItems = @group.Select(i => i.node).ToList();
+                var title = $"{@group.Key.type?.Name} ({@group.Key.field})";
+
+                Children.Add(new ReferrerTreeNode(backingItems, title));
             }
         }
     }
