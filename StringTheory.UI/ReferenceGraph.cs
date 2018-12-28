@@ -7,17 +7,17 @@ using Microsoft.Diagnostics.Runtime.Desktop;
 
 namespace StringTheory.UI
 {
-    public static class ReferenceTreeBuilder
+    public static class ReferenceGraphBuilder
     {
-        public static ReferenceTree Build(ClrHeap heap, HashSet<ulong> targetAddresses, CancellationToken token = default)
+        public static ReferenceGraph Build(ClrHeap heap, HashSet<ulong> targetAddresses, CancellationToken token = default)
         {
-            var tree = new ReferenceTree();
+            var graph = new ReferenceGraph();
 
             var seen = new ObjectSet(heap);
 
             var stack = new HeapWalkStack(heap);
 
-            var nodeByAddress = new Dictionary<ulong, ReferenceTreeNode>();
+            var nodeByAddress = new Dictionary<ulong, ReferenceGraphNode>();
 
             // For each root
             foreach (var root in Roots())
@@ -47,44 +47,44 @@ namespace StringTheory.UI
                             // Found a match
                             stack.Push(o);
 
-                            // Ensure our stack's root is registered with the tree
+                            // Ensure our stack's root is registered with the graph
                             ref var rootLevel = ref stack[0];
-                            if (rootLevel.TreeNode == null)
+                            if (rootLevel.GraphNode == null)
                             {
                                 var rootNode = new Root(root);
                                 nodeByAddress[root.Object] = rootNode;
-                                rootLevel.TreeNode = rootNode;
-                                tree.Roots.Add(rootNode);
+                                rootLevel.GraphNode = rootNode;
+                                graph.Roots.Add(rootNode);
                             }
 
-                            // Build path through tree for the current stack
+                            // Build path through graph for the current stack
                             // Skip the first node as it's always non-null
                             for (var i = 1; i < stack.Count; i++)
                             {
                                 ref var level = ref stack[i];
 
-                                // Ensure all levels have a tree node object
-                                if (level.TreeNode == null)
+                                // Ensure all levels have a graph node object
+                                if (level.GraphNode == null)
                                 {
                                     if (!nodeByAddress.TryGetValue(level.Reference.Address, out var node))
                                     {
-                                        node = new ReferenceTreeNode(level.Reference.Object);
+                                        node = new ReferenceGraphNode(level.Reference.Object);
                                         nodeByAddress[level.Reference.Address] = node;
 
                                         if (i == stack.Count - 1)
                                         {
-                                            tree.TargetSet.Add(node);
+                                            graph.TargetSet.Add(node);
                                         }
                                     }
 
-                                    level.TreeNode = node;
+                                    level.GraphNode = node;
                                     
                                     ref var levelBefore = ref stack[i - 1];
 
                                     // TODO build/cache/register field chain for each reference
 
-                                    level.TreeNode.Referrers.Add((node: levelBefore.TreeNode, field: level.Reference.FieldOffset));
-                                    levelBefore.TreeNode.References.Add((node: level.TreeNode, field: level.Reference.FieldOffset));
+                                    level.GraphNode.Referrers.Add((node: levelBefore.GraphNode, field: level.Reference.FieldOffset));
+                                    levelBefore.GraphNode.References.Add((node: level.GraphNode, field: level.Reference.FieldOffset));
                                 }
                             }
 
@@ -106,7 +106,7 @@ namespace StringTheory.UI
                 }
             }
 
-            return tree;
+            return graph;
 
             IEnumerable<ClrRoot> Roots()
             {
@@ -144,7 +144,7 @@ namespace StringTheory.UI
         {
             public ClrObjectReference Reference { get; set; }
             public IEnumerator<ClrObjectReference> Enumerator { get; set; }
-            public ReferenceTreeNode TreeNode { get; set; }
+            public ReferenceGraphNode GraphNode { get; set; }
         }
 
         private sealed class HeapWalkStack
@@ -175,7 +175,7 @@ namespace StringTheory.UI
                 level.Reference = o;
                 // TODO avoid allocation of enumerator?
                 level.Enumerator = o.Type.EnumerateObjectReferencesWithFields(o.Address, carefully: true).GetEnumerator();
-                level.TreeNode = null;
+                level.GraphNode = null;
             }
 
             public int Count => _last + 1;
@@ -203,13 +203,13 @@ namespace StringTheory.UI
         }
     }
 
-    public sealed class ReferenceTree
+    public sealed class ReferenceGraph
     {
         public List<Root> Roots { get; } = new List<Root>();
-        public List<ReferenceTreeNode> TargetSet { get; } = new List<ReferenceTreeNode>();
+        public List<ReferenceGraphNode> TargetSet { get; } = new List<ReferenceGraphNode>();
     }
 
-    public sealed class Root : ReferenceTreeNode
+    public sealed class Root : ReferenceGraphNode
     {
         public ClrRoot ClrRoot { get; }
 
@@ -221,18 +221,18 @@ namespace StringTheory.UI
     }
 
     [DebuggerDisplay("{ToString()}")]
-    public class ReferenceTreeNode
+    public class ReferenceGraphNode
     {
 //        public int Count { get; }
         public ClrObject Object { get; }
 
-        public ReferenceTreeNode(ClrObject o)
+        public ReferenceGraphNode(ClrObject o)
         {
             Object = o;
         }
 
-        public List<(ReferenceTreeNode node, int field)> References { get; } = new List<(ReferenceTreeNode node, int field)>(2);
-        public List<(ReferenceTreeNode node, int field)> Referrers { get; } = new List<(ReferenceTreeNode node, int field)>(2);
+        public List<(ReferenceGraphNode node, int field)> References { get; } = new List<(ReferenceGraphNode node, int field)>(2);
+        public List<(ReferenceGraphNode node, int field)> Referrers { get; } = new List<(ReferenceGraphNode node, int field)>(2);
 
         public override string ToString() => Object.ToString();
     }}

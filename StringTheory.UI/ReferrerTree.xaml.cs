@@ -22,7 +22,7 @@ namespace StringTheory.UI
         {
             var item = (TreeViewItem)e.OriginalSource;
 
-            var node = (ReferrerNode)item.DataContext;
+            var node = (ReferrerTreeNode)item.DataContext;
 
             node.Expand();
         }

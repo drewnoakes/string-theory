@@ -78,9 +78,9 @@ namespace StringTheory.UI
 
                 var stringItem = stringItems.Single();
 
-                var tree = _analyzer.GetReferenceTree(new HashSet<ulong>(stringItem.ValueAddresses));
+                var graph = _analyzer.GetReferenceGraph(new HashSet<ulong>(stringItem.ValueAddresses));
 
-                ReferrerTree = new ReferrerTreeViewModel(tree, stringItem.Content);
+                ReferrerTree = new ReferrerTreeViewModel(graph, stringItem.Content);
                 OnPropertyChanged(nameof(ReferrerTree));
 
                 SelectedTabIndex = 2;
@@ -174,25 +174,25 @@ namespace StringTheory.UI
     public sealed class ReferrerTreeViewModel
     {
         public string TargetString { get; }
-        public IReadOnlyList<ReferrerNode> Roots { get; }
+        public IReadOnlyList<ReferrerTreeNode> Roots { get; }
 
-        public ReferrerTreeViewModel(ReferenceTree tree, string targetString)
+        public ReferrerTreeViewModel(ReferenceGraph graph, string targetString)
         {
             TargetString = targetString;
-            Roots = new[] { new ReferrerNode(tree.TargetSet, targetString) };
+            Roots = new[] { new ReferrerTreeNode(graph.TargetSet, targetString) };
         }
     }
 
-    public sealed class ReferrerNode
+    public sealed class ReferrerTreeNode
     {
         private static readonly object _placeholderChild = new object();
 
-        private readonly IReadOnlyList<ReferenceTreeNode> _backingItems;
+        private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
 
         public ObservableCollection<object> Children { get; } = new ObservableCollection<object>();
         public string Title { get; }
 
-        public ReferrerNode(IReadOnlyList<ReferenceTreeNode> backingItems, string title)
+        public ReferrerTreeNode(IReadOnlyList<ReferenceGraphNode> backingItems, string title)
         {
             Title = title;
             _backingItems = backingItems;
@@ -218,7 +218,7 @@ namespace StringTheory.UI
 
             foreach (var group in groups)
             {
-                Children.Add(new ReferrerNode(group.Select(i => i.node).ToList(), $"{group.Key.type?.Name} ({group.Key.field})"));
+                Children.Add(new ReferrerTreeNode(group.Select(i => i.node).ToList(), $"{group.Key.type?.Name} ({group.Key.field})"));
             }
         }
     }

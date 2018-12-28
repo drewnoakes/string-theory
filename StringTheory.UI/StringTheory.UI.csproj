@@ -55,7 +55,7 @@
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="HeapAnalyzer.cs" />
     <Compile Include="Converters.cs" />
-    <Compile Include="ReferenceTree.cs" />
+    <Compile Include="ReferenceGraph.cs" />
     <Compile Include="ReferrerTree.xaml.cs">
       <DependentUpon>ReferrerTree.xaml</DependentUpon>
     </Compile>

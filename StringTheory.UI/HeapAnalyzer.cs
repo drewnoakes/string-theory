@@ -132,9 +132,9 @@ namespace StringTheory.UI
             _dataTarget?.Dispose();
         }
 
-        public ReferenceTree GetReferenceTree(HashSet<ulong> targetAddresses, CancellationToken token = default)
+        public ReferenceGraph GetReferenceGraph(HashSet<ulong> targetAddresses, CancellationToken token = default)
         {
-            return ReferenceTreeBuilder.Build(_heap, targetAddresses, token);
+            return ReferenceGraphBuilder.Build(_heap, targetAddresses, token);
         }
     }
 }

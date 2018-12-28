@@ -10,7 +10,7 @@
 
     <UserControl.Resources>
 
-        <HierarchicalDataTemplate DataType="{x:Type local:ReferrerNode}" ItemsSource="{Binding Children}">
+        <HierarchicalDataTemplate DataType="{x:Type local:ReferrerTreeNode}" ItemsSource="{Binding Children}">
             <TextBlock Text="{Binding Title}" />
         </HierarchicalDataTemplate>
 
