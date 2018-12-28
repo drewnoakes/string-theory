@@ -11,7 +11,10 @@
     <UserControl.Resources>
 
         <HierarchicalDataTemplate DataType="{x:Type local:ReferrerTreeNode}" ItemsSource="{Binding Children}">
-            <TextBlock Text="{Binding Title}" />
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding Count}" Foreground="#888888" Margin="0,0,6,0" />
+                <TextBlock Text="{Binding Title}" />
+            </StackPanel>
         </HierarchicalDataTemplate>
 
     </UserControl.Resources>

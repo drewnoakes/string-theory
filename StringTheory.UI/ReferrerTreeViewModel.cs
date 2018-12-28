@@ -36,10 +36,11 @@ namespace StringTheory.UI
             }
         }
 
+        public int Count => _backingItems.Count;
+
         public void Expand()
         {
             // Create child nodes by grouping backing items
-            // TODO include counts in display
             // TODO display information about field ids
             // TODO insert levels for nested struct sub-fields
             // TODO auto expand where single child exists
