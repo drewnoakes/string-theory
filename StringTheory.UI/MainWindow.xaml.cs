@@ -43,6 +43,8 @@ namespace StringTheory.UI
                 {
                     _dumpFilePath = openFileDialog.FileName;
 
+                    Title = $"String Theory - {_dumpFilePath}";
+
                     _analyzer?.Dispose();
 
                     _analyzer = new HeapAnalyzer(_dumpFilePath);
