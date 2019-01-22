@@ -52,7 +52,10 @@ namespace StringTheory.UI
 
             var node = this;
 
-            while (true)
+            // Limit the depth to which this can recur, defending against overflows here or in later arrange/layout
+            var remaining = 50;
+
+            while (remaining-- != 0)
             {
                 node.Children.Clear();
                 node.IsExpanded = true;
