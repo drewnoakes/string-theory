@@ -15,9 +15,11 @@ namespace StringTheory.UI
 
             var seen = new ObjectSet(heap);
 
-            var stack = new HeapWalkStack(heap);
+            var stack = new HeapWalkStack();
 
             var nodeByAddress = new Dictionary<ulong, ReferenceGraphNode>();
+
+            var chainCache = new Dictionary<(uint metadataToken, int fieldOffset), List<FieldReference>>();
 
             // For each root
             foreach (var root in Roots())
@@ -80,11 +82,11 @@ namespace StringTheory.UI
                                     level.GraphNode = node;
                                     
                                     ref var levelBefore = ref stack[i - 1];
+                                    
+                                    var fieldChain = GetChain(levelBefore.GraphNode.Object.Type, level.Reference);
 
-                                    // TODO build/cache/register field chain for each reference
-
-                                    level.GraphNode.Referrers.Add((node: levelBefore.GraphNode, field: level.Reference.FieldOffset));
-                                    levelBefore.GraphNode.References.Add((node: level.GraphNode, field: level.Reference.FieldOffset));
+                                    level.GraphNode.Referrers.Add((node: levelBefore.GraphNode, field: fieldChain));
+                                    levelBefore.GraphNode.References.Add((node: level.GraphNode, field: fieldChain));
                                 }
                             }
 
@@ -138,6 +140,42 @@ namespace StringTheory.UI
                     return new HandleRoot(handle.Address, handle.Object, handle.Type, handle.HandleType, kind, handle.AppDomain);
                 }
             }
+
+            List<FieldReference> GetChain(ClrType sourceType, in ClrObjectReference reference)
+            {
+                var key = (sourceType.MetadataToken, reference.FieldOffset);
+
+                if (!chainCache.TryGetValue(key, out var chain))
+                {
+                    chain = BuildChain(in reference);
+                    chainCache[key] = chain;
+                }
+
+                return chain;
+
+                List<FieldReference> BuildChain(in ClrObjectReference r)
+                {
+                    var list = new List<FieldReference>(1);
+                    var offset = r.FieldOffset;
+                    var type = sourceType;
+                    var inner = false;
+
+                    while (type.GetFieldForOffset(offset, inner, out var childField, out var childFieldOffset))
+                    {
+                        list.Add(new FieldReference(childField));
+
+                        // Only loop when digging through nested value types
+                        if (!childField.Type.IsValueClass)
+                            break;
+
+                        offset = childFieldOffset;
+                        type = childField.Type;
+                        inner = true;
+                    }
+
+                    return list;
+                }
+            }
         }
 
         private struct HeapWalkStackLevel
@@ -152,7 +190,7 @@ namespace StringTheory.UI
             private HeapWalkStackLevel[] _levels;
             private int _last = -1;
 
-            public HeapWalkStack(ClrHeap heap, int capacity = 128)
+            public HeapWalkStack(int capacity = 128)
             {
                 _levels = new HeapWalkStackLevel[capacity];
             }
@@ -172,7 +210,7 @@ namespace StringTheory.UI
                 ref var level = ref _levels[_last];
                 level.Reference = o;
                 // TODO avoid allocation of enumerator?
-                level.Enumerator = o.Type.EnumerateObjectReferencesWithFields(o.Address, carefully: true).GetEnumerator();
+                level.Enumerator = o.TargetType.EnumerateObjectReferencesWithFields(o.Address, carefully: true).GetEnumerator();
                 level.GraphNode = null;
             }
 
@@ -182,11 +220,7 @@ namespace StringTheory.UI
 
             public bool IsEmpty => _last == -1;
 
-            public ref HeapWalkStackLevel Peek()
-            {
-                // TODO validate
-                return ref _levels[_last];
-            }
+            public ref HeapWalkStackLevel Peek() => ref _levels[_last];
 
             public void Pop()
             {
@@ -199,6 +233,28 @@ namespace StringTheory.UI
                 _last = -1;
             }
         }
+    }
+
+    public readonly struct FieldReference
+    {
+        public FieldReference(ClrInstanceField field)
+        {
+            Name = field.Name;
+            Type = field.Type;
+        }
+
+        public string Name { get; }
+        public ClrType Type { get; }
+
+        #region Equality & hashing
+
+        public bool Equals(FieldReference other) => string.Equals(Name, other.Name) && Equals(Type, other.Type);
+
+        public override bool Equals(object obj) => obj is FieldReference other && Equals(other);
+
+        public override int GetHashCode() => unchecked((Name.GetHashCode()*397) ^ (Type?.GetHashCode() ?? 0));
+
+        #endregion
     }
 
     public sealed class ReferenceGraph
@@ -229,8 +285,10 @@ namespace StringTheory.UI
             Object = o;
         }
 
-        public List<(ReferenceGraphNode node, int field)> References { get; } = new List<(ReferenceGraphNode node, int field)>(2);
-        public List<(ReferenceGraphNode node, int field)> Referrers { get; } = new List<(ReferenceGraphNode node, int field)>(2);
+        // NOTE for referrers, the field reference list is backwards
+
+        public List<(ReferenceGraphNode node, List<FieldReference> field)> References { get; } = new List<(ReferenceGraphNode node, List<FieldReference> field)>(2);
+        public List<(ReferenceGraphNode node, List<FieldReference> field)> Referrers { get; } = new List<(ReferenceGraphNode node, List<FieldReference> field)>(2);
 
         public override string ToString() => Object.ToString();
     }

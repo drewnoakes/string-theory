@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 
 namespace StringTheory.UI
 {
@@ -47,8 +48,6 @@ namespace StringTheory.UI
         public void Expand()
         {
             // Create child nodes by grouping backing items
-            // TODO display information about field ids
-            // TODO insert levels for nested struct sub-fields
             // TODO don't add placeholder child then clear it during auto expand construction (unless logic becomes ugly)
 
             var node = this;
@@ -66,7 +65,7 @@ namespace StringTheory.UI
                 foreach (var group in groups)
                 {
                     var backingItems = group.Select(i => i.node).ToList();
-                    var title = $"{group.Key.type?.Name} ({group.Key.field})";
+                    var title = $"{group.Key.type?.Name} ({DescribeFieldReferences(group.Key.field)})";
 
                     node.Children.Add(new ReferrerTreeNode(backingItems, title));
                 }
@@ -79,6 +78,23 @@ namespace StringTheory.UI
                 {
                     break;
                 }
+            }
+
+            string DescribeFieldReferences(List<FieldReference> references)
+            {
+                var sb = new StringBuilder();
+
+                foreach (var reference in references)
+                {
+                    if (sb.Length != 0)
+                    {
+                        sb.Append('.');
+                    }
+
+                    sb.Append(reference.Name);
+                }
+
+                return sb.ToString();
             }
         }
     }
