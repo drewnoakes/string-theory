@@ -8,6 +8,7 @@
         Title="String Theory"
         Height="450"
         Width="800"
+        Icon="App.ico"
         d:DataContext="{d:DesignInstance local:MainWindow}">
 
     <TabControl SelectedIndex="{Binding SelectedTabIndex}">
