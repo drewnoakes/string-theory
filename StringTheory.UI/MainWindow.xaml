@@ -11,25 +11,40 @@
         Icon="App.ico"
         d:DataContext="{d:DesignInstance local:MainWindow}">
 
-    <TabControl SelectedIndex="{Binding SelectedTabIndex}">
+    <Window.Resources>
 
-        <TabItem Header="Open">
+        <DataTemplate DataType="{x:Type local:HomePage}">
             <Button Content="Open dump..." Command="{Binding OpenDumpCommand}" />
-        </TabItem>
+        </DataTemplate>
 
-        <TabItem Header="Strings">
+        <DataTemplate DataType="{x:Type local:StringListPage}">
             <local:StringList
                 StringItems="{Binding StringItems}"
                 CopyStringsCommand="{Binding CopyStringsCommand}"
                 CopyCsvCommand="{Binding CopyCsvCommand}"
                 CopyMarkdownCommand="{Binding CopyMarkdownCommand}"
-                ShowReferrersCommand="{Binding ShowReferrersCommand}"
-                />
-        </TabItem>
+                ShowReferrersCommand="{Binding ShowReferrersCommand}" />
+        </DataTemplate>
 
-        <TabItem Header="Referrers" Visibility="{Binding ReferrerTree, Converter={x:Static local:CollapsedIfNullConverter.Default}}">
+        <DataTemplate DataType="{x:Type local:ReferrersPage}">
             <local:ReferrerTree Tree="{Binding ReferrerTree}" />
-        </TabItem>
+        </DataTemplate>
+
+    </Window.Resources>
+
+    <TabControl SelectedIndex="{Binding SelectedTabIndex}" ItemsSource="{Binding TabPages}">
+
+        <TabControl.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding HeaderText}" />
+            </DataTemplate>
+        </TabControl.ItemTemplate>
+
+        <TabControl.ContentTemplate>
+            <DataTemplate>
+                <ContentPresenter Content="{Binding}" />
+            </DataTemplate>
+        </TabControl.ContentTemplate>
 
     </TabControl>
 

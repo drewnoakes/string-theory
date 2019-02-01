@@ -58,7 +58,10 @@
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="HeapAnalyzer.cs" />
     <Compile Include="Converters.cs" />
+    <Compile Include="HomePage.cs" />
+    <Compile Include="ITabPage.cs" />
     <Compile Include="ReferenceGraph.cs" />
+    <Compile Include="ReferrersPage.cs" />
     <Compile Include="ReferrerTree.xaml.cs">
       <DependentUpon>ReferrerTree.xaml</DependentUpon>
     </Compile>
@@ -67,6 +70,7 @@
     <Compile Include="StringList.xaml.cs">
       <DependentUpon>StringList.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StringListPage.cs" />
     <Compile Include="StringSummary.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -5,8 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:StringTheory.UI"
-    mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance local:MainWindow}">
+    mc:Ignorable="d">
 
     <UserControl.Resources>
 
@@ -20,7 +19,7 @@
     </UserControl.Resources>
 
     <TreeView
-        ItemsSource="{Binding ReferrerTree.Roots}"
+        ItemsSource="{Binding Tree.Roots, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ReferrerTree}}}"
         TreeViewItem.Expanded="OnItemExpanded">
         
         <TreeView.ItemContainerStyle>
