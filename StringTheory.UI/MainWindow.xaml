@@ -27,7 +27,9 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type local:ReferrersPage}">
-            <local:ReferrerTree Tree="{Binding ReferrerTree}" />
+            <local:ReferrerTree
+                Tree="{Binding ReferrerTree}"
+                ShowStringReferencedByFieldCommand="{Binding ShowStringReferencedByFieldCommand}" />
         </DataTemplate>
 
     </Window.Resources>

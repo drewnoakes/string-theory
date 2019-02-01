@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using Microsoft.Diagnostics.Runtime;
 
 namespace StringTheory.UI
 {
@@ -13,7 +14,7 @@ namespace StringTheory.UI
         public ReferrerTreeViewModel(ReferenceGraph graph, string targetString)
         {
             TargetString = targetString;
-            var rootNode = new ReferrerTreeNode(graph.TargetSet, targetString);
+            var rootNode = new ReferrerTreeNode(graph.TargetSet, targetString, null, -1);
 
             rootNode.Expand();
 
@@ -29,10 +30,14 @@ namespace StringTheory.UI
 
         public ObservableCollection<object> Children { get; } = new ObservableCollection<object>();
         public string Title { get; }
+        public int FieldOffset { get; }
+        public ClrType ReferrerType { get; }
 
-        public ReferrerTreeNode(IReadOnlyList<ReferenceGraphNode> backingItems, string title)
+        public ReferrerTreeNode(IReadOnlyList<ReferenceGraphNode> backingItems, string title, ClrType referrerType, int fieldOffset)
         {
             Title = title;
+            FieldOffset = fieldOffset;
+            ReferrerType = referrerType;
             _backingItems = backingItems;
 
             if (_backingItems.Count != 0)
@@ -62,15 +67,15 @@ namespace StringTheory.UI
 
                 var groups = node._backingItems
                     .SelectMany(i => i.Referrers)
-                    .GroupBy(i => (type: i.node.Object.Type, i.field))
+                    .GroupBy(referrer => (referrerType: referrer.node.Object.Type, referrer.referenceChain, referrer.fieldOffset))
                     .OrderByDescending(g => g.Count());
 
                 foreach (var group in groups)
                 {
                     var backingItems = group.Select(i => i.node).ToList();
-                    var title = $"{group.Key.type?.Name} ({DescribeFieldReferences(group.Key.field)})";
+                    var title = $"{group.Key.referrerType?.Name} ({DescribeFieldReferences(group.Key.referenceChain)})";
 
-                    node.Children.Add(new ReferrerTreeNode(backingItems, title));
+                    node.Children.Add(new ReferrerTreeNode(backingItems, title, group.Key.referrerType, group.Key.fieldOffset));
                 }
 
                 if (node.Children.Count == 1)
@@ -83,11 +88,11 @@ namespace StringTheory.UI
                 }
             }
 
-            string DescribeFieldReferences(List<FieldReference> references)
+            string DescribeFieldReferences(List<FieldReference> referenceChain)
             {
                 var sb = new StringBuilder();
 
-                foreach (var reference in references)
+                foreach (var reference in referenceChain)
                 {
                     if (sb.Length != 0)
                     {

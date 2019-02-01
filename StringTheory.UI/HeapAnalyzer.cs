@@ -103,6 +103,87 @@ namespace StringTheory.UI
                 (uint)Math.Round(stringOverhead));
         }
 
+        public StringSummary GetTypeReferenceStringSummary(ClrType referrerType, int fieldOffset, CancellationToken token = default)
+        {
+            var tallyByString = new Dictionary<string, ObjectTally>();
+
+            ulong stringCount = 0;
+            ulong stringByteCount = 0;
+            long charCount = 0;
+
+            foreach (var seg in _heap.Segments)
+            {
+                var segType = seg.IsEphemeral
+                    ? GCSegmentType.Ephemeral
+                    : seg.IsLarge
+                        ? GCSegmentType.LargeObject
+                        : GCSegmentType.Regular;
+
+                for (ulong refObj = seg.GetFirstObject(out ClrType referringType); refObj != 0; refObj = seg.NextObject(refObj, out referringType))
+                {
+                    if (referringType == null || !ReferenceEquals(referringType, referrerType))
+                    {
+                        continue;
+                    }
+
+                    token.ThrowIfCancellationRequested();
+
+                    if (!_heap.ReadPointer(refObj + (ulong)fieldOffset, out var strObjRef))
+                    {
+                        continue;
+                    }
+
+                    int generation = seg.GetGeneration(strObjRef);
+
+                    if (strObjRef != 0)
+                    {
+                        var type = _heap.GetObjectType(strObjRef);
+                        var size = type.GetSize(strObjRef);
+                        var value = (string)type.GetValue(strObjRef);
+
+                        charCount += value.Length;
+                        stringCount++;
+
+                        if (!tallyByString.TryGetValue(value, out var tally))
+                        {
+                            tally = new ObjectTally(size);
+                            tallyByString[value] = tally;
+                        }
+
+                        stringByteCount += tally.InstanceSize;
+                        tally.Add(strObjRef, segType, generation);
+                    }
+                }
+            }
+
+            var uniqueStringCount = tallyByString.Count;
+            var stringCharCount = tallyByString.Sum(s => s.Key.Length * (long)s.Value.Count);
+            var uniqueStringCharCount = tallyByString.Keys.Sum(s => s.Length);
+            var wastedBytes = tallyByString.Values.Sum(t => (long)t.WastedBytes);
+            var stringOverhead = ((double)stringByteCount - (charCount * 2)) / stringCount;
+
+            return new StringSummary(
+                tallyByString.OrderByDescending(p => p.Value.WastedBytes)
+                    .Select(
+                        p => new StringItem(
+                            p.Key,
+                            (uint)p.Value.Count,
+                            (uint)p.Key.Length,
+                            p.Value.InstanceSize,
+                            p.Value.Addresses,
+                            p.Value.CountBySegmentType,
+                            p.Value.CountByGeneration)).ToList(),
+                ulong.MaxValue, // TODO review
+                stringByteCount,
+                (ulong)stringCharCount,
+                (ulong)uniqueStringCharCount,
+                stringCount,
+                (ulong)uniqueStringCount,
+                ulong.MaxValue, // TODO review
+                (ulong)wastedBytes,
+                (uint)Math.Round(stringOverhead));
+        }
+
         private sealed class ObjectTally
         {
             public ulong[] CountBySegmentType { get; } = new ulong[3];

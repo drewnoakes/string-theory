@@ -51,7 +51,7 @@ namespace StringTheory.UI
 
                 var referrerTree = new ReferrerTreeViewModel(graph, stringItem.Content);
 
-                mainWindow.AddTab(new ReferrersPage(referrerTree));
+                mainWindow.AddTab(new ReferrersPage(mainWindow, referrerTree, analyzer));
             }
 
             void CopyStrings(IList selectedItems)

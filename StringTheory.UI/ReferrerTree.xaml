@@ -10,9 +10,16 @@
     <UserControl.Resources>
 
         <HierarchicalDataTemplate DataType="{x:Type local:ReferrerTreeNode}" ItemsSource="{Binding Children}">
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ReferrerTree}}}">
                 <TextBlock Text="{Binding Count}" Foreground="#888888" Margin="0,0,6,0" />
                 <TextBlock Text="{Binding Title}" />
+                <StackPanel.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Show all strings referenced by this field"
+                                  Command="{Binding Path=PlacementTarget.(StackPanel.Tag).(local:ReferrerTree.ShowStringReferencedByFieldCommand), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContextMenu}}"
+                                  CommandParameter="{Binding}" />
+                    </ContextMenu>
+                </StackPanel.ContextMenu>
             </StackPanel>
         </HierarchicalDataTemplate>
 
