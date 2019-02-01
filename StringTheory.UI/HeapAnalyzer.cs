@@ -17,7 +17,7 @@ namespace StringTheory.UI
 
             _heap = _dataTarget.ClrVersions.First().CreateRuntime().Heap;
 
-            // TODO if !_heap.CanWalkHeap then the process/dump may be in a where walking is unreliable (e.g. middle of GC)
+            // TODO if !_heap.CanWalkHeap then the process/dump may be in a state where walking is unreliable (e.g. middle of GC)
         }
 
         public StringSummary GetStringSummary(CancellationToken token = default)
