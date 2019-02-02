@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Diagnostics.Runtime.Desktop;
@@ -255,6 +256,23 @@ namespace StringTheory.UI
         public override int GetHashCode() => unchecked((Name.GetHashCode()*397) ^ (Type?.GetHashCode() ?? 0));
 
         #endregion
+
+        public static string DescribeFieldReferences(IEnumerable<FieldReference> referenceChain)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var reference in referenceChain)
+            {
+                if (sb.Length != 0)
+                {
+                    sb.Append('.');
+                }
+
+                sb.Append(reference.Name);
+            }
+
+            return sb.ToString();
+        }
     }
 
     public sealed class ReferenceGraph

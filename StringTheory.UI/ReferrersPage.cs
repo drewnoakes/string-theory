@@ -7,14 +7,14 @@ namespace StringTheory.UI
     {
         public ICommand ShowStringReferencedByFieldCommand { get; }
         public ReferrerTreeViewModel ReferrerTree { get; }
+        public string HeaderText { get; }
 
-        // TODO contextual tab header text
-        public string HeaderText => "Referrers";
         public bool CanClose => true;
 
-        public ReferrersPage(MainWindow mainWindow, ReferrerTreeViewModel referrerTree, HeapAnalyzer analyzer)
+        public ReferrersPage(MainWindow mainWindow, ReferrerTreeViewModel referrerTree, HeapAnalyzer analyzer, string headerText)
         {
             ReferrerTree = referrerTree ?? throw new ArgumentNullException(nameof(referrerTree));
+            HeaderText = headerText;
 
             ShowStringReferencedByFieldCommand = new DelegateCommand<ReferrerTreeNode>(ShowStringReferencedByField);
 
@@ -22,7 +22,9 @@ namespace StringTheory.UI
             {
                 var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset);
 
-                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer));
+                var title = $"Refs of {node.ReferrerType.Name}.{FieldReference.DescribeFieldReferences(node.ReferrerChain)}";
+
+                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer, title));
             }
         }
     }

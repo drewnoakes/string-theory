@@ -16,11 +16,12 @@ namespace StringTheory.UI
         public ICommand CopyCsvCommand { get; }
         public ICommand CopyMarkdownCommand { get; }
 
-        public string HeaderText => "Strings";
+        public string HeaderText { get; }
         public bool CanClose => true;
 
-        public StringListPage(MainWindow mainWindow, StringSummary summary, HeapAnalyzer analyzer)
+        public StringListPage(MainWindow mainWindow, StringSummary summary, HeapAnalyzer analyzer, string tabTitle)
         {
+            HeaderText = tabTitle;
             StringItems = summary.Strings;
 
             ShowReferrersCommand = new DelegateCommand<IList>(ShowReferrers);
@@ -51,7 +52,7 @@ namespace StringTheory.UI
 
                 var referrerTree = new ReferrerTreeViewModel(graph, stringItem.Content);
 
-                mainWindow.AddTab(new ReferrersPage(mainWindow, referrerTree, analyzer));
+                mainWindow.AddTab(new ReferrersPage(mainWindow, referrerTree, analyzer, $"Referrers of {stringItem.Content}"));
             }
 
             void CopyStrings(IList selectedItems)

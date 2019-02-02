@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Microsoft.Win32;
 
 namespace StringTheory.UI
@@ -31,13 +30,11 @@ namespace StringTheory.UI
 
             void OpenDumpFile(string dumpFilePath)
             {
-                mainWindow.SetCurrentValue(Window.TitleProperty, $"String Theory - {dumpFilePath}");
-
                 var analyzer = new HeapAnalyzer(dumpFilePath);
 
                 var summary = analyzer.GetStringSummary();
 
-                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer));
+                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer, "All strings"));
             }
         }
     }
