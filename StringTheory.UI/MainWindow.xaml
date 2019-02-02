@@ -32,13 +32,48 @@
                 ShowStringReferencedByFieldCommand="{Binding ShowStringReferencedByFieldCommand}" />
         </DataTemplate>
 
+        <Style x:Key="CloseButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Grid>
+                            <Ellipse Name="Background" Fill="#22444444" Stroke="#22000000" Width="13" Height="13" />
+                            <Path Name="Cross"  Data="M 0 0 L 5 5 M 0 5 L 5 0" Stroke="#777" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0.5,0.5,0,0" StrokeEndLineCap="Round" StrokeStartLineCap="Round" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.Setters>
+                                    <Setter TargetName="Background" Property="Fill" Value="#CC4444" />
+                                    <Setter TargetName="Cross" Property="Stroke" Value="#FFF" />
+                                </Trigger.Setters>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Window.Resources>
 
     <TabControl SelectedIndex="{Binding SelectedTabIndex}" ItemsSource="{Binding TabPages}">
 
         <TabControl.ItemTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding HeaderText}" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock 
+                        Text="{Binding HeaderText}" 
+                        MaxWidth="200" 
+                        ToolTip="{Binding HeaderText}"
+                        TextTrimming="CharacterEllipsis"
+                        VerticalAlignment="Center" />
+                    <Button 
+                        Visibility="{Binding CanClose, Converter={x:Static local:Converters.VisibleWhenTrue}}" 
+                        Margin="6,2,-1,0"
+                        VerticalAlignment="Center"
+                        Command="{Binding DataContext.CloseCommand, RelativeSource={RelativeSource AncestorType=local:MainWindow}}"
+                        CommandParameter="{Binding}"
+                        Style="{StaticResource CloseButtonStyle}" />
+                </StackPanel>
             </DataTemplate>
         </TabControl.ItemTemplate>
 

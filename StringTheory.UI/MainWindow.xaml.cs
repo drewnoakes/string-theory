@@ -10,12 +10,16 @@ namespace StringTheory.UI
 
         public int SelectedTabIndex { get; set; }
 
+        public ICommand CloseCommand { get; }
+
         public MainWindow()
         {
             TabPages = new ObservableCollection<ITabPage>
             {
                 new HomePage(this)
             };
+
+            CloseCommand = new DelegateCommand<ITabPage>(RemoveTabPage);
 
             DataContext = this;
 
@@ -28,6 +32,14 @@ namespace StringTheory.UI
 
             SelectedTabIndex = TabPages.Count - 1;
             OnPropertyChanged(nameof(SelectedTabIndex));
+        }
+
+        private void RemoveTabPage(ITabPage tabPage)
+        {
+            if (tabPage.CanClose)
+            {
+                TabPages.Remove(tabPage);
+            }
         }
 
         #region INotifyPropertyChanged
