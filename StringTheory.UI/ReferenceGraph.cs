@@ -87,7 +87,7 @@ namespace StringTheory.UI
                                     var referenceChain = GetChain(levelBefore.GraphNode.Object.Type, level.Reference);
 
                                     level.GraphNode.Referrers.Add((node: levelBefore.GraphNode, referenceChain, fieldOffset: level.Reference.FieldOffset));
-                                    levelBefore.GraphNode.References.Add((node: level.GraphNode, referenceChain));
+//                                    levelBefore.GraphNode.References.Add((node: level.GraphNode, referenceChain));
                                 }
                             }
 
@@ -305,7 +305,7 @@ namespace StringTheory.UI
 
         // NOTE for referrers, the field reference list is backwards
 
-        public List<(ReferenceGraphNode node, List<FieldReference> referenceChain)> References { get; } = new List<(ReferenceGraphNode node, List<FieldReference> referenceChain)>(2);
+//        public List<(ReferenceGraphNode node, List<FieldReference> referenceChain)> References { get; } = new List<(ReferenceGraphNode node, List<FieldReference> referenceChain)>(2);
         public List<(ReferenceGraphNode node, List<FieldReference> referenceChain, int fieldOffset)> Referrers { get; } = new List<(ReferenceGraphNode node, List<FieldReference> referenceChain, int fieldOffset)>(2);
 
         public override string ToString() => Object.ToString();
