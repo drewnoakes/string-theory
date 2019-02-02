@@ -64,6 +64,12 @@
         <TabControl.ItemTemplate>
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
+                    <StackPanel.InputBindings>
+                        <MouseBinding
+                            Command="{Binding DataContext.CloseCommand, RelativeSource={RelativeSource AncestorType=local:MainWindow}}"
+                            CommandParameter="{Binding}"
+                            Gesture="MiddleClick" />
+                    </StackPanel.InputBindings>
                     <TextBlock 
                         Text="{Binding HeaderText}" 
                         MaxWidth="200" 
