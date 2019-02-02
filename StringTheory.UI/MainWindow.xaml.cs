@@ -1,6 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Input;
 
 namespace StringTheory.UI
 {
@@ -68,6 +70,46 @@ namespace StringTheory.UI
             }
 
             base.OnPreviewMouseWheel(e);
+        }
+
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                switch (e.Key)
+                {
+                    case Key.F4 when CanCloseCurrentTab():
+                    case Key.W when CanCloseCurrentTab():
+                    {
+                        // Closes the active tab (if it is closeable)
+                        TabPages.RemoveAt(SelectedTabIndex);
+                        e.Handled = true;
+                        return;
+                    }
+                    case Key.PageDown:
+                    {
+                        // Go to the next tab
+                        SelectedTabIndex = (SelectedTabIndex + 1)%TabPages.Count;
+                        OnPropertyChanged(nameof(SelectedTabIndex));
+                        e.Handled = true;
+                        return;
+                    }
+                    case Key.PageUp:
+                    {
+                        // Go to previous tab
+                        SelectedTabIndex = (SelectedTabIndex - 1 + TabPages.Count)%TabPages.Count;
+                        OnPropertyChanged(nameof(SelectedTabIndex));
+                        e.Handled = true;
+                        return;
+                    }
+                }
+            }
+
+            base.OnPreviewKeyDown(e);
+
+            bool CanCloseCurrentTab() => SelectedTabIndex >= 0 &&
+                                         SelectedTabIndex < TabPages.Count &&
+                                         TabPages[SelectedTabIndex].CanClose;
         }
 
         #region INotifyPropertyChanged
