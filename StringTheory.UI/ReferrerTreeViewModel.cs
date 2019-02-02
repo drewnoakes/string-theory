@@ -45,25 +45,36 @@ namespace StringTheory.UI
 
         public ReferrerTreeNode CreateChild(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain)
         {
-            var index = referrerType.Name.LastIndexOf('.');
             string scope;
             string name;
-            if (index != -1)
+            string fieldChain;
+
+            if (backingItems.Count == 1 && backingItems[0] is Root root)
             {
-                scope = referrerType.Name.Substring(0, index + 1);
-                name = referrerType.Name.Substring(index + 1);
+                scope = root.ClrRoot.Name;
+                name = null;
+                fieldChain = null;
             }
             else
             {
-                scope = null;
-                name = referrerType.Name;
-            }
+                var index = referrerType.Name.LastIndexOf('.');
+                if (index != -1)
+                {
+                    scope = referrerType.Name.Substring(0, index + 1);
+                    name = referrerType.Name.Substring(index + 1);
+                }
+                else
+                {
+                    scope = null;
+                    name = referrerType.Name;
+                }
 
-            var fieldChain = FieldReference.DescribeFieldReferences(referrerChain);
+                fieldChain = FieldReference.DescribeFieldReferences(referrerChain);
 
-            if (fieldChain.Length != 0)
-            {
-                fieldChain = "." + fieldChain;
+                if (fieldChain.Length != 0)
+                {
+                    fieldChain = "." + fieldChain;
+                }
             }
 
             return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain);

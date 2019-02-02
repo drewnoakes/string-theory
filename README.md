@@ -11,7 +11,6 @@ Once you identify a suspicious referrer, you can query to see what other strings
 ## TODO
 
 - [ ] 🐛 Review numbers of field strings &mdash; possibly counting duplicates
-- [ ] 🐛 Spurious `Object[]`s at leaves of referrer tree
 - [ ] 🐛 Stack overflow when expanding tree nodes
 - [ ] 👩‍💼 Documentation and screenshots
 - [ ] 👩‍💼 Show progress during scans
