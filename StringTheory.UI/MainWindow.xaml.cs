@@ -12,6 +12,8 @@ namespace StringTheory.UI
 
         public ICommand CloseCommand { get; }
 
+        public double Scale { get; private set; } = 1.0;
+
         public MainWindow()
         {
             TabPages = new ObservableCollection<ITabPage>
@@ -40,6 +42,32 @@ namespace StringTheory.UI
             {
                 TabPages.Remove(tabPage);
             }
+        }
+
+        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+        {
+            if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                const double min = 1;
+                const double max = 4;
+                const double step = 0.1;
+
+                if (e.Delta > 0 && Scale < max)
+                {
+                    Scale = Math.Min(max, Scale + step);
+                    OnPropertyChanged(nameof(Scale));
+                }
+                else if (e.Delta < 0 && Scale > min)
+                {
+                    Scale = Math.Max(min, Scale - step);
+                    OnPropertyChanged(nameof(Scale));
+                }
+
+                e.Handled = true;
+                return;
+            }
+
+            base.OnPreviewMouseWheel(e);
         }
 
         #region INotifyPropertyChanged

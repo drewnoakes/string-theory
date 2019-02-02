@@ -57,6 +57,10 @@
 
     <TabControl SelectedIndex="{Binding SelectedTabIndex}" ItemsSource="{Binding TabPages}">
 
+        <TabControl.LayoutTransform>
+            <ScaleTransform CenterX="0" CenterY="0" ScaleX="{Binding Scale}" ScaleY="{Binding Scale}" />
+        </TabControl.LayoutTransform>
+
         <TabControl.ItemTemplate>
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
