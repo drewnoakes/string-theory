@@ -13,7 +13,8 @@ namespace StringTheory.UI
         public ReferrerTreeViewModel(ReferenceGraph graph, string targetString)
         {
             TargetString = targetString;
-            var rootNode = new ReferrerTreeNode(graph.TargetSet, targetString, null, -1, null);
+            
+            var rootNode = ReferrerTreeNode.CreateRoot(graph.TargetSet, targetString);
 
             rootNode.Expand();
 
@@ -28,14 +29,52 @@ namespace StringTheory.UI
         private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
 
         public ObservableCollection<object> Children { get; } = new ObservableCollection<object>();
-        public string Title { get; }
+        public ReferrerTreeNode Parent { get; }
         public int FieldOffset { get; }
         public List<FieldReference> ReferrerChain { get; }
         public ClrType ReferrerType { get; }
 
-        public ReferrerTreeNode(IReadOnlyList<ReferenceGraphNode> backingItems, string title, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain)
+        public string Scope { get; }
+        public string Name { get; }
+        public string FieldChain { get; }
+
+        public static ReferrerTreeNode CreateRoot(IReadOnlyList<ReferenceGraphNode> backingItems, string content)
         {
-            Title = title;
+            return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null);
+        }
+
+        public ReferrerTreeNode CreateChild(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain)
+        {
+            var index = referrerType.Name.LastIndexOf('.');
+            string scope;
+            string name;
+            if (index != -1)
+            {
+                scope = referrerType.Name.Substring(0, index + 1);
+                name = referrerType.Name.Substring(index + 1);
+            }
+            else
+            {
+                scope = null;
+                name = referrerType.Name;
+            }
+
+            var fieldChain = FieldReference.DescribeFieldReferences(referrerChain);
+
+            if (fieldChain.Length != 0)
+            {
+                fieldChain = "." + fieldChain;
+            }
+
+            return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain);
+        }
+
+        private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain)
+        {
+            Parent = parent;
+            Scope = scope;
+            Name = name;
+            FieldChain = fieldChain;
             FieldOffset = fieldOffset;
             ReferrerChain = referrerChain;
             ReferrerType = referrerType;
@@ -46,6 +85,8 @@ namespace StringTheory.UI
                 Children.Add(_placeholderChild);
             }
         }
+
+        public bool CanShowStringsReferencedByField => Parent != null && Parent.Parent == null;
 
         public int Count => _backingItems.Count;
 
@@ -74,9 +115,8 @@ namespace StringTheory.UI
                 foreach (var group in groups)
                 {
                     var backingItems = group.Select(i => i.node).ToList();
-                    var title = $"{group.Key.referrerType?.Name} ({FieldReference.DescribeFieldReferences(group.Key.referenceChain)})";
 
-                    node.Children.Add(new ReferrerTreeNode(backingItems, title, group.Key.referrerType, group.Key.fieldOffset, group.Key.referenceChain));
+                    node.Children.Add(node.CreateChild(backingItems, group.Key.referrerType, group.Key.fieldOffset, group.Key.referenceChain));
                 }
 
                 if (node.Children.Count == 1)
