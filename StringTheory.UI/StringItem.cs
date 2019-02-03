@@ -10,7 +10,7 @@ namespace StringTheory.UI
         public uint Count { get; }
         public uint Length { get; }
         public ulong InstanceSize { get; }
-        public List<ulong> ValueAddresses { get; }
+        public HashSet<ulong> ValueAddresses { get; }
         public ulong[] CountBySegmentType { get; }
         public ulong[] CountByGeneration { get; } // offset by zero so -1 becomes 0
 
@@ -21,7 +21,7 @@ namespace StringTheory.UI
 
         public ulong WastedBytes { get; }
 
-        public StringItem(string content, uint count, uint length, ulong instanceSize, List<ulong> valueAddresses, ulong[] countBySegmentType, ulong[] countByGeneration)
+        public StringItem(string content, uint count, uint length, ulong instanceSize, HashSet<ulong> valueAddresses, ulong[] countBySegmentType, ulong[] countByGeneration)
         {
             Content = content;
             Count = count;

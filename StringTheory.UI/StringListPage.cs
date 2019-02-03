@@ -61,7 +61,7 @@ namespace StringTheory.UI
 
                 var stringItem = stringItems.Single();
 
-                var graph = analyzer.GetReferenceGraph(new HashSet<ulong>(stringItem.ValueAddresses));
+                var graph = analyzer.GetReferenceGraph(stringItem.ValueAddresses);
 
                 var referrerTree = new ReferrerTreeViewModel(graph, stringItem.Content);
 

@@ -191,7 +191,7 @@ namespace StringTheory.UI
             public ulong WastedBytes => (Count - 1) * InstanceSize;
             public ulong Count => (ulong) Addresses.Count;
             public ulong InstanceSize { get; }
-            public List<ulong> Addresses { get; } = new List<ulong>(capacity: 2);
+            public HashSet<ulong> Addresses { get; } = new HashSet<ulong>(capacity: 2);
 
             public ObjectTally(ulong size)
             {
@@ -200,9 +200,11 @@ namespace StringTheory.UI
 
             public void Add(ulong address, GCSegmentType segmentType, int generation)
             {
-                Addresses.Add(address);
-                CountBySegmentType[(int) segmentType]++;
-                CountByGeneration[generation + 1]++;
+                if (Addresses.Add(address))
+                {
+                    CountBySegmentType[(int) segmentType]++;
+                    CountByGeneration[generation + 1]++;
+                }
             }
         }
 
