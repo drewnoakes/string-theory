@@ -18,12 +18,7 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type local:StringListPage}">
-            <local:StringList
-                StringItems="{Binding StringItems}"
-                CopyStringsCommand="{Binding CopyStringsCommand}"
-                CopyCsvCommand="{Binding CopyCsvCommand}"
-                CopyMarkdownCommand="{Binding CopyMarkdownCommand}"
-                ShowReferrersCommand="{Binding ShowReferrersCommand}" />
+            <local:StringList StringListPage="{Binding}" />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type local:ReferrersPage}">

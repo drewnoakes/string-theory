@@ -34,7 +34,9 @@ namespace StringTheory.UI
 
                 var summary = analyzer.GetStringSummary();
 
-                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer, "All strings"));
+                var description = $"All strings in {dumpFilePath}";
+
+                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer, "All strings", description));
             }
         }
     }

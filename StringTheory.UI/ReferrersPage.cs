@@ -22,9 +22,10 @@ namespace StringTheory.UI
             {
                 var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset);
 
-                var title = $"Refs of {node.ReferrerType.Name}.{FieldReference.DescribeFieldReferences(node.ReferrerChain)}";
+                var title = $"Refs of {FieldReference.DescribeFieldReferences(node.ReferrerChain)}";
+                var description = $"Strings referenced by field {FieldReference.DescribeFieldReferences(node.ReferrerChain)} of type {node.ReferrerType.Name}";
 
-                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer, title));
+                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer, title, description));
             }
         }
     }

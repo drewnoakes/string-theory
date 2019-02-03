@@ -11,18 +11,31 @@ namespace StringTheory.UI
     public sealed class StringListPage : ITabPage
     {
         public IEnumerable<StringItem> StringItems { get; }
+        public ulong StringCount { get; }
+        public ulong UniqueStringCount { get; }
+        public ulong TotalBytes { get; }
+        public ulong WastedBytes { get; }
+        public string HeaderText { get; }
+        public string Description { get; }
+
         public ICommand ShowReferrersCommand { get; }
         public ICommand CopyStringsCommand { get; }
         public ICommand CopyCsvCommand { get; }
         public ICommand CopyMarkdownCommand { get; }
 
-        public string HeaderText { get; }
         public bool CanClose => true;
 
-        public StringListPage(MainWindow mainWindow, StringSummary summary, HeapAnalyzer analyzer, string tabTitle)
+        public double WastedBytesPercentage => (double)WastedBytes / TotalBytes;
+
+        public StringListPage(MainWindow mainWindow, StringSummary summary, HeapAnalyzer analyzer, string tabTitle, string description)
         {
-            HeaderText = tabTitle;
             StringItems = summary.Strings;
+            StringCount = summary.StringCount;
+            UniqueStringCount = summary.UniqueStringCount;
+            TotalBytes = summary.StringByteCount;
+            WastedBytes = summary.WastedBytes;
+            HeaderText = tabTitle;
+            Description = description;
 
             ShowReferrersCommand = new DelegateCommand<IList>(ShowReferrers);
             CopyStringsCommand = new DelegateCommand<IList>(CopyStrings);
