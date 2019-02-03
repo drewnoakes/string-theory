@@ -86,7 +86,6 @@ namespace StringTheory.UI
                     .Select(
                         p => new StringItem(
                             p.Key,
-                            (uint)p.Value.Count,
                             (uint)p.Key.Length,
                             p.Value.InstanceSize,
                             p.Value.Addresses,
@@ -167,7 +166,6 @@ namespace StringTheory.UI
                     .Select(
                         p => new StringItem(
                             p.Key,
-                            (uint)p.Value.Count,
                             (uint)p.Key.Length,
                             p.Value.InstanceSize,
                             p.Value.Addresses,
