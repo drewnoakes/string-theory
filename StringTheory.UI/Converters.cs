@@ -47,22 +47,6 @@ namespace StringTheory.UI
         }
     }
 
-    [ValueConversion(typeof(object), typeof(Visibility))]
-    public sealed class CollapsedIfNullConverter : IValueConverter
-    {
-        public static readonly CollapsedIfNullConverter Default = new CollapsedIfNullConverter();
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return value is null ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return Binding.DoNothing;
-        }
-    }
-
     [ValueConversion(typeof(double), typeof(string))]
     public sealed class PercentageConverter : IValueConverter
     {
