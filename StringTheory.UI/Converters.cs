@@ -32,7 +32,7 @@ namespace StringTheory.UI
                 return b ? _trueValue : _falseValue;
             }
 
-            return Binding.DoNothing;
+            return DependencyProperty.UnsetValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -43,7 +43,7 @@ namespace StringTheory.UI
                 if (v == _falseValue) return _boxedFalse;
             }
 
-            return Binding.DoNothing;
+            return DependencyProperty.UnsetValue;
         }
     }
 
@@ -59,7 +59,7 @@ namespace StringTheory.UI
                 return ((int) (d * 100)).ToString();
             }
 
-            return Binding.DoNothing;
+            return DependencyProperty.UnsetValue;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
