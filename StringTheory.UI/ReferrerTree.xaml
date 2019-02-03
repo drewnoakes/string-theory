@@ -21,7 +21,7 @@
 
         <HierarchicalDataTemplate DataType="{x:Type local:ReferrerTreeNode}" ItemsSource="{Binding Children}">
             <StackPanel Orientation="Horizontal" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ReferrerTree}}}">
-                <TextBlock Text="{Binding Count}" Foreground="#888888" Margin="0,0,6,0" />
+                <TextBlock Text="{Binding Count, StringFormat=N0}" Foreground="#888" Margin="0,0,6,0" />
                 <Rectangle Width="16" Height="16" Fill="{StaticResource ClassBrush}" Margin="0,0,6,0" />
                 <TextBlock Text="{Binding Scope}" Foreground="#999" />
                 <TextBlock Text="{Binding Name}" Foreground="DodgerBlue" />
