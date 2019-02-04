@@ -8,6 +8,8 @@ namespace StringTheory.UI
     internal static class Converters
     {
         public static IValueConverter VisibleWhenTrue { get; } = new BooleanVisibilityConverter(trueValue: Visibility.Visible, falseValue: Visibility.Collapsed);
+
+        public static IValueConverter FirstLineOnly { get; } = new FirstLineOnlyConverter();
     }
 
     [ValueConversion(typeof(bool), typeof(Visibility))]
@@ -65,6 +67,34 @@ namespace StringTheory.UI
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return Binding.DoNothing;
+        }
+    }
+
+    [ValueConversion(typeof(string), typeof(string))]
+    internal sealed class FirstLineOnlyConverter : IValueConverter
+    {
+        private static readonly char[] s_newLineChars = { '\r', '\n' };
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string s)
+            {
+                var i = s.IndexOfAny(s_newLineChars);
+
+                if (i != -1)
+                {
+                    return s.Substring(0, i) + "...";
+                }
+
+                return s;
+            }
+
+            return DependencyProperty.UnsetValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }
