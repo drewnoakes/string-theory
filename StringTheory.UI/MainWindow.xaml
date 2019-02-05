@@ -9,6 +9,8 @@
         Height="450"
         Width="800"
         Icon="App.ico"
+        MinWidth="700"
+        MinHeight="400"
         d:DataContext="{d:DesignInstance local:MainWindow}">
 
     <Window.Resources>
