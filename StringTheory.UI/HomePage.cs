@@ -11,6 +11,8 @@ namespace StringTheory.UI
         public event Action CloseRequested;
 
         public ICommand OpenDumpCommand { get; }
+        public ICommand ShowAboutCommand { get; }
+
         public DrawingBrush IconDrawingBrush { get; }
 
         public string HeaderText => "Home";
@@ -19,6 +21,7 @@ namespace StringTheory.UI
         public HomePage(MainWindow mainWindow)
         {
             OpenDumpCommand = new DelegateCommand(OpenDump);
+            ShowAboutCommand = new DelegateCommand(() => new AboutWindow { Owner = mainWindow }.Show());
 
             IconDrawingBrush = (DrawingBrush) Application.Current.FindResource("HomeIconBrush");
 
