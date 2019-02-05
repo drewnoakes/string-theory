@@ -26,20 +26,31 @@
     <DockPanel DataContext="{Binding Path=StringListPage, RelativeSource={RelativeSource FindAncestor, AncestorType=local:StringList}}">
         
         <!-- Summary -->
-        <StackPanel DockPanel.Dock="Top">
+        <Grid DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
             <TextBlock Text="{Binding Path=Description}" FontWeight="Bold" Margin="4" />
-            <TextBlock Margin="4,0,4,8">
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" MinWidth="200" Margin="4" Padding="2" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="4,4,4,8" TextWrapping="WrapWithOverflow">
                 <Run Text="{Binding Path=StringCount, Mode=OneWay, StringFormat=N0}" />
                 <Run Text="strings," />
                 <Run Text="{Binding Path=UniqueStringCount, Mode=OneWay, StringFormat=N0}" />
                 <Run Text="unique." />
-                <Run Text="{Binding Path=TotalBytes, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding Path=TotalStringBytes, Mode=OneWay, StringFormat=N0}" />
                 <Run Text="total string bytes, of which" />
                 <Run Text="{Binding Path=WastedBytes, Mode=OneWay, StringFormat=N0}" />
-                <Run Text="{Binding Path=WastedBytesPercentage, Mode=OneWay, StringFormat={}(0.#%)}" />
-                <Run Text="are wasted on duplicates." />
+                <Run Text="{Binding Path=WastedBytesPercentageOfStrings, Mode=OneWay, StringFormat={}(0.#%)}" />
+                <Run Text="are wasted on duplicates" />
+                <Run Text="{Binding Path=WastedBytesPercentageOfHeap, Mode=OneWay, StringFormat={}(0.#%}" />
+                <Run Text="of total managed heap)" />
             </TextBlock>
-        </StackPanel>
+        </Grid>
 
         <!-- Details -->
         <DataGrid

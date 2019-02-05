@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -11,6 +12,7 @@ namespace StringTheory.UI
 {
     public sealed class StringListPage : ITabPage
     {
+        private string _filterText;
         public event Action CloseRequested;
 
         public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("StringListIconBrush");
@@ -19,7 +21,8 @@ namespace StringTheory.UI
 
         public ulong StringCount { get; }
         public ulong UniqueStringCount { get; }
-        public ulong TotalBytes { get; }
+        public ulong TotalStringBytes { get; }
+        public ulong TotalManagedHeapBytes { get; }
         public ulong WastedBytes { get; }
         public string HeaderText { get; }
         public string Description { get; }
@@ -33,14 +36,32 @@ namespace StringTheory.UI
 
         public bool CanClose => true;
 
-        public double WastedBytesPercentage => (double)WastedBytes / TotalBytes;
+        public double WastedBytesPercentageOfStrings => (double)WastedBytes / TotalStringBytes;
+        public double WastedBytesPercentageOfHeap => (double)WastedBytes / TotalManagedHeapBytes;
+
+        public string FilterText
+        {
+            get => _filterText;
+            set
+            {
+                if (string.Equals(_filterText, value))
+                    return;
+                _filterText = value;
+                var view = CollectionViewSource.GetDefaultView(StringItems);
+                if (value == null)
+                    view.Filter = null;
+                else
+                    view.Filter = i => ((StringItem) i).Content.IndexOf(value, StringComparison.CurrentCultureIgnoreCase) != -1;
+            }
+        }
 
         public StringListPage(MainWindow mainWindow, StringSummary summary, HeapAnalyzer analyzer, string tabTitle, string description)
         {
             StringItems = summary.Strings;
             StringCount = summary.StringCount;
             UniqueStringCount = summary.UniqueStringCount;
-            TotalBytes = summary.StringByteCount;
+            TotalStringBytes = summary.StringByteCount;
+            TotalManagedHeapBytes = summary.HeapByteCount;
             WastedBytes = summary.WastedBytes;
             HeaderText = tabTitle;
             Description = description;
