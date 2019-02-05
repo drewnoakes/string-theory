@@ -5,12 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace StringTheory.UI
 {
     public sealed class StringListPage : ITabPage
     {
         public IEnumerable<StringItem> StringItems { get; }
+
         public ulong StringCount { get; }
         public ulong UniqueStringCount { get; }
         public ulong TotalBytes { get; }
@@ -22,6 +24,8 @@ namespace StringTheory.UI
         public ICommand CopyStringsCommand { get; }
         public ICommand CopyCsvCommand { get; }
         public ICommand CopyMarkdownCommand { get; }
+
+        public DrawingBrush IconDrawingBrush { get; }
 
         public bool CanClose => true;
 
@@ -41,6 +45,8 @@ namespace StringTheory.UI
             CopyStringsCommand = new DelegateCommand<IList>(CopyStrings);
             CopyCsvCommand = new DelegateCommand<IList>(CopyCsv);
             CopyMarkdownCommand = new DelegateCommand<IList>(CopyMarkdown);
+
+            IconDrawingBrush = (DrawingBrush)Application.Current.FindResource("StringListIconBrush");
 
             void ShowReferrers(IList selectedItems)
             {

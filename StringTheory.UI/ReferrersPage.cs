@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace StringTheory.UI
 {
@@ -8,6 +10,7 @@ namespace StringTheory.UI
         public ICommand ShowStringReferencedByFieldCommand { get; }
         public ReferrerTreeViewModel ReferrerTree { get; }
         public string HeaderText { get; }
+        public DrawingBrush IconDrawingBrush { get; }
 
         public bool CanClose => true;
 
@@ -17,6 +20,8 @@ namespace StringTheory.UI
             HeaderText = headerText;
 
             ShowStringReferencedByFieldCommand = new DelegateCommand<ReferrerTreeNode>(ShowStringReferencedByField);
+
+            IconDrawingBrush = (DrawingBrush)Application.Current.FindResource("ReferrerTreeIconBrush");
 
             void ShowStringReferencedByField(ReferrerTreeNode node)
             {

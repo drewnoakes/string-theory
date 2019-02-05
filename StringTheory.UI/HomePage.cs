@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Win32;
 
 namespace StringTheory.UI
@@ -6,12 +8,16 @@ namespace StringTheory.UI
     public sealed class HomePage : ITabPage
     {
         public ICommand OpenDumpCommand { get; }
+        public DrawingBrush IconDrawingBrush { get; }
+
         public string HeaderText => "Home";
         public bool CanClose => false;
 
         public HomePage(MainWindow mainWindow)
         {
             OpenDumpCommand = new DelegateCommand(OpenDump);
+
+            IconDrawingBrush = (DrawingBrush) Application.Current.FindResource("HomeIconBrush");
 
             void OpenDump()
             {

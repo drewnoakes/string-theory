@@ -34,8 +34,8 @@
 
         <TreeView.Resources>
             <!-- Style the inactive selection the same as active -->
-            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#ddd" />
-            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#ddd" />
+            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#DDD" />
+            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#DDD" />
         </TreeView.Resources>
         
         <TreeView.ItemContainerStyle>

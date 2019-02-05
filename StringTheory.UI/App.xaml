@@ -16,6 +16,51 @@
             </DrawingBrush.Drawing>
         </DrawingBrush>
 
+        <DrawingBrush x:Key="ReferrerTreeIconBrush">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M0,-0.0002L0,4.9998 5,4.9998 5,4.0008 14,4.0008 14,0.9998 5,0.9998 5,-0.0002z M3,5.9998L3,15.9998 8,15.9998 8,14.9998 16,14.9998 16,12.0008 8,12.0008 8,9.9998 16,9.9998 16,6.9998 8,6.9998 8,5.9998z" />
+                    <GeometryDrawing Brush="#FF424242" Geometry="F1M9,9L15,9 15,8 9,8z M9,14L15,14 15,13 9,13z M13,2L6,2 6,3 13,3z M4,15L7,15 7,12 4,12z M4,10L7,10 7,7 4,7z M4,4L1,4 1,1 4,1z" />
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <DrawingBrush x:Key="StringListIconBrush">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M1,15L16,15 16,1 1,1z" />
+                    <GeometryDrawing Brush="#FFEFEFF0" Geometry="F1M11,7L14,7 14,5 11,5z M11,10L14,10 14,8 11,8z M11,13L14,13 14,11 11,11z M7,7L10,7 10,5 7,5z M7,10L10,10 10,8 7,8z M7,13L10,13 10,11 7,11z M3,7L6,7 6,5 3,5z M3,10L6,10 6,8 3,8z M3,11L6,11 6,13 3,13z" />
+                    <GeometryDrawing Brush="#FF424242" Geometry="F1M14,7L11,7 11,5 14,5z M14,10L11,10 11,8 14,8z M14,13L11,13 11,11 14,11z M10,7L7,7 7,5 10,5z M10,10L7,10 7,8 10,8z M10,13L7,13 7,11 10,11z M6,7L3,7 3,5 6,5z M6,10L3,10 3,8 6,8z M6,13L3,13 3,11 6,11z M2,14L15,14 15,2 2,2z" />
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <DrawingBrush x:Key="HomeIconBrush">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M7.8786,-0.0002L-0.0004,7.8798 -0.0004,9.4138 0.9996,10.4138 0.9996,15.9998 15.0006,15.9998 15.0006,10.4138 16.0006,9.4138 16.0006,7.8798 8.1206,-0.0002z" />
+                    <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1M13,14L10,14 10,9 6,9 6,14 3,14 3,7.707 8,2.707 13,7.707z" />
+                    <GeometryDrawing Brush="#FF424242" Geometry="F1M0.6462,8.6461L1.3532,9.3531 2.0002,8.7071 2.0002,15.0001 7.0002,15.0001 7.0002,10.0001 9.0002,10.0001 9.0002,15.0001 14.0002,15.0001 14.0002,8.7071 14.6462,9.3531 15.3532,8.6461 8.0002,1.2931z M3.0002,7.7071L8.0002,2.7071 12.9992,7.7071 12.9992,14.0001 10.0002,14.0001 10.0002,9.0001 6.0002,9.0001 6.0002,14.0001 3.0002,14.0001z" />
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+        
+        <DrawingBrush x:Key="CopyToClipboardIconBrush">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Brush="#00FFFFFF" Geometry="F1M16,16L0,16 0,0 16,0z" />
+                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1M12.375,1L7.999,1C7.029,1,6,1.701,6,3L6,5 3.999,5C3.029,5,2,5.701,2,7L2,12C2,13.299,3.029,14,4,14L8,14C9.299,14,10,12.97,10,12L10,10 12,10C13.299,10,14,8.97,14,8L14,3.062z" />
+                    <GeometryDrawing Brush="#FF424242" Geometry="F1M8,10L8,10 8,12 4,12 4,7 7,7 7,8 8,8z M7.313,6L3.963,6C3.963,6,3,6,3,7L3,12C3,13,3.964,13,3.964,13L7.964,13C8.964,13,9,12,9,12L9,8.136z" />
+                    <GeometryDrawing Brush="#FF424242" Geometry="F1M11.3125,2L7.9625,2C7.9625,2,7.0005,2,7.0005,3L7.0005,5 7.9995,5 7.9995,3 11.0005,3 11.0005,4 11.9995,4 11.9995,6 11.9995,8 10.0005,8 10.0005,9 11.9635,9C12.9635,9,12.9995,8,12.9995,8L12.9995,4.136z" />
+                    <GeometryDrawing Brush="#FFEFEFF0" Geometry="F1M4,7L7,7 7,8 8,8 8,12 4,12z" />
+                    <GeometryDrawing Brush="#FFEFEFF0" Geometry="F1M11,4L11,3 8,3 8,5 8.375,5 10,7.062 10,8 12,8 12,4z" />
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
     </Application.Resources>
 
 </Application>

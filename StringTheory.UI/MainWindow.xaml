@@ -65,6 +65,7 @@
                             CommandParameter="{Binding}"
                             Gesture="MiddleClick" />
                     </StackPanel.InputBindings>
+                    <Rectangle Width="16" Height="16" Fill="{Binding IconDrawingBrush}" Margin="0,0,4,0" Opacity="0.6" VerticalAlignment="Center" />
                     <TextBlock 
                         Text="{Binding HeaderText, Converter={x:Static local:Converters.FirstLineOnly}}" 
                         MaxWidth="200" 

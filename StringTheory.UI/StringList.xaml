@@ -70,11 +70,27 @@
 
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Show referrers" Command="{Binding ShowReferrersCommand}" />
+                    <MenuItem Header="Show referrers" Command="{Binding ShowReferrersCommand}">
+                        <MenuItem.Icon>
+                            <Rectangle Width="16" Height="16" Fill="{StaticResource ReferrerTreeIconBrush}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                     <Separator />
-                    <MenuItem Header="Copy string(s)" Command="{Binding CopyStringsCommand}" InputGestureText="Ctrl+C" />
-                    <MenuItem Header="Copy CSV"       Command="{Binding CopyCsvCommand}" />
-                    <MenuItem Header="Copy Markdown"  Command="{Binding CopyMarkdownCommand}" />
+                    <MenuItem Header="Copy string(s)" Command="{Binding CopyStringsCommand}" InputGestureText="Ctrl+C">
+                        <MenuItem.Icon>
+                            <Rectangle Width="16" Height="16" Fill="{StaticResource CopyToClipboardIconBrush}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Copy CSV"       Command="{Binding CopyCsvCommand}">
+                        <MenuItem.Icon>
+                            <Rectangle Width="16" Height="16" Fill="{StaticResource CopyToClipboardIconBrush}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Copy Markdown"  Command="{Binding CopyMarkdownCommand}">
+                        <MenuItem.Icon>
+                            <Rectangle Width="16" Height="16" Fill="{StaticResource CopyToClipboardIconBrush}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
                 </ContextMenu>
             </DataGrid.ContextMenu>
 
