@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace StringTheory.UI
@@ -31,13 +32,20 @@ namespace StringTheory.UI
 
                 if (t.IsFaulted)
                 {
-                    // TODO update UI
-                    Debug.Fail("Task faulted");
+                    Debug.Assert(t.Exception != null, "t.Exception != null");
+                    Clipboard.SetText(t.Exception.ToString());
+                    MessageBox.Show($"Operation failed: {t.Exception.Message}\n\nFull details copied to clipboard.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Complete(null);
                     return;
                 }
 
                 // Complete on UI thread
-                Dispatcher.CurrentDispatcher.Invoke(() => Completed?.Invoke(t.Result));
+                Complete(t.Result);
+
+                void Complete(ITabPage page)
+                {
+                    Dispatcher.CurrentDispatcher.Invoke(() => Completed?.Invoke(page));
+                }
             });
         }
 

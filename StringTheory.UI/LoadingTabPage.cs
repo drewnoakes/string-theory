@@ -27,14 +27,16 @@ namespace StringTheory.UI
             HeaderText = tabTitle;
             IconDrawingBrush = iconDrawingBrush;
 
-            CancelCommand = new DelegateCommand(() =>
-            {
-                operation.Cancel();
-                CloseRequested?.Invoke();
-            });
+            CancelCommand = new DelegateCommand(Close);
 
             operation.Completed += page =>
             {
+                if (page == null)
+                {
+                    Close();
+                    return;
+                }
+
                 Page = page;
                 OnPropertyChanged(nameof(Page));
                 HeaderText = page.HeaderText;
@@ -42,6 +44,12 @@ namespace StringTheory.UI
                 IconDrawingBrush = page.IconDrawingBrush;
                 OnPropertyChanged(nameof(IconDrawingBrush));
             };
+
+            void Close()
+            {
+                operation.Cancel();
+                CloseRequested?.Invoke();
+            }
         }
 
         public void Dispose()
