@@ -6,6 +6,8 @@
 
     <Application.Resources>
 
+        <SolidColorBrush x:Key="AlternatingRowColor">#EEEEF2</SolidColorBrush>
+
         <DrawingBrush x:Key="ClassIconBrush">
             <DrawingBrush.Drawing>
                 <DrawingGroup>

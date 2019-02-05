@@ -61,7 +61,7 @@
             VerticalGridLinesBrush="Transparent"
             HorizontalGridLinesBrush="Transparent"
             RowBackground="White"
-            AlternatingRowBackground="AliceBlue"
+            AlternatingRowBackground="{StaticResource AlternatingRowColor}"
             local:DataGridExtensions.SortDesc="True">
 
             <DataGrid.InputBindings>
