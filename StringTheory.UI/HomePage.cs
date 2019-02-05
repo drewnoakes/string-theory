@@ -11,6 +11,7 @@ namespace StringTheory.UI
         public event Action CloseRequested;
 
         public ICommand OpenDumpCommand { get; }
+        public ICommand AttachToProcessCommand { get; }
         public ICommand ShowAboutCommand { get; }
 
         public DrawingBrush IconDrawingBrush { get; }
@@ -21,6 +22,7 @@ namespace StringTheory.UI
         public HomePage(MainWindow mainWindow)
         {
             OpenDumpCommand = new DelegateCommand(OpenDump);
+            AttachToProcessCommand = new DelegateCommand(() => new AttachToProcessWindow(mainWindow) { Owner = mainWindow }.ShowDialog());
             ShowAboutCommand = new DelegateCommand(() => new AboutWindow { Owner = mainWindow }.Show());
 
             IconDrawingBrush = (DrawingBrush) Application.Current.FindResource("HomeIconBrush");

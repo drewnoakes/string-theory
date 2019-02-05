@@ -12,6 +12,8 @@ namespace StringTheory.UI
         public static IValueConverter FirstLineOnly { get; } = new FirstLineOnlyConverter();
 
         public static IValueConverter VisibleWhenNull { get; } = new NullVisibilityConverter(nullValue: Visibility.Visible, nonNullValue: Visibility.Collapsed);
+
+        public static IValueConverter TrueWhenNonNull { get; } = new NullBooleanConverter(nullValue: false);
     }
 
     [ValueConversion(typeof(bool), typeof(Visibility))]
@@ -61,6 +63,29 @@ namespace StringTheory.UI
         {
             _nullValue = nullValue;
             _nonNullValue = nonNullValue;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is null ? _nullValue : _nonNullValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;
+        }
+    }
+
+    [ValueConversion(typeof(object), typeof(bool))]
+    internal sealed class NullBooleanConverter : IValueConverter
+    {
+        private readonly object _nullValue;
+        private readonly object _nonNullValue;
+
+        public NullBooleanConverter(bool nullValue)
+        {
+            _nullValue = nullValue;
+            _nonNullValue = !nullValue;
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

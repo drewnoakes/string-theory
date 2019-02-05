@@ -1,0 +1,54 @@
+﻿<Window x:Class="StringTheory.UI.AttachToProcessWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StringTheory.UI"
+        mc:Ignorable="d"
+        Icon="App.ico"
+        Title="Attach to Process"
+        Height="400"
+        Width="700"
+        MinHeight="200"
+        MinWidth="500"
+        WindowStartupLocation="CenterOwner"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    
+    <DockPanel>
+
+        <UniformGrid DockPanel.Dock="Bottom" Rows="1">
+            <Button Command="{Binding Path=RefreshProcessesCommand}" Content="Refresh" Padding="4" Margin="4,4,0,4" />
+            <Button Command="{Binding Path=AttachToProcessCommand}" CommandParameter="{Binding Processes/}" Content="Attach" Padding="4" Margin="4"
+                    IsEnabled="{Binding ElementName=_grid, Path=SelectedItem, Converter={x:Static local:Converters.TrueWhenNonNull}}"/>
+        </UniformGrid>
+
+        <DataGrid
+            x:Name="_grid"
+            ItemsSource="{Binding Path=Processes}"
+            IsSynchronizedWithCurrentItem="True"
+            IsReadOnly="True"
+            AutoGenerateColumns="False"
+            HeadersVisibility="Column"
+            VerticalGridLinesBrush="Transparent"
+            HorizontalGridLinesBrush="Transparent"
+            RowBackground="White"
+            AlternatingRowBackground="{StaticResource AlternatingRowColor}">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="Auto" Header="PID" Binding="{Binding Id}" MinWidth="70" />
+                <DataGridTextColumn Width="Auto" Header="File"  Binding="{Binding ProcessName}" MinWidth="170" SortMemberPath="ProcessName" SortDirection="Ascending" />
+                <DataGridTextColumn Width="*" Header="Title" Binding="{Binding MainWindowTitle}" />
+            </DataGrid.Columns>
+
+            <DataGrid.InputBindings>
+                <MouseBinding
+                    MouseAction="LeftDoubleClick"
+                    Command="{Binding AttachToProcessCommand}"
+                    CommandParameter="{Binding Processes/}" />
+            </DataGrid.InputBindings>
+
+        </DataGrid>
+
+    </DockPanel>
+
+</Window>

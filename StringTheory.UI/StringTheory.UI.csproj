@@ -57,6 +57,9 @@
     <Compile Include="AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AttachToProcessWindow.xaml.cs">
+      <DependentUpon>AttachToProcessWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="DataGridExtensions.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="HeapAnalyzer.cs" />
@@ -78,6 +81,10 @@
     <Compile Include="StringListPage.cs" />
     <Compile Include="StringSummary.cs" />
     <Page Include="AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AttachToProcessWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

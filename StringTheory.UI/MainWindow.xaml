@@ -20,6 +20,7 @@
                 </TextBlock>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <Button Content="Open dump..." Command="{Binding OpenDumpCommand}" Width="200" Height="200" Margin="50" />
+                    <Button Content="Attach to process..." Command="{Binding AttachToProcessCommand}" Width="200" Height="200" Margin="50" />
                 </StackPanel>
             </DockPanel>
         </DataTemplate>

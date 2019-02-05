@@ -15,4 +15,3 @@ Once you identify a suspicious referrer, you can query to see what other strings
 - [ ] 🚀 Parallel heap scans
 - [ ] 🚧 Push ClrMD changes upstream
 - [ ] 💡 Investigate distribution methods (e.g. ClickOnce)
-- [ ] 💡 Investigate attaching to a process

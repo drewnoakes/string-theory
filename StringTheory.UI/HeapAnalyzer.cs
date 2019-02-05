@@ -12,10 +12,25 @@ namespace StringTheory.UI
         private readonly ClrHeap _heap;
 
         public HeapAnalyzer(string dumpFilePath)
+            : this(DataTarget.LoadCrashDump(dumpFilePath))
         {
-            _dataTarget = DataTarget.LoadCrashDump(dumpFilePath);
+        }
 
-            _heap = _dataTarget.ClrVersions.First().CreateRuntime().Heap;
+        public HeapAnalyzer(int pid)
+            : this(DataTarget.AttachToProcess(pid, 5000, AttachFlag.NonInvasive))
+        {
+        }
+
+        private HeapAnalyzer(DataTarget dataTarget)
+        {
+            _dataTarget = dataTarget;
+
+            var clrInfo = _dataTarget.ClrVersions.FirstOrDefault();
+
+            if (clrInfo == null)
+                throw new Exception("Could not find any CLR version in the target.");
+
+            _heap = clrInfo.CreateRuntime().Heap;
 
             // TODO if !_heap.CanWalkHeap then the process/dump may be in a state where walking is unreliable (e.g. middle of GC)
         }
