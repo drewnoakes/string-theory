@@ -7,13 +7,10 @@ namespace StringTheory.UI
 {
     public sealed class ReferrerTreeViewModel
     {
-        public string TargetString { get; }
         public IReadOnlyList<ReferrerTreeNode> Roots { get; }
 
         public ReferrerTreeViewModel(ReferenceGraph graph, string targetString)
         {
-            TargetString = targetString;
-            
             var rootNode = ReferrerTreeNode.CreateRoot(graph.TargetSet, targetString);
 
             rootNode.Expand();
