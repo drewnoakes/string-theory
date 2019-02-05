@@ -137,6 +137,8 @@ namespace StringTheory.UI
                     if (strObjRef != 0)
                     {
                         var type = _heap.GetObjectType(strObjRef);
+                        if (type == null)
+                            continue;
                         var size = type.GetSize(strObjRef);
                         var value = (string)type.GetValue(strObjRef);
 
