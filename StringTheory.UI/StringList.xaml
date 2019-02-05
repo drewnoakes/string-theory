@@ -36,7 +36,11 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock Text="{Binding Path=Description}" FontWeight="Bold" Margin="4" />
-            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" MinWidth="200" Margin="4" Padding="2" />
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" MinWidth="200" Margin="4" Padding="2">
+                <local:Watermark.Content>
+                    <TextBlock FontSize="10">Search</TextBlock>
+                </local:Watermark.Content>
+            </TextBox>
             <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="4,4,4,8" TextWrapping="WrapWithOverflow">
                 <Run Text="{Binding Path=StringCount, Mode=OneWay, StringFormat=N0}" />
                 <Run Text="strings," />
