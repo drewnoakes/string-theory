@@ -28,8 +28,9 @@ namespace StringTheory.UI
 
         private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
 
+        private readonly ReferrerTreeNode _parent;
+
         public ObservableCollection<object> Children { get; } = new ObservableCollection<object>();
-        public ReferrerTreeNode Parent { get; }
         public int FieldOffset { get; }
         public List<FieldReference> ReferrerChain { get; }
         public ClrType ReferrerType { get; }
@@ -37,13 +38,14 @@ namespace StringTheory.UI
         public string Scope { get; }
         public string Name { get; }
         public string FieldChain { get; }
+        public bool IsCycle { get; }
 
         public static ReferrerTreeNode CreateRoot(IReadOnlyList<ReferenceGraphNode> backingItems, string content)
         {
-            return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null);
+            return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null, false);
         }
 
-        public ReferrerTreeNode CreateChild(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain)
+        public ReferrerTreeNode CreateChild(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
         {
             string scope;
             string name;
@@ -77,17 +79,18 @@ namespace StringTheory.UI
                 }
             }
 
-            return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain);
+            return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain, isCycle);
         }
 
-        private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain)
+        private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
         {
-            Parent = parent;
+            _parent = parent;
             Scope = scope;
             Name = name;
             FieldChain = fieldChain;
             FieldOffset = fieldOffset;
             ReferrerChain = referrerChain;
+            IsCycle = isCycle;
             ReferrerType = referrerType;
             _backingItems = backingItems;
 
@@ -97,7 +100,7 @@ namespace StringTheory.UI
             }
         }
 
-        public bool CanShowStringsReferencedByField => Parent != null && Parent.Parent == null;
+        public bool CanShowStringsReferencedByField => _parent != null && _parent._parent == null;
 
         public int Count => _backingItems.Count;
 
@@ -109,6 +112,8 @@ namespace StringTheory.UI
             // TODO don't add placeholder child then clear it during auto expand construction (unless logic becomes ugly)
 
             var node = this;
+
+            var ancestors = GetAncestors();
 
             // Limit the depth to which this can recur, defending against overflows here or in later arrange/layout
             var remaining = 50;
@@ -127,17 +132,36 @@ namespace StringTheory.UI
                 {
                     var backingItems = group.Select(i => i.node).ToList();
 
-                    node.Children.Add(node.CreateChild(backingItems, group.Key.referrerType, group.Key.fieldOffset, group.Key.referenceChain));
+                    var isCycle = ancestors.Contains((group.Key.referrerType, group.Key.fieldOffset));
+
+                    node.Children.Add(node.CreateChild(backingItems, group.Key.referrerType, group.Key.fieldOffset, group.Key.referenceChain, isCycle));
                 }
 
                 if (node.Children.Count == 1)
                 {
                     node = (ReferrerTreeNode)node.Children[0];
+                    if (node.IsCycle)
+                        break;
+                    ancestors.Add((node.ReferrerType, node.FieldOffset));
                 }
                 else
                 {
                     break;
                 }
+            }
+
+            HashSet<(ClrType ReferrerType, int fieldOffset)> GetAncestors()
+            {
+                var set = new HashSet<(ClrType ReferrerType, int fieldOffset)>();
+                var n = this;
+
+                while (n?.ReferrerType != null)
+                {
+                    set.Add((n.ReferrerType, n.FieldOffset));
+                    n = n._parent;
+                }
+
+                return set;
             }
         }
     }
