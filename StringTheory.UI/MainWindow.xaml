@@ -21,8 +21,18 @@
                     <Hyperlink Command="{Binding ShowAboutCommand}" Focusable="False">About</Hyperlink>
                 </TextBlock>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <Button Content="Open dump..." Command="{Binding OpenDumpCommand}" Width="200" Height="200" Margin="50" />
-                    <Button Content="Attach to process..." Command="{Binding AttachToProcessCommand}" Width="200" Height="200" Margin="50" />
+                    <Button Command="{Binding OpenDumpCommand}" Width="200" Height="200" Margin="50">
+                        <StackPanel>
+                            <Rectangle Height="32" Width="32" Fill="{StaticResource OpenDumpFileIconBrush}" HorizontalAlignment="Center" />
+                            <TextBlock Margin="0,8,0,0" HorizontalAlignment="Center">Open dump file...</TextBlock>
+                        </StackPanel>
+                    </Button>
+                    <Button Command="{Binding AttachToProcessCommand}" Width="200" Height="200" Margin="50">
+                        <StackPanel>
+                            <Rectangle Height="32" Width="32" Fill="{StaticResource AttachToProcessIconBrush}" HorizontalAlignment="Center" />
+                            <TextBlock Margin="0,8,0,0" HorizontalAlignment="Center">Attach to process...</TextBlock>
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </DockPanel>
         </DataTemplate>
