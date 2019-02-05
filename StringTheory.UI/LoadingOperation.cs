@@ -12,6 +12,8 @@ namespace StringTheory.UI
 
         private readonly CancellationTokenSource _cancellationTokenSource;
 
+        private int _isDisposed;
+
         public LoadingOperation(Func<CancellationToken, ITabPage> operation)
         {
             _cancellationTokenSource = new CancellationTokenSource();
@@ -41,13 +43,17 @@ namespace StringTheory.UI
 
         public void Cancel()
         {
-            _cancellationTokenSource.Cancel();
+            if (Volatile.Read(ref _isDisposed) == 0)
+                _cancellationTokenSource.Cancel();
         }
 
         public void Dispose()
         {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
+            if (Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 1)
+            {
+                _cancellationTokenSource.Cancel();
+                _cancellationTokenSource.Dispose();
+            }
         }
     }
 }
