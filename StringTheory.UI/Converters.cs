@@ -10,6 +10,8 @@ namespace StringTheory.UI
         public static IValueConverter VisibleWhenTrue { get; } = new BooleanVisibilityConverter(trueValue: Visibility.Visible, falseValue: Visibility.Collapsed);
 
         public static IValueConverter FirstLineOnly { get; } = new FirstLineOnlyConverter();
+
+        public static IValueConverter VisibleWhenNull { get; } = new NullVisibilityConverter(nullValue: Visibility.Visible, nonNullValue: Visibility.Collapsed);
     }
 
     [ValueConversion(typeof(bool), typeof(Visibility))]
@@ -46,6 +48,29 @@ namespace StringTheory.UI
             }
 
             return DependencyProperty.UnsetValue;
+        }
+    }
+
+    [ValueConversion(typeof(object), typeof(Visibility))]
+    internal sealed class NullVisibilityConverter : IValueConverter
+    {
+        private readonly object _nullValue;
+        private readonly object _nonNullValue;
+
+        public NullVisibilityConverter(Visibility nullValue, Visibility nonNullValue)
+        {
+            _nullValue = nullValue;
+            _nonNullValue = nonNullValue;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value is null ? _nullValue : _nonNullValue;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return Binding.DoNothing;
         }
     }
 

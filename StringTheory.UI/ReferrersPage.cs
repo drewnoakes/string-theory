@@ -7,10 +7,15 @@ namespace StringTheory.UI
 {
     public sealed class ReferrersPage : ITabPage
     {
+        public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("ReferrerTreeIconBrush");
+
+        public event Action CloseRequested;
+
         public ICommand ShowStringReferencedByFieldCommand { get; }
         public ReferrerTreeViewModel ReferrerTree { get; }
         public string HeaderText { get; }
-        public DrawingBrush IconDrawingBrush { get; }
+
+        DrawingBrush ITabPage.IconDrawingBrush => IconDrawingBrush;
 
         public bool CanClose => true;
 
@@ -21,16 +26,22 @@ namespace StringTheory.UI
 
             ShowStringReferencedByFieldCommand = new DelegateCommand<ReferrerTreeNode>(ShowStringReferencedByField);
 
-            IconDrawingBrush = (DrawingBrush)Application.Current.FindResource("ReferrerTreeIconBrush");
-
             void ShowStringReferencedByField(ReferrerTreeNode node)
             {
-                var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset);
-
                 var title = $"Refs of {FieldReference.DescribeFieldReferences(node.ReferrerChain)}";
-                var description = $"Strings referenced by field {FieldReference.DescribeFieldReferences(node.ReferrerChain)} of type {node.ReferrerType.Name}";
 
-                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer, title, description));
+                var operation = new LoadingOperation(
+                    token =>
+                    {
+                        var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset);
+
+                        var description = $"Strings referenced by field {FieldReference.DescribeFieldReferences(node.ReferrerChain)} of type {node.ReferrerType.Name}";
+
+                        return new StringListPage(mainWindow, summary, analyzer, title, description);
+                    });
+
+                mainWindow.AddTab(new LoadingTabPage(title, StringListPage.IconDrawingBrush, operation));
+
             }
         }
     }

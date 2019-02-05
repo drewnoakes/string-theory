@@ -11,6 +11,10 @@ namespace StringTheory.UI
 {
     public sealed class StringListPage : ITabPage
     {
+        public event Action CloseRequested;
+
+        public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("StringListIconBrush");
+
         public IEnumerable<StringItem> StringItems { get; }
 
         public ulong StringCount { get; }
@@ -25,7 +29,7 @@ namespace StringTheory.UI
         public ICommand CopyCsvCommand { get; }
         public ICommand CopyMarkdownCommand { get; }
 
-        public DrawingBrush IconDrawingBrush { get; }
+        DrawingBrush ITabPage.IconDrawingBrush => IconDrawingBrush;
 
         public bool CanClose => true;
 
@@ -46,8 +50,6 @@ namespace StringTheory.UI
             CopyCsvCommand = new DelegateCommand<IList>(CopyCsv);
             CopyMarkdownCommand = new DelegateCommand<IList>(CopyMarkdown);
 
-            IconDrawingBrush = (DrawingBrush)Application.Current.FindResource("StringListIconBrush");
-
             void ShowReferrers(IList selectedItems)
             {
                 var stringItems = selectedItems.Cast<StringItem>().ToList();
@@ -67,11 +69,17 @@ namespace StringTheory.UI
 
                 var stringItem = stringItems.Single();
 
-                var graph = analyzer.GetReferenceGraph(stringItem.ValueAddresses);
+                var operation = new LoadingOperation(
+                    token =>
+                    {
+                        var graph = analyzer.GetReferenceGraph(stringItem.ValueAddresses);
 
-                var referrerTree = new ReferrerTreeViewModel(graph, stringItem.Content);
+                        var referrerTree = new ReferrerTreeViewModel(graph, stringItem.Content);
 
-                mainWindow.AddTab(new ReferrersPage(mainWindow, referrerTree, analyzer, $"Referrers of {stringItem.Content}"));
+                        return new ReferrersPage(mainWindow, referrerTree, analyzer, $"Referrers of {stringItem.Content}");
+                    });
+
+                mainWindow.AddTab(new LoadingTabPage($"Referrers of {stringItem.Content}", ReferrersPage.IconDrawingBrush, operation));
             }
 
             void CopyStrings(IList selectedItems)

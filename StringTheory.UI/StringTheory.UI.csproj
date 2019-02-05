@@ -60,6 +60,8 @@
     <Compile Include="Converters.cs" />
     <Compile Include="HomePage.cs" />
     <Compile Include="ITabPage.cs" />
+    <Compile Include="LoadingOperation.cs" />
+    <Compile Include="LoadingTabPage.cs" />
     <Compile Include="ReferenceGraph.cs" />
     <Compile Include="ReferrersPage.cs" />
     <Compile Include="ReferrerTree.xaml.cs">

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
@@ -7,6 +8,8 @@ namespace StringTheory.UI
 {
     public sealed class HomePage : ITabPage
     {
+        public event Action CloseRequested;
+
         public ICommand OpenDumpCommand { get; }
         public DrawingBrush IconDrawingBrush { get; }
 
@@ -36,13 +39,19 @@ namespace StringTheory.UI
 
             void OpenDumpFile(string dumpFilePath)
             {
-                var analyzer = new HeapAnalyzer(dumpFilePath);
+                var operation = new LoadingOperation(
+                    token =>
+                    {
+                        var analyzer = new HeapAnalyzer(dumpFilePath);
 
-                var summary = analyzer.GetStringSummary();
+                        var summary = analyzer.GetStringSummary(token);
 
-                var description = $"All strings in {dumpFilePath}";
+                        var description = $"All strings in {dumpFilePath}";
 
-                mainWindow.AddTab(new StringListPage(mainWindow, summary, analyzer, "All strings", description));
+                        return new StringListPage(mainWindow, summary, analyzer, "All strings", description);
+                    });
+
+                mainWindow.AddTab(new LoadingTabPage("All strings", StringListPage.IconDrawingBrush, operation));
             }
         }
     }

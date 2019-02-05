@@ -12,9 +12,7 @@ Once you identify a suspicious referrer, you can query to see what other strings
 
 - [ ] 👩‍💼 Documentation and screenshots
 - [ ] 👩‍💼 Show progress during scans
-- [ ] 👩‍💼 Allow cancellation
 - [ ] 🚀 Parallel heap scans
-- [ ] 🚀 Get off the UI thread
 - [ ] 🚧 Push ClrMD changes upstream
 - [ ] 💡 Investigate distribution methods (e.g. ClickOnce)
 - [ ] 💡 Investigate attaching to a process

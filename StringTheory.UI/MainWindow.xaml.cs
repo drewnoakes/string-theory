@@ -36,6 +36,8 @@ namespace StringTheory.UI
 
             SelectedTabIndex = TabPages.Count - 1;
             OnPropertyChanged(nameof(SelectedTabIndex));
+
+            tabPage.CloseRequested += delegate { RemoveTabPage(tabPage); };
         }
 
         private void RemoveTabPage(ITabPage tabPage)
@@ -43,6 +45,9 @@ namespace StringTheory.UI
             if (tabPage.CanClose)
             {
                 TabPages.Remove(tabPage);
+
+                if (tabPage is IDisposable disposable)
+                    disposable.Dispose();
             }
         }
 

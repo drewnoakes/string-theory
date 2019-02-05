@@ -27,6 +27,16 @@
                 ShowStringReferencedByFieldCommand="{Binding ShowStringReferencedByFieldCommand}" />
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type local:LoadingTabPage}">
+            <Grid>
+                <ContentPresenter Content="{Binding Page}" />
+                <StackPanel Visibility="{Binding Page, Converter={x:Static local:Converters.VisibleWhenNull}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Height="16" IsIndeterminate="True" MinWidth="120" />
+                    <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="0,16,0,0" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
         <Style x:Key="CloseButtonStyle" TargetType="Button">
             <Setter Property="Template">
                 <Setter.Value>
