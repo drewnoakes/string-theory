@@ -8,6 +8,10 @@ Finds duplicate strings and provides ways to see what object graphs are keeping 
 
 Once you identify a suspicious referrer, you can query to see what other strings it is holding across the whole heap, and the total number of wasted bytes.
 
+## Installation
+
+Download a ZIP file from the [GitHub releases](https://github.com/drewnoakes/string-theory/releases) page.
+
 ## Walkthrough
 
 Running the app shows:
