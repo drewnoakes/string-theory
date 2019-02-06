@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Microsoft.Diagnostics.Runtime;
 
 namespace StringTheory.UI
@@ -22,6 +23,7 @@ namespace StringTheory.UI
     public sealed class ReferrerTreeNode
     {
         private static readonly object _placeholderChild = new object();
+        private static readonly Regex _typeNameRegex = new Regex(@"^(?<scope>[\w.]+\.)(?<name>[\w<>.+]+)$", RegexOptions.Compiled | RegexOptions.Singleline);
 
         private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
 
@@ -42,7 +44,7 @@ namespace StringTheory.UI
             return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null, false);
         }
 
-        public ReferrerTreeNode CreateChild(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
+        private ReferrerTreeNode CreateChild(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
         {
             string scope;
             string name;
@@ -56,11 +58,12 @@ namespace StringTheory.UI
             }
             else
             {
-                var index = referrerType.Name.LastIndexOf('.');
-                if (index != -1)
+                var match = _typeNameRegex.Match(referrerType.Name);
+                
+                if (match.Success)
                 {
-                    scope = referrerType.Name.Substring(0, index + 1);
-                    name = referrerType.Name.Substring(index + 1);
+                    scope = match.Groups["scope"].Value;
+                    name = match.Groups["name"].Value;
                 }
                 else
                 {
