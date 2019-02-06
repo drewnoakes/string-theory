@@ -5,6 +5,8 @@ namespace StringTheory.UI
 {
     public sealed class StringItem
     {
+        private static readonly char[] s_newLineCharacters = {'\r', '\n'};
+
         public string FirstLine { get; }
         public string Content { get; }
         public uint Length { get; }
@@ -31,7 +33,7 @@ namespace StringTheory.UI
             CountBySegmentType = countBySegmentType;
             CountByGeneration = countByGeneration;
 
-            var newLineIndex = content.IndexOfAny(new[] {'\r', '\n'});
+            var newLineIndex = content.IndexOfAny(s_newLineCharacters);
             FirstLine = newLineIndex != -1 ? content.Substring(0, newLineIndex) : content;
 
             WastedBytes = Count == 0 ? 0 : ((ulong)Count - 1) * InstanceSize;
