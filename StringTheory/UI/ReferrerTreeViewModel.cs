@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Diagnostics.Runtime;
+using StringTheory.Analysis;
 
 namespace StringTheory.UI
 {

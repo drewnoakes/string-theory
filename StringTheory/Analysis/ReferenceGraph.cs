@@ -6,7 +6,7 @@ using System.Threading;
 using Microsoft.Diagnostics.Runtime;
 using Microsoft.Diagnostics.Runtime.Desktop;
 
-namespace StringTheory.UI
+namespace StringTheory.Analysis
 {
     public static class ReferenceGraphBuilder
     {

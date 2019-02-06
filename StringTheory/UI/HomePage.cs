@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using StringTheory.Analysis;
 
 namespace StringTheory.UI
 {

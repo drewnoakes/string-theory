@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StringTheory.UI
+namespace StringTheory.Analysis
 {
     public sealed class StringSummary
     {

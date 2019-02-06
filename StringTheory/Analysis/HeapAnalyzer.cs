@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
+using StringTheory.UI;
 
-namespace StringTheory.UI
+namespace StringTheory.Analysis
 {
     public sealed class HeapAnalyzer : IDisposable
     {

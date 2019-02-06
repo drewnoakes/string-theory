@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{11D8BE74-D470-41C0-A53D-29ADB7149D8E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>StringTheory.UI</RootNamespace>
-    <AssemblyName>StringTheory.UI</AssemblyName>
+    <RootNamespace>StringTheory</RootNamespace>
+    <AssemblyName>StringTheory</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -36,7 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>App.ico</ApplicationIcon>
+    <ApplicationIcon>UI\App.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -50,62 +50,62 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
+    <ApplicationDefinition Include="UI\App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="AboutWindow.xaml.cs">
+    <Compile Include="UI\AboutWindow.xaml.cs">
       <DependentUpon>AboutWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="AttachToProcessWindow.xaml.cs">
+    <Compile Include="UI\AttachToProcessWindow.xaml.cs">
       <DependentUpon>AttachToProcessWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DataGridExtensions.cs" />
-    <Compile Include="DelegateCommand.cs" />
-    <Compile Include="HeapAnalyzer.cs" />
-    <Compile Include="Converters.cs" />
-    <Compile Include="HomePage.cs" />
-    <Compile Include="ITabPage.cs" />
-    <Compile Include="LoadingOperation.cs" />
-    <Compile Include="LoadingTabPage.cs" />
-    <Compile Include="ReferenceGraph.cs" />
-    <Compile Include="ReferrersPage.cs" />
-    <Compile Include="ReferrerTree.xaml.cs">
+    <Compile Include="UI\DataGridExtensions.cs" />
+    <Compile Include="UI\DelegateCommand.cs" />
+    <Compile Include="Analysis\HeapAnalyzer.cs" />
+    <Compile Include="UI\Converters.cs" />
+    <Compile Include="UI\HomePage.cs" />
+    <Compile Include="UI\ITabPage.cs" />
+    <Compile Include="UI\LoadingOperation.cs" />
+    <Compile Include="UI\LoadingTabPage.cs" />
+    <Compile Include="Analysis\ReferenceGraph.cs" />
+    <Compile Include="UI\ReferrersPage.cs" />
+    <Compile Include="UI\ReferrerTree.xaml.cs">
       <DependentUpon>ReferrerTree.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ReferrerTreeViewModel.cs" />
-    <Compile Include="StringItem.cs" />
-    <Compile Include="StringList.xaml.cs">
+    <Compile Include="UI\ReferrerTreeViewModel.cs" />
+    <Compile Include="Analysis\StringItem.cs" />
+    <Compile Include="UI\StringList.xaml.cs">
       <DependentUpon>StringList.xaml</DependentUpon>
     </Compile>
-    <Compile Include="StringListPage.cs" />
-    <Compile Include="StringSummary.cs" />
-    <Compile Include="Watermarks.cs" />
-    <Page Include="AboutWindow.xaml">
+    <Compile Include="UI\StringListPage.cs" />
+    <Compile Include="Analysis\StringSummary.cs" />
+    <Compile Include="UI\Watermarks.cs" />
+    <Page Include="UI\AboutWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="AttachToProcessWindow.xaml">
+    <Page Include="UI\AttachToProcessWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="MainWindow.xaml">
+    <Page Include="UI\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Compile Include="App.xaml.cs">
+    <Compile Include="UI\App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MainWindow.xaml.cs">
+    <Compile Include="UI\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ReferrerTree.xaml">
+    <Page Include="UI\ReferrerTree.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="StringList.xaml">
+    <Page Include="UI\StringList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -114,24 +114,6 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -150,7 +132,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="App.ico" />
+    <Resource Include="UI\App.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

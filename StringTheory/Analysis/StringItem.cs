@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.Diagnostics.Runtime;
 
-namespace StringTheory.UI
+namespace StringTheory.Analysis
 {
     public sealed class StringItem
     {

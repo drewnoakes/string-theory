@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:StringTheory.UI"
+             xmlns:analysis="clr-namespace:StringTheory.Analysis"
              mc:Ignorable="d" 
              d:DesignHeight="450" 
              d:DesignWidth="800">
@@ -14,7 +15,7 @@
         </Style>
         <Style TargetType="{x:Type TextBlock}" x:Key="StringStyle">
             <Setter Property="TextWrapping" Value="NoWrap" />
-            <Setter Property="ToolTip" Value="{Binding Path=(local:StringItem.Content)}"/>
+            <Setter Property="ToolTip" Value="{Binding Path=(analysis:StringItem.Content)}"/>
         </Style>
         <Style TargetType="{x:Type MenuItem}">
             <Setter Property="CommandParameter"
