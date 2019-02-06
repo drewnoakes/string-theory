@@ -1,4 +1,4 @@
-![](logo.svg)
+![](img/logo.svg)
 
 # StringTheory
 
