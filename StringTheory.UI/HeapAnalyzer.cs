@@ -121,6 +121,7 @@ namespace StringTheory.UI
 
             ulong stringCount = 0;
             ulong stringByteCount = 0;
+            ulong totalManagedObjectByteCount = 0;
             long charCount = 0;
 
             foreach (var seg in _heap.Segments)
@@ -133,39 +134,45 @@ namespace StringTheory.UI
 
                 for (ulong refObj = seg.GetFirstObject(out ClrType referringType); refObj != 0; refObj = seg.NextObject(refObj, out referringType))
                 {
-                    if (referringType == null || !ReferenceEquals(referringType, referrerType))
+                    if (referringType == null)
+                    {
+                        continue;
+                    }
+
+                    totalManagedObjectByteCount += referringType.GetSize(refObj);
+
+                    if (!ReferenceEquals(referringType, referrerType))
                     {
                         continue;
                     }
 
                     token.ThrowIfCancellationRequested();
 
-                    if (!_heap.ReadPointer(refObj + (ulong)fieldOffset, out var strObjRef))
+                    if (!_heap.ReadPointer(refObj + (ulong)fieldOffset, out var strObjRef) || strObjRef == 0)
                     {
                         continue;
                     }
 
-                    int generation = seg.GetGeneration(strObjRef);
+                    var type = _heap.GetObjectType(strObjRef);
+                    if (type == null)
+                        continue;
+                    var value = (string) type.GetValue(strObjRef);
 
-                    if (strObjRef != 0)
+                    charCount += value.Length;
+                    stringCount++;
+
+                    if (!tallyByString.TryGetValue(value, out var tally))
                     {
-                        var type = _heap.GetObjectType(strObjRef);
-                        if (type == null)
-                            continue;
                         var size = type.GetSize(strObjRef);
-                        var value = (string)type.GetValue(strObjRef);
+                        tally = new ObjectTally(size);
+                        tallyByString[value] = tally;
+                    }
 
-                        charCount += value.Length;
-                        stringCount++;
-
-                        if (!tallyByString.TryGetValue(value, out var tally))
-                        {
-                            tally = new ObjectTally(size);
-                            tallyByString[value] = tally;
-                        }
-
+                    var strSeg = _heap.GetSegmentByAddress(strObjRef);
+                    int generation = strSeg.GetGeneration(strObjRef);
+                    if (tally.Add(strObjRef, segType, generation))
+                    {
                         stringByteCount += tally.InstanceSize;
-                        tally.Add(strObjRef, segType, generation);
                     }
                 }
             }
@@ -186,7 +193,7 @@ namespace StringTheory.UI
                             p.Value.Addresses,
                             p.Value.CountBySegmentType,
                             p.Value.CountByGeneration)).ToList(),
-                ulong.MaxValue, // TODO review
+                totalManagedObjectByteCount,
                 stringByteCount,
                 (ulong)stringCharCount,
                 (ulong)uniqueStringCharCount,
@@ -201,23 +208,28 @@ namespace StringTheory.UI
         {
             public ulong[] CountBySegmentType { get; } = new ulong[3];
             public ulong[] CountByGeneration { get; } = new ulong[4]; // offset by one so that -1 becomes 0
-            public ulong WastedBytes => (Count - 1) * InstanceSize;
+            public ulong WastedBytes => Count == 0 ? 0ul : (Count - 1) * InstanceSize;
             public ulong Count => (ulong) Addresses.Count;
             public ulong InstanceSize { get; }
             public HashSet<ulong> Addresses { get; } = new HashSet<ulong>(capacity: 2);
 
             public ObjectTally(ulong size)
             {
+                if (size == 0)
+                    throw new ArgumentOutOfRangeException(nameof(size), "Cannot be zero.");
                 InstanceSize = size;
             }
 
-            public void Add(ulong address, GCSegmentType segmentType, int generation)
+            public bool Add(ulong address, GCSegmentType segmentType, int generation)
             {
                 if (Addresses.Add(address))
                 {
                     CountBySegmentType[(int) segmentType]++;
                     CountByGeneration[generation + 1]++;
+                    return true;
                 }
+
+                return false;
             }
         }
 
