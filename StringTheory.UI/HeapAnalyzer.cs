@@ -45,10 +45,8 @@ namespace StringTheory.UI
             ulong totalManagedObjectByteCount = 0;
             long charCount = 0;
 
-            for (int i = 0; i < _heap.Segments.Count; ++i)
+            foreach (var seg in _heap.Segments)
             {
-                ClrSegment seg = _heap.Segments[i];
-
                 var segType = seg.IsEphemeral
                     ? GCSegmentType.Ephemeral
                     : seg.IsLarge
