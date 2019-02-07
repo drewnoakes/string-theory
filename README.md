@@ -47,12 +47,3 @@ This field is probably referencing other strings too, and they're likely to cont
 ![](img/screenshot-5-field-references.png)
 
 Here we see the full impact of duplicate strings held by `_definingFileEscaped`. From the 10,588 unique string objects there are only 68 unique values. Of the memory allocated for these strings, 97.9% is wasted. Pooling/interning these strings would reduce heap usage by 787,556 bytes.
-
-## TODO
-
-- [ ] 🐛 Initiating concurrent heap operations can cause errors
-- [ ] 👩‍💼 Documentation and screenshots
-- [ ] 👩‍💼 Show progress during scans
-- [ ] 🚀 Parallelize heap scan algorithm to speed up scan
-- [ ] 🚧 Push ClrMD changes upstream
-- [ ] 💡 Investigate distribution methods (e.g. ClickOnce)
