@@ -26,7 +26,7 @@ Once loaded you'll see a list of all strings:
 
 This list shows the number of duplicates and the number of wasted bytes due to that duplication per string. You can also see the percentage of each string in the different memory areas (Gen0/1/2 and the large object heap).
 
-In this example we can see that there are 1,924 instances of an escaped path string on the heap. As strings are immutable, we may be able to replace all these copies with a single instance and save 565,362 bytes of RAM on the heap, for that string along. However we also see many other duplicated path strings, so the savings may be much greater. These strings have also survived long enough to end up in gen2, so are likely long-lived objects.
+In this example we can see that there are 1,924 instances of an escaped path string on the heap. As strings are immutable, we may be able to replace all these copies with a single instance and save 565,362 bytes of RAM on the heap, for that string alone. However we also see many other duplicated path strings, so the savings may be much greater. These strings have also survived long enough to end up in gen2, so are likely long-lived objects.
 
 In order to dig deeper, we need to understand what types/fields are referencing these strings. With that information we can work back and look for ways to intern/pool such strings.
 
