@@ -39,6 +39,8 @@ namespace StringTheory.UI
         public string Name { get; }
         public string FieldChain { get; }
         public bool IsCycle { get; }
+        public bool IsGCHandle { get; }
+        public bool IsString => _parent == null;
 
         public static ReferrerTreeNode CreateRoot(IReadOnlyList<ReferenceGraphNode> backingItems, string content)
         {
@@ -86,16 +88,17 @@ namespace StringTheory.UI
         private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
         {
             _parent = parent;
+            _backingItems = backingItems;
             Scope = scope;
             Name = name;
             FieldChain = fieldChain;
             FieldOffset = fieldOffset;
             ReferrerChain = referrerChain;
             IsCycle = isCycle;
+            IsGCHandle = parent != null && backingItems.All(i => i.Referrers.Count == 0);
             ReferrerType = referrerType;
-            _backingItems = backingItems;
 
-            if (_backingItems.Any(i => i.Referrers.Count != 0))
+            if (IsGCHandle)
             {
                 Children.Add(_placeholderChild);
             }

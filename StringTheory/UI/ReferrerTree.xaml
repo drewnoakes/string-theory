@@ -10,9 +10,10 @@
     <UserControl.Resources>
 
         <HierarchicalDataTemplate DataType="{x:Type local:ReferrerTreeNode}" ItemsSource="{Binding Children}">
+            
             <StackPanel Orientation="Horizontal" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ReferrerTree}}}">
                 <TextBlock Text="{Binding Count, StringFormat=N0}" Foreground="#888" Margin="0,0,6,0" />
-                <Rectangle Width="16" Height="16" Fill="{StaticResource ClassIconBrush}" Margin="0,0,6,0" />
+                <Rectangle Name="Icon" Width="16" Height="16" Fill="{StaticResource ClassIconBrush}" Margin="0,0,6,0" />
                 <TextBlock Text="{Binding Scope}" Foreground="#999" />
                 <TextBlock Text="{Binding Name}" Foreground="DodgerBlue" />
                 <TextBlock Text="{Binding FieldChain}" Foreground="Purple" />
@@ -24,6 +25,16 @@
                     </Hyperlink>
                 </TextBlock>
             </StackPanel>
+
+            <HierarchicalDataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsString}" Value="True">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource StringIconBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsGCHandle}" Value="True">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource GCHandleIconBrush}" />
+                </DataTrigger>
+            </HierarchicalDataTemplate.Triggers>
+
         </HierarchicalDataTemplate>
 
     </UserControl.Resources>
