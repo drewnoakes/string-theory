@@ -95,7 +95,7 @@ namespace StringTheory.UI
             ReferrerType = referrerType;
             _backingItems = backingItems;
 
-            if (_backingItems.Count != 0)
+            if (_backingItems.Any(i => i.Referrers.Count != 0))
             {
                 Children.Add(_placeholderChild);
             }
