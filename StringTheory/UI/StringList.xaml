@@ -86,6 +86,12 @@
                 <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="LOH%"   Binding="{Binding LohPercent,  Converter={x:Static local:PercentageConverter.Default}}" local:DataGridExtensions.SortDesc="True" />
             </DataGrid.Columns>
 
+            <DataGrid.Resources>
+                <Style TargetType="DataGridRow">
+                    <EventSetter Event="MouseDoubleClick" Handler="DataGridRow_DoubleClick"/>
+                </Style>
+            </DataGrid.Resources>
+
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Show referrers" Command="{Binding ShowReferrersCommand}">
