@@ -59,7 +59,7 @@ namespace StringTheory.UI
 
         public void Dispose()
         {
-            if (Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 1)
+            if (Interlocked.CompareExchange(ref _isDisposed, 1, 0) == 0)
             {
                 _cancellationTokenSource.Cancel();
                 _cancellationTokenSource.Dispose();
