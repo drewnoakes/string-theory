@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -54,10 +55,10 @@ namespace StringTheory.UI
 
                         var description = $"All strings in {dumpFilePath}";
 
-                        return new StringListPage(mainWindow, summary, analyzer, "All strings", description);
+                        return new StringListPage(mainWindow, summary, analyzer, Path.GetFileNameWithoutExtension(dumpFilePath), description);
                     });
 
-                mainWindow.AddTab(new LoadingTabPage("All strings", StringListPage.IconDrawingBrush, operation));
+                mainWindow.AddTab(new LoadingTabPage(Path.GetFileNameWithoutExtension(dumpFilePath), StringListPage.IconDrawingBrush, operation));
             }
         }
     }

@@ -36,10 +36,10 @@ namespace StringTheory.UI
 
                             var description = $"All strings in process {process.Id} ({process.ProcessName})";
 
-                            return new StringListPage(mainWindow, summary, analyzer, "All strings", description);
+                            return new StringListPage(mainWindow, summary, analyzer, process.ProcessName, description);
                         });
 
-                    mainWindow.AddTab(new LoadingTabPage("All strings", StringListPage.IconDrawingBrush, operation));
+                    mainWindow.AddTab(new LoadingTabPage(process.ProcessName, StringListPage.IconDrawingBrush, operation));
 
                     Close();
                 });
