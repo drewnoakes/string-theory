@@ -19,6 +19,8 @@ namespace StringTheory.UI
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
+            var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+
             var task = Task.Run(
                 () => operation(_cancellationTokenSource.Token),
                 _cancellationTokenSource.Token);
@@ -46,7 +48,7 @@ namespace StringTheory.UI
                 {
                     Dispatcher.CurrentDispatcher.Invoke(() => Completed?.Invoke(page));
                 }
-            });
+            }, scheduler);
         }
 
         public void Cancel()
