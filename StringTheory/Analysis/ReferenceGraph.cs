@@ -292,7 +292,6 @@ namespace StringTheory.Analysis
         }
     }
 
-    [DebuggerDisplay("{ToString()}")]
     public class ReferenceGraphNode
     {
 //        public int Count { get; }
