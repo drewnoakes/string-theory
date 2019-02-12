@@ -37,17 +37,11 @@ namespace StringTheory.UI
                     Debug.Assert(t.Exception != null, "t.Exception != null");
                     Clipboard.SetText(t.Exception.ToString());
                     MessageBox.Show($"Operation failed: {t.Exception.Message}\n\nFull details copied to clipboard.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Complete(null);
+                    Completed?.Invoke(null);
                     return;
                 }
 
-                // Complete on UI thread
-                Complete(t.Result);
-
-                void Complete(ITabPage page)
-                {
-                    Dispatcher.CurrentDispatcher.Invoke(() => Completed?.Invoke(page));
-                }
+                Completed?.Invoke(t.Result);
             }, scheduler);
         }
 
