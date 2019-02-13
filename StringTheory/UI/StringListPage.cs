@@ -13,8 +13,9 @@ namespace StringTheory.UI
 {
     public sealed class StringListPage : ITabPage
     {
-        private string _filterText;
         public event Action CloseRequested;
+
+        private string _filterText;
 
         public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("StringListIconBrush");
 

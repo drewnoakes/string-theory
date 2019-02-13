@@ -42,7 +42,6 @@ namespace StringTheory.UI
                     });
 
                 mainWindow.AddTab(new LoadingTabPage(title, StringListPage.IconDrawingBrush, operation));
-
             }
         }
     }
