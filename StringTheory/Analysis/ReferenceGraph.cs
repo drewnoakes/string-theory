@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
-using Microsoft.Diagnostics.Runtime.Desktop;
 
 namespace StringTheory.Analysis
 {
