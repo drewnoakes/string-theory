@@ -153,8 +153,10 @@ namespace StringTheory.UI
 
             while (remaining-- != 0)
             {
-                if (node.IsLeaf)
-                    break;
+                if (node.IsLeaf || node.IsCycle)
+                    return;
+
+                ancestors.Add((node.ReferrerType, node.FieldOffset));
 
                 node.Children.Clear();
                 node.IsExpanded = true;
@@ -185,9 +187,6 @@ namespace StringTheory.UI
                 if (node.Children.Count == 1)
                 {
                     node = (ReferrerTreeNode)node.Children[0];
-                    if (node.IsCycle)
-                        break;
-                    ancestors.Add((node.ReferrerType, node.FieldOffset));
                 }
                 else
                 {
@@ -198,7 +197,7 @@ namespace StringTheory.UI
             HashSet<(ClrType ReferrerType, int fieldOffset)> GetAncestors()
             {
                 var set = new HashSet<(ClrType ReferrerType, int fieldOffset)>();
-                var n = this;
+                var n = _parent;
 
                 while (n?.ReferrerType != null)
                 {
