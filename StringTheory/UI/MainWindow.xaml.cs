@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
@@ -115,6 +116,14 @@ namespace StringTheory.UI
             bool CanCloseCurrentTab() => SelectedTabIndex >= 0 &&
                                          SelectedTabIndex < TabPages.Count &&
                                          TabPages[SelectedTabIndex].CanClose;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            foreach (var disposable in TabPages.OfType<IDisposable>())
+                disposable.Dispose();
+
+            base.OnClosed(e);
         }
 
         #region INotifyPropertyChanged

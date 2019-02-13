@@ -11,10 +11,11 @@ using StringTheory.Analysis;
 
 namespace StringTheory.UI
 {
-    public sealed class StringListPage : ITabPage
+    public sealed class StringListPage : ITabPage, IDisposable
     {
         public event Action CloseRequested;
 
+        private readonly IDisposable _analyzerLease;
         private string _filterText;
 
         public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("StringListIconBrush");
@@ -67,6 +68,8 @@ namespace StringTheory.UI
             WastedBytes = summary.WastedBytes;
             HeaderText = tabTitle;
             Description = description;
+
+            _analyzerLease = analyzer.GetLease();
 
             ShowReferrersCommand = new DelegateCommand<IList>(ShowReferrers);
             CopyStringsCommand = new DelegateCommand<IList>(CopyStrings);
@@ -162,6 +165,11 @@ namespace StringTheory.UI
                     MessageBox.Show("Unable to set clipboard text: " + ex.Message);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _analyzerLease.Dispose();
         }
     }
 }

@@ -6,11 +6,13 @@ using StringTheory.Analysis;
 
 namespace StringTheory.UI
 {
-    public sealed class ReferrersPage : ITabPage
+    public sealed class ReferrersPage : ITabPage, IDisposable
     {
         public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("ReferrerTreeIconBrush");
 
         public event Action CloseRequested;
+
+        private readonly IDisposable _analyzerLease;
 
         public ICommand ShowStringReferencedByFieldCommand { get; }
         public ReferrerTreeViewModel ReferrerTree { get; }
@@ -24,6 +26,8 @@ namespace StringTheory.UI
         {
             ReferrerTree = referrerTree ?? throw new ArgumentNullException(nameof(referrerTree));
             HeaderText = headerText;
+
+            _analyzerLease = analyzer.GetLease();
 
             ShowStringReferencedByFieldCommand = new DelegateCommand<ReferrerTreeNode>(ShowStringReferencedByField);
 
@@ -43,6 +47,11 @@ namespace StringTheory.UI
 
                 mainWindow.AddTab(new LoadingTabPage(title, StringListPage.IconDrawingBrush, operation));
             }
+        }
+
+        public void Dispose()
+        {
+            _analyzerLease.Dispose();
         }
     }
 }

@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
-using StringTheory.UI;
 
 namespace StringTheory.Analysis
 {
-    public sealed class HeapAnalyzer : IDisposable
+    public sealed class HeapAnalyzer
     {
         private readonly DataTarget _dataTarget;
         private readonly ClrHeap _heap;
+
+        private int _leaseCount;
 
         public HeapAnalyzer(string dumpFilePath)
             : this(DataTarget.LoadCrashDump(dumpFilePath))
@@ -210,6 +211,20 @@ namespace StringTheory.Analysis
                 (uint)Math.Round(stringOverhead));
         }
 
+        public IDisposable GetLease()
+        {
+            Interlocked.Increment(ref _leaseCount);
+
+            return new DisposableAction(
+                () =>
+                {
+                    if (Interlocked.Decrement(ref _leaseCount) == 0)
+                    {
+                        _dataTarget?.Dispose();
+                    }
+                });
+        }
+
         private sealed class ObjectTally
         {
             public ulong[] CountBySegmentType { get; } = new ulong[3];
@@ -237,11 +252,6 @@ namespace StringTheory.Analysis
 
                 return false;
             }
-        }
-
-        public void Dispose()
-        {
-            _dataTarget?.Dispose();
         }
 
         public ReferenceGraph GetReferenceGraph(HashSet<ulong> targetAddresses, CancellationToken token = default)

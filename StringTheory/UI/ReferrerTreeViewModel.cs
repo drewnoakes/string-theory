@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.Diagnostics.Runtime;
@@ -102,6 +103,8 @@ namespace StringTheory.UI
                 scope = null;
                 name = referrerType.Name;
             }
+
+            Debug.Assert(!string.IsNullOrEmpty(name), "Node shouldn't have empty name");
 
             var fieldChain = FieldReference.DescribeFieldReferences(referrerChain);
 
