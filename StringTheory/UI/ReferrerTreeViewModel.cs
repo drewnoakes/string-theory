@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -7,18 +8,34 @@ using StringTheory.Analysis;
 
 namespace StringTheory.UI
 {
+    // This file projects a reference graph into a reference tree, dealing with parallel paths and cycles
+
     public sealed class ReferrerTreeViewModel
     {
         public IReadOnlyList<ReferrerTreeNode> Roots { get; }
 
         public ReferrerTreeViewModel(ReferenceGraph graph, string targetString)
         {
-            var rootNode = ReferrerTreeNode.CreateRoot(graph.TargetSet, targetString);
+            var rootNode = ReferrerTreeNode.CreateStringNode(graph.TargetSet, targetString);
 
             rootNode.Expand();
 
             Roots = new[] { rootNode };
         }
+    }
+
+    public enum ReferrerTreeNodeType
+    {
+        TargetString,
+        FieldReference,
+        StaticVar,
+        ThreadStaticVar,
+        Pinning,
+        AsyncPinning,
+        LocalVar,
+        StrongHandle,
+        WeakHandle,
+        Finalizer
     }
 
     public sealed class ReferrerTreeNode
@@ -39,53 +56,64 @@ namespace StringTheory.UI
         public string Name { get; }
         public string FieldChain { get; }
         public bool IsCycle { get; }
-        public bool IsGCHandle { get; }
-        public bool IsString => _parent == null;
+        public bool IsLeaf { get; }
+        public ReferrerTreeNodeType Type { get; }
 
-        public static ReferrerTreeNode CreateRoot(IReadOnlyList<ReferenceGraphNode> backingItems, string content)
+        public static ReferrerTreeNode CreateStringNode(IReadOnlyList<ReferenceGraphNode> backingItems, string content)
         {
-            return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null, false);
+            return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null, false, false, ReferrerTreeNodeType.TargetString);
         }
 
-        private ReferrerTreeNode CreateChild(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
+        private ReferrerTreeNode CreateGCRootNode(RootGraphNode node)
+        {
+            return new ReferrerTreeNode(this, new[] {node}, null, node.ClrRoot.Name, null, null, -1, null, false, true, GetNodeType());
+
+            ReferrerTreeNodeType GetNodeType()
+            {
+                switch (node.ClrRoot.Kind)
+                {
+                    case GCRootKind.StaticVar:       return ReferrerTreeNodeType.StaticVar;       // "static var StringTheory.SampleApp.Program.E"
+                    case GCRootKind.ThreadStaticVar: return ReferrerTreeNodeType.ThreadStaticVar;
+                    case GCRootKind.Pinning:         return ReferrerTreeNodeType.Pinning;         // "Pinned handle"
+                    case GCRootKind.AsyncPinning:    return ReferrerTreeNodeType.AsyncPinning;
+                    case GCRootKind.LocalVar:        return ReferrerTreeNodeType.LocalVar;
+                    case GCRootKind.Strong:          return ReferrerTreeNodeType.StrongHandle;    // "Strong handle"
+                    case GCRootKind.Weak:            return ReferrerTreeNodeType.WeakHandle;
+                    case GCRootKind.Finalizer:       return ReferrerTreeNodeType.Finalizer;
+                    default: throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        private ReferrerTreeNode CreateChildNode(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
         {
             string scope;
             string name;
-            string fieldChain;
 
-            if (backingItems.Count == 1 && backingItems[0] is Root root)
+            var match = _typeNameRegex.Match(referrerType.Name);
+
+            if (match.Success)
             {
-                scope = root.ClrRoot.Name;
-                name = null;
-                fieldChain = null;
+                scope = match.Groups["scope"].Value;
+                name = match.Groups["name"].Value;
             }
             else
             {
-                var match = _typeNameRegex.Match(referrerType.Name);
-                
-                if (match.Success)
-                {
-                    scope = match.Groups["scope"].Value;
-                    name = match.Groups["name"].Value;
-                }
-                else
-                {
-                    scope = null;
-                    name = referrerType.Name;
-                }
-
-                fieldChain = FieldReference.DescribeFieldReferences(referrerChain);
-
-                if (fieldChain.Length != 0)
-                {
-                    fieldChain = "." + fieldChain;
-                }
+                scope = null;
+                name = referrerType.Name;
             }
 
-            return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain, isCycle);
+            var fieldChain = FieldReference.DescribeFieldReferences(referrerChain);
+
+            if (fieldChain.Length != 0)
+            {
+                fieldChain = "." + fieldChain;
+            }
+
+            return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain, isCycle, false, ReferrerTreeNodeType.FieldReference);
         }
 
-        private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
+        private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle, bool isLeaf, ReferrerTreeNodeType type)
         {
             _parent = parent;
             _backingItems = backingItems;
@@ -95,10 +123,11 @@ namespace StringTheory.UI
             FieldOffset = fieldOffset;
             ReferrerChain = referrerChain;
             IsCycle = isCycle;
-            IsGCHandle = parent != null && backingItems.All(i => i.Referrers.Count == 0);
+            Type = type;
+            IsLeaf = isLeaf;
             ReferrerType = referrerType;
 
-            if (IsGCHandle)
+            if (!isLeaf)
             {
                 Children.Add(_placeholderChild);
             }
@@ -124,10 +153,17 @@ namespace StringTheory.UI
 
             while (remaining-- != 0)
             {
+                if (node.IsLeaf)
+                    break;
+
                 node.Children.Clear();
                 node.IsExpanded = true;
 
-                var groups = node._backingItems
+                var roots = node._backingItems.OfType<RootGraphNode>().ToList();
+
+                var nonRoots = roots.Count == 0 ? node._backingItems : node._backingItems.Where(n => !(n is RootGraphNode));
+
+                var groups = nonRoots
                     .SelectMany(i => i.Referrers)
                     .GroupBy(referrer => (referrerType: referrer.node.Object.Type, referrer.referenceChain, referrer.fieldOffset))
                     .OrderByDescending(g => g.Count());
@@ -138,7 +174,12 @@ namespace StringTheory.UI
 
                     var isCycle = ancestors.Contains((group.Key.referrerType, group.Key.fieldOffset));
 
-                    node.Children.Add(node.CreateChild(backingItems, group.Key.referrerType, group.Key.fieldOffset, group.Key.referenceChain, isCycle));
+                    node.Children.Add(node.CreateChildNode(backingItems, group.Key.referrerType, group.Key.fieldOffset, group.Key.referenceChain, isCycle));
+                }
+
+                foreach (var root in roots)
+                {
+                    node.Children.Add(node.CreateGCRootNode(root));
                 }
 
                 if (node.Children.Count == 1)

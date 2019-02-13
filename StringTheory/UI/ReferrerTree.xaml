@@ -13,7 +13,7 @@
             
             <StackPanel Orientation="Horizontal" Tag="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ReferrerTree}}}">
                 <TextBlock Text="{Binding Count, StringFormat=N0}" Foreground="#888" Margin="0,0,6,0" />
-                <Rectangle Name="Icon" Width="16" Height="16" Fill="{StaticResource ClassIconBrush}" Margin="0,0,6,0" />
+                <Rectangle Name="Icon" Width="16" Height="16" Margin="0,0,6,0" />
                 <TextBlock Text="{Binding Scope}" Foreground="#999" />
                 <TextBlock Text="{Binding Name}" Foreground="DodgerBlue" />
                 <TextBlock Text="{Binding FieldChain}" Foreground="Purple" />
@@ -27,11 +27,32 @@
             </StackPanel>
 
             <HierarchicalDataTemplate.Triggers>
-                <DataTrigger Binding="{Binding IsString}" Value="True">
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.TargetString}">
                     <Setter TargetName="Icon" Property="Fill" Value="{StaticResource StringIconBrush}" />
                 </DataTrigger>
-                <DataTrigger Binding="{Binding IsGCHandle}" Value="True">
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.AsyncPinning}">
                     <Setter TargetName="Icon" Property="Fill" Value="{StaticResource GCHandleIconBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.Pinning}">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource GCHandleIconBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.StaticVar}">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource StaticVarIconBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.StrongHandle}">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource StrongHandleIconBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.WeakHandle}">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource WeakHandleIconBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.Finalizer}">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource FinalizerQueueIconBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.LocalVar}">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource LocalVarIconBrush}" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Type}" Value="{x:Static local:ReferrerTreeNodeType.FieldReference}">
+                    <Setter TargetName="Icon" Property="Fill" Value="{StaticResource FieldIconBrush}" />
                 </DataTrigger>
             </HierarchicalDataTemplate.Triggers>
 

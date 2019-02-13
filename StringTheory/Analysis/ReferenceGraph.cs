@@ -23,7 +23,7 @@ namespace StringTheory.Analysis
             var chainCache = new Dictionary<(uint metadataToken, int fieldOffset), List<FieldReference>>();
 
             // For each root
-            foreach (var root in Roots())
+            foreach (var root in heap.EnumerateRoots(enumerateStatics: true))
             {
                 stack.Clear();
 
@@ -54,7 +54,7 @@ namespace StringTheory.Analysis
                             ref var rootLevel = ref stack[0];
                             if (rootLevel.GraphNode == null)
                             {
-                                var rootNode = new Root(root);
+                                var rootNode = new RootGraphNode(root);
                                 nodeByAddress[root.Object] = rootNode;
                                 rootLevel.GraphNode = rootNode;
                                 graph.Roots.Add(rootNode);
@@ -110,37 +110,6 @@ namespace StringTheory.Analysis
             }
 
             return graph;
-
-            IEnumerable<ClrRoot> Roots()
-            {
-                foreach (var strongHandle in heap.EnumerateStrongHandles(token))
-                {
-                    yield return GetHandleRoot(strongHandle);
-                }
-
-                foreach (var root in heap.EnumerateStackRoots(token))
-                {
-                    yield return root;
-                }
-
-                ClrRoot GetHandleRoot(ClrHandle handle)
-                {
-                    var kind = GCRootKind.Strong;
-
-                    switch (handle.HandleType)
-                    {
-                        case HandleType.Pinned:
-                            kind = GCRootKind.Pinning;
-                            break;
-
-                        case HandleType.AsyncPinned:
-                            kind = GCRootKind.AsyncPinning;
-                            break;
-                    }
-
-                    return new HandleRoot(handle.Address, handle.Object, handle.Type, handle.HandleType, kind, handle.AppDomain);
-                }
-            }
 
             List<FieldReference> GetChain(ClrType sourceType, in ClrObjectReference reference)
             {
@@ -277,15 +246,15 @@ namespace StringTheory.Analysis
 
     public sealed class ReferenceGraph
     {
-        public List<Root> Roots { get; } = new List<Root>();
+        public List<RootGraphNode> Roots { get; } = new List<RootGraphNode>();
         public List<ReferenceGraphNode> TargetSet { get; } = new List<ReferenceGraphNode>();
     }
 
-    public sealed class Root : ReferenceGraphNode
+    public sealed class RootGraphNode : ReferenceGraphNode
     {
         public ClrRoot ClrRoot { get; }
 
-        public Root(ClrRoot clrRoot) 
+        public RootGraphNode(ClrRoot clrRoot) 
             : base(new ClrObject(clrRoot.Object, clrRoot.Type))
         {
             ClrRoot = clrRoot;
