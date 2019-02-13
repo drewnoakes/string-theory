@@ -72,7 +72,7 @@
             local:DataGridExtensions.SortDesc="True">
 
             <DataGrid.InputBindings>
-                <KeyBinding Modifiers="Control" Key="C" Command="{Binding CopyStringsCommand}" />
+                <KeyBinding Modifiers="Control" Key="C" Command="{Binding CopyStringsCommand}" CommandParameter="{Binding Path=SelectedItems, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
             </DataGrid.InputBindings>
 
             <DataGrid.Columns>
