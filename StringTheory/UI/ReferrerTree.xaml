@@ -51,7 +51,7 @@
         
         <TreeView.ItemContainerStyle>
             <Style TargetType="TreeViewItem">
-                <Setter Property="IsExpanded" Value="{Binding (local:ReferrerTreeNode.IsExpanded)}" />
+                <Setter Property="IsExpanded" Value="{Binding Path=(local:ReferrerTreeNode.IsExpanded)}" />
             </Style>
         </TreeView.ItemContainerStyle>
 
