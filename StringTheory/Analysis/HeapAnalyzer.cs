@@ -36,7 +36,7 @@ namespace StringTheory.Analysis
             // TODO if !_heap.CanWalkHeap then the process/dump may be in a state where walking is unreliable (e.g. middle of GC)
         }
 
-        public StringSummary GetStringSummary(CancellationToken token = default)
+        public StringSummary GetStringSummary(Action<double> progressCallback = null, CancellationToken token = default)
         {
             var tallyByString = new Dictionary<string, ObjectTally>();
 
@@ -46,8 +46,11 @@ namespace StringTheory.Analysis
             ulong totalManagedObjectByteCount = 0;
             long charCount = 0;
 
-            foreach (var seg in _heap.Segments)
+            for (var i = 0; i < _heap.Segments.Count; i++)
             {
+                progressCallback?.Invoke((double)i / _heap.Segments.Count);
+
+                var seg = _heap.Segments[i];
                 var segType = seg.IsEphemeral
                     ? GCSegmentType.Ephemeral
                     : seg.IsLarge
@@ -72,7 +75,7 @@ namespace StringTheory.Analysis
 
                     if (type.IsString)
                     {
-                        var value = (string)type.GetValue(obj);
+                        var value = (string) type.GetValue(obj);
 
                         charCount += value.Length;
                         stringCount++;
@@ -88,6 +91,8 @@ namespace StringTheory.Analysis
                     }
                 }
             }
+
+            progressCallback?.Invoke(1.0);
 
             var uniqueStringCount = tallyByString.Count;
             var stringCharCount = tallyByString.Sum(s => s.Key.Length*(long)s.Value.Count);

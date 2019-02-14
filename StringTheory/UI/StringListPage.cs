@@ -93,7 +93,7 @@ namespace StringTheory.UI
                 var stringItem = stringItems.Single();
 
                 var operation = new LoadingOperation(
-                    token =>
+                    (progressCallback, token) =>
                     {
                         var graph = analyzer.GetReferenceGraph(stringItem.ValueAddresses);
 

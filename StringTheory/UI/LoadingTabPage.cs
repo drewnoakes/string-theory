@@ -14,6 +14,8 @@ namespace StringTheory.UI
 
         public string HeaderText { get; private set; }
         public DrawingBrush IconDrawingBrush { get; private set; }
+        public bool IsIndeterminate { get; private set; } = true;
+        public double ProgressRatio { get; private set; }
 
         public ITabPage Page { get; private set; }
 
@@ -44,6 +46,23 @@ namespace StringTheory.UI
                 IconDrawingBrush = page.IconDrawingBrush;
                 OnPropertyChanged(nameof(IconDrawingBrush));
             };
+
+            operation.ProgressChanged += ratio =>
+            {
+                if (IsIndeterminate)
+                {
+                    IsIndeterminate = false;
+                    OnPropertyChanged(nameof(IsIndeterminate));
+                }
+
+                if (ProgressRatio != ratio)
+                {
+                    ProgressRatio = ratio;
+                    OnPropertyChanged(nameof(ProgressRatio));
+                }
+            };
+
+            operation.Start();
 
             void Close()
             {

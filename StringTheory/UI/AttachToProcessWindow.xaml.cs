@@ -28,11 +28,11 @@ namespace StringTheory.UI
                         return;
 
                     var operation = new LoadingOperation(
-                        token =>
+                        (progressCallback, token) =>
                         {
                             var analyzer = new HeapAnalyzer(process.Id);
 
-                            var summary = analyzer.GetStringSummary(token);
+                            var summary = analyzer.GetStringSummary(progressCallback, token);
 
                             var description = $"All strings in process {process.Id} ({process.ProcessName})";
 

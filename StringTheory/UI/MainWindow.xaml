@@ -51,7 +51,7 @@
             <Grid>
                 <ContentPresenter Content="{Binding Page}" />
                 <StackPanel Visibility="{Binding Page, Converter={x:Static local:Converters.VisibleWhenNull}}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <ProgressBar Height="16" IsIndeterminate="True" MinWidth="120" />
+                    <ProgressBar Height="16" IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}" Value="{Binding ProgressRatio, Mode=OneWay}" Minimum="0" Maximum="1" MinWidth="120" />
                     <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="0,16,0,0" Padding="6" />
                 </StackPanel>
             </Grid>

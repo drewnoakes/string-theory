@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace StringTheory.UI
 {
@@ -10,18 +11,27 @@ namespace StringTheory.UI
     {
         public event Action<ITabPage> Completed;
 
-        private readonly CancellationTokenSource _cancellationTokenSource;
+        public event Action<double> ProgressChanged;
+
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        private readonly Func<Action<double>, CancellationToken, ITabPage> _operation;
 
         private int _isDisposed;
 
-        public LoadingOperation(Func<CancellationToken, ITabPage> operation)
+        public LoadingOperation(Func<Action<double>, CancellationToken, ITabPage> operation)
         {
-            _cancellationTokenSource = new CancellationTokenSource();
+            _operation = operation;
+        }
+
+        public void Start()
+        {
+            Dispatcher.CurrentDispatcher.VerifyAccess();
 
             var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
             var task = Task.Run(
-                () => operation(_cancellationTokenSource.Token),
+                () => _operation(SetProgress, _cancellationTokenSource.Token),
                 _cancellationTokenSource.Token);
 
             task.ContinueWith(t =>
@@ -42,6 +52,8 @@ namespace StringTheory.UI
 
                 Completed?.Invoke(t.Result);
             }, scheduler);
+
+            void SetProgress(double d) => ProgressChanged?.Invoke(d);
         }
 
         public void Cancel()

@@ -32,7 +32,7 @@ namespace StringTheory.UI
                 var title = $"Refs of {FieldReference.DescribeFieldReferences(node.ReferrerChain)}";
 
                 var operation = new LoadingOperation(
-                    token =>
+                    (progressCallback, token) =>
                     {
                         var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset);
 

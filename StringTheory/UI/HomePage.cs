@@ -47,11 +47,11 @@ namespace StringTheory.UI
             void OpenDumpFile(string dumpFilePath)
             {
                 var operation = new LoadingOperation(
-                    token =>
+                    (progressCallback, token) =>
                     {
                         var analyzer = new HeapAnalyzer(dumpFilePath);
 
-                        var summary = analyzer.GetStringSummary(token);
+                        var summary = analyzer.GetStringSummary(progressCallback, token);
 
                         var description = $"All strings in {dumpFilePath}";
 
