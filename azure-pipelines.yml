@@ -1,0 +1,54 @@
+pool:
+  vmImage: 'VS2017-Win2016'
+
+variables:
+  solution: 'StringTheory.sln'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@0
+
+- task: NuGetCommand@2
+  displayName: 'Restore packages for Microsoft.Diagnostics.Runtime'
+  inputs:
+    command: 'restore'
+    restoreSolution: 'clrmd\Microsoft.Diagnostics.Runtime.sln'
+    feedsToUse: 'config'
+    nugetConfigPath: 'clrmd\NuGet.config'
+
+- task: NuGetCommand@2
+  displayName: 'Restore packages for StringTheory'
+  inputs:
+    command: 'restore'
+    restoreSolution: '$(solution)'
+
+- task: VSBuild@1
+  displayName: 'Build x86 (Release)'
+  inputs:
+    solution: '$(solution)'
+    platform: 'x86'
+    configuration: '$(buildConfiguration)'
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: StringTheory\bin\x86\Release
+    contents: '**\!(*.xml)'
+    targetFolder: $(Build.ArtifactStagingDirectory)\x86
+
+- task: VSBuild@1
+  displayName: 'Build x64 (Release)'
+  inputs:
+    solution: '$(solution)'
+    platform: 'x64'
+    configuration: '$(buildConfiguration)'
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: StringTheory\bin\x64\Release
+    contents: '**\!(*.xml)'
+    targetFolder: $(Build.ArtifactStagingDirectory)\x64
+
+- task: PublishPipelineArtifact@0
+  inputs:
+    artifactName: 'StringTheory'
+    targetPath: $(Build.ArtifactStagingDirectory)
