@@ -165,6 +165,9 @@ namespace StringTheory.Analysis
 
             public void Push(ClrObjectReference o)
             {
+                if (o.TargetType == null)
+                    return;
+
                 _last++;
 
                 // resize if needed
