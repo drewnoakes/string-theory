@@ -2,6 +2,8 @@
 
 # StringTheory
 
+[![Build Status](https://drewnoakes.visualstudio.com/StringTheory/_apis/build/status/StringTheory-CI?branchName=master)](https://drewnoakes.visualstudio.com/StringTheory/_build/latest?definitionId=1&branchName=master)
+
 Identifies opportunities to improve heap memory consumption by strings.
 
 Finds duplicate strings and provides ways to see what object graphs are keeping them alive.
