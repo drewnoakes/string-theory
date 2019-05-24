@@ -73,6 +73,7 @@
 
             <DataGrid.InputBindings>
                 <KeyBinding Modifiers="Control" Key="C" Command="{Binding CopyStringsCommand}" CommandParameter="{Binding Path=SelectedItems, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowReferrersCommand}" CommandParameter="{Binding Path=SelectedItems, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
             </DataGrid.InputBindings>
 
             <DataGrid.Columns>
