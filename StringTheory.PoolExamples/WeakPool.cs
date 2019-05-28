@@ -6,8 +6,14 @@ namespace StringTheory.PoolExamples
 {
     public sealed class WeakPool<T> where T : class
     {
+        private sealed class Node
+        {
+            public WeakReference<T> WeakRef { get; set; }
+            public Node Next { get; set; }
+        }
+
         private readonly Stack<WeakReference<T>> _weakRefPool = new Stack<WeakReference<T>>();
-        private readonly Stack<List<WeakReference<T>>> _listPool = new Stack<List<WeakReference<T>>>();
+        private readonly Stack<Node> _nodePool = new Stack<Node>();
 
         private readonly IEqualityComparer<T> _comparer;
 
@@ -33,67 +39,111 @@ namespace StringTheory.PoolExamples
             var hash = _comparer.GetHashCode(value);
             var pos = (uint)hash % _buckets.Length;
             var bucket = _buckets[pos];
-
+            
+            switch (bucket)
             {
-                if (bucket is WeakReference<T> weakRef)
+                case WeakReference<T> weakRef when weakRef.TryGetTarget(out T target):
                 {
-                    if (weakRef.TryGetTarget(out T target))
+                    // existing weak ref has a target. is it the right one?
+                    if (_comparer.Equals(target, value))
                     {
-                        if (_comparer.Equals(target, value))
-                        {
-                            return target;
-                        }
+                        return target;
+                    }
 
-                        Count++;
-                        _buckets[pos] = new List<WeakReference<T>>(2) {weakRef, CreateWeakRef()};
-                        return value;
+                    // create a new node, and prepend to chain
+                    var node1 = CreateNode(CreateWeakRef());
+                    var node2 = CreateNode(weakRef);
+                    node1.Next = node2;
+                    _buckets[pos] = node1;
+                    Count++;
+                    return value;
+                }
+
+                case WeakReference<T> weakRef:
+                {
+                    // existing weak reference has no target, so reuse it
+                    weakRef.SetTarget(value);
+                    return value;
+                }
+
+                case Node node:
+                {
+                    // walk existing chain, checking for a match
+                    var first = (Node)null;
+                    var prev = (Node)null;
+                    var next = node;
+                    do
+                    {
+                        if (next.WeakRef.TryGetTarget(out T target))
+                        {
+                            // target is alive
+                            if (_comparer.Equals(target, value))
+                            {
+                                // match found
+                                return target;
+                            }
+
+                            // remember the first live node so we can prepend to it if necessary
+                            if (first == null)
+                                first = next;
+
+                            // move to next item
+                            prev = next;
+                            next = next.Next;
+                        }
+                        else
+                        {
+                            // target was collected
+                            if (prev != null)
+                            {
+                                prev.Next = next.Next;
+                            }
+
+                            _weakRefPool.Push(next.WeakRef);
+                            _nodePool.Push(next);
+                            Count--;
+                            next = next.Next;
+                        }
+                    }
+                    while (next != null);
+
+                    // not found
+                    var weakRef = CreateWeakRef();
+                    
+                    if (prev == null)
+                    {
+                        // all nodes were removed
+                        _buckets[pos] = weakRef;
+                    }
+                    else if (first != null)
+                    {
+                        // prepend to chain
+                        var n = CreateNode(weakRef);
+                        n.Next = first;
+                        _buckets[pos] = n;
                     }
                     else
                     {
-                        weakRef.SetTarget(value);
-                        return value;
+                        // all nodes in the existing chain were removed
+                        _buckets[pos] = weakRef;
                     }
+                    Count++;
+                    return value;
                 }
-            }
 
-            if (bucket is List<WeakReference<T>> list)
-            {
-                for (var i = 0; i < list.Count; i++)
+                case null:
                 {
-                    var weakRef = list[i];
-
-                    if (weakRef.TryGetTarget(out T target))
-                    {
-                        if (_comparer.Equals(target, value))
-                        {
-                            return target;
-                        }
-                    }
-                    else
-                    {
-                        _weakRefPool.Push(weakRef);
-                        list.RemoveAt(i);
-                        i--;
-                        Count--;
-                    }
+                    Count++;
+                    _buckets[pos] = CreateWeakRef();
+                    return value;
                 }
 
-                Count++;
-
-                list.Add(CreateWeakRef());
-                return value;
+                default:
+                {
+                    Debug.Fail("Bucket had prohibited type");
+                    return null;
+                }
             }
-
-            if (bucket == null)
-            {
-                Count++;
-
-                _buckets[pos] = CreateWeakRef();
-                return value;
-            }
-
-            Debug.Fail("Bucket had prohibited type");
-            return null;
 
             WeakReference<T> CreateWeakRef()
             {
@@ -107,15 +157,26 @@ namespace StringTheory.PoolExamples
             }
         }
 
+        private Node CreateNode(WeakReference<T> weakRef)
+        {
+            if (_nodePool.TryPop(out Node n))
+            {
+                n.WeakRef = weakRef;
+                return n;
+            }
+
+            return new Node { WeakRef = weakRef };
+        }
+
         private void Grow()
         {
             _capacity *= 2;
 
             var newBuckets = new object[_buckets.Length * 2];
 
-            for (var i = 0; i < _buckets.Length; i++)
+            foreach (var bucket in _buckets)
             {
-                switch (_buckets[i])
+                switch (bucket)
                 {
                     case WeakReference<T> weakRef:
                     {
@@ -123,15 +184,21 @@ namespace StringTheory.PoolExamples
                         break;
                     }
 
-                    case List<WeakReference<T>> list:
+                    case Node node:
                     {
-                        for (var j = 0; j < list.Count; j++)
+                        var next = node;
+                        do
                         {
-                            Hash(list[j]);
-                        }
+                            Hash(next.WeakRef);
 
-                        list.Clear();
-                        _listPool.Push(list);
+                            var tmp = next.Next;
+                            next.Next = null;
+                            next.WeakRef = null;
+                            _nodePool.Push(next);
+
+                            next = tmp;
+                        }
+                        while (next != null);
                         break;
                     }
                 }
@@ -162,41 +229,24 @@ namespace StringTheory.PoolExamples
                     {
                         if (!existingWeakRef.TryGetTarget(out _))
                         {
+                            // value was collected
                             _weakRefPool.Push(existingWeakRef);
                             newBuckets[index] = weakRef;
                         }
-                        else if (_listPool.TryPop(out var list))
-                        {
-                            list.Add(existingWeakRef);
-                            list.Add(weakRef);
-                            newBuckets[index] = list;
-                        }
                         else
                         {
-                            newBuckets[index] = new List<WeakReference<T>>(2) { existingWeakRef, weakRef };
+                            // prepend
+                            var node1 = CreateNode(weakRef);
+                            var node2 = CreateNode(existingWeakRef);
+                            node1.Next = node2;
+                            newBuckets[index] = node1;
                         }
                         break;
                     }
 
-                    case List<WeakReference<T>> list:
+                    case Node node:
                     {
-                        list.RemoveAll(wr =>
-                        {
-                            var alive = wr.TryGetTarget(out _);
-                            if (!alive)
-                                _weakRefPool.Push(wr);
-                            return !alive;
-                        });
-
-                        if (list.Count == 0)
-                        {
-                            _listPool.Push(list);
-                            newBuckets[index] = weakRef;
-                        }
-                        else
-                        {
-                            list.Add(weakRef);
-                        }
+                        node.Next = CreateNode(weakRef);
                         break;
                     }
                 }
