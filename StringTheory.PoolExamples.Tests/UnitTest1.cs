@@ -82,6 +82,24 @@ namespace StringTheory.PoolExamples.Tests
             void ScopedIntern(int i) => pool.Intern(Create(i));
         }
 
+        [Fact]
+        public void InternViaReadOnlySpanOfCharacters()
+        {
+            var pool = new WeakStringPool();
+            var s = new string('9', 9);
+            var out1 = pool.Intern(s);
+            var out2 = pool.InternSpan(s.AsSpan());
+
+            Assert.Same(s, out1);
+            Assert.Same(s, out2);
+
+            var q = new string('0', 50);
+
+            Assert.Same(
+                pool.InternSpan(q.AsSpan(0, 10)),
+                pool.InternSpan(q.AsSpan(10, 10)));
+        }
+
         private sealed class CollisionComparer<T> : IEqualityComparer<T> where T : class
         {
             public bool Equals(T x, T y) => object.Equals(x, y);
