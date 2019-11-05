@@ -15,9 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StringTheory.Pools", "StringTheory.PoolExamples\StringTheory.Pools.csproj", "{7FEBDB59-3E55-473C-BADE-39F03B8B0B36}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StringTheory.Pools", "StringTheory.Pools\StringTheory.Pools.csproj", "{7FEBDB59-3E55-473C-BADE-39F03B8B0B36}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StringTheory.Pools.Tests", "StringTheory.PoolExamples.Tests\StringTheory.Pools.Tests.csproj", "{1CA0CB5A-4055-46CB-B78C-4FEDAECEE53B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StringTheory.Pools.Tests", "StringTheory.Pools.Tests\StringTheory.Pools.Tests.csproj", "{1CA0CB5A-4055-46CB-B78C-4FEDAECEE53B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
