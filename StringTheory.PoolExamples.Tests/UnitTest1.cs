@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace StringTheory.PoolExamples.Tests
+namespace StringTheory.Pools.Tests
 {
     public sealed class WeakPoolTests
     {

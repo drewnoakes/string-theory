@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Threading;
 
-namespace StringTheory.PoolExamples
+namespace StringTheory.Pools
 {
     /// <summary>
     /// A thread-safe object pool, backed by <see cref="ImmutableHashSet{T}"/> and using interlocked

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace StringTheory.PoolExamples
+namespace StringTheory.Pools
 {
     public sealed class WeakStringPool : WeakPool<string>
     {

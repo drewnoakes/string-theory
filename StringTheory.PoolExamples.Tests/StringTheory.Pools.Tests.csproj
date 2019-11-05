@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StringTheory.PoolExamples\StringTheory.PoolExamples.csproj" />
+    <ProjectReference Include="..\StringTheory.PoolExamples\StringTheory.Pools.csproj" />
   </ItemGroup>
 
 </Project>

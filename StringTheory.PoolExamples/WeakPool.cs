@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace StringTheory.PoolExamples
+namespace StringTheory.Pools
 {
     // NOTE these weak pools are not thread safe, though it might be possible/desirable to make them so
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace StringTheory.PoolExamples
+namespace StringTheory.Pools
 {
     /// <summary>
     /// A <see cref="HashSet{T}"/>-based object pool. Not thread-safe.
