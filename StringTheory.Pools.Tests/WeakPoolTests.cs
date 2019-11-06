@@ -82,6 +82,7 @@ namespace StringTheory.Pools.Tests
             void ScopedIntern(int i) => pool.Intern(Create(i));
         }
 
+#if NETCOREAPP3_0
         [Fact]
         public void InternViaReadOnlySpanOfCharacters()
         {
@@ -99,6 +100,7 @@ namespace StringTheory.Pools.Tests
                 pool.InternSpan(q.AsSpan(0, 10)),
                 pool.InternSpan(q.AsSpan(10, 10)));
         }
+#endif
 
         private sealed class CollisionComparer<T> : IEqualityComparer<T> where T : class
         {
