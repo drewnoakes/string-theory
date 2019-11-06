@@ -149,8 +149,14 @@ namespace StringTheory.Pools
 
             WeakReference<T> CreateWeakRef()
             {
+#if NET472
+                if (_weakRefPool.Count != 0)
+                {
+                    var weakRef = _weakRefPool.Pop();
+#else
                 if (_weakRefPool.TryPop(out WeakReference<T> weakRef))
                 {
+#endif
                     weakRef.SetTarget(value);
                     return weakRef;
                 }
@@ -166,8 +172,14 @@ namespace StringTheory.Pools
 
         protected Node CreateNode(WeakReference<T> weakRef)
         {
+#if NET472
+            if (_nodePool.Count != 0)
+            {
+                var n = _nodePool.Pop();
+#else
             if (_nodePool.TryPop(out Node n))
             {
+#endif
                 n.WeakRef = weakRef;
                 return n;
             }

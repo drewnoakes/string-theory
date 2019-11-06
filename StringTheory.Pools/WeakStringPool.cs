@@ -10,6 +10,7 @@ namespace StringTheory.Pools
         {
         }
 
+#if NETSTANDARD2_1
         public string InternSpan(ReadOnlySpan<char> span)
         {
             int hash = HashSpan(span);
@@ -194,5 +195,6 @@ namespace StringTheory.Pools
                 }
             }
         }
+#endif
     }
 }
