@@ -10,7 +10,7 @@ namespace StringTheory.UI
     {
         public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("ReferrerTreeIconBrush");
 
-        public event Action CloseRequested;
+        event Action ITabPage.CloseRequested { add { } remove { } }
 
         private readonly IDisposable _analyzerLease;
 

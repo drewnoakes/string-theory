@@ -13,7 +13,7 @@ namespace StringTheory.UI
 {
     public sealed class StringListPage : ITabPage, IDisposable
     {
-        public event Action CloseRequested;
+        event Action ITabPage.CloseRequested { add { } remove { } }
 
         private readonly IDisposable _analyzerLease;
         private string _filterText;
