@@ -100,7 +100,7 @@ public sealed class HeapAnalyzer
         var stringCharCount = tallyByString.Sum(s => s.Key.Length*(long)s.Value.Count);
         var uniqueStringCharCount = tallyByString.Keys.Sum(s => s.Length);
         var wastedBytes = tallyByString.Values.Sum(t => (long)t.WastedBytes);
-        var stringOverhead = ((double)stringByteCount - (charCount*2))/stringCount;
+        var stringOverhead = stringCount == 0 ? 0 : (uint)Math.Round(((double)stringByteCount - (charCount*2))/stringCount);
 
         return new StringSummary(
             tallyByString.OrderByDescending(p => p.Value.WastedBytes)
@@ -120,7 +120,7 @@ public sealed class HeapAnalyzer
             (ulong)uniqueStringCount,
             totalManagedObjectCount,
             (ulong)wastedBytes,
-            (uint)Math.Round(stringOverhead));
+            stringOverhead);
     }
 
     public StringSummary GetTypeReferenceStringSummary(ClrType referrerType, int fieldOffset, CancellationToken token = default)
@@ -203,7 +203,7 @@ public sealed class HeapAnalyzer
         var stringCharCount = tallyByString.Sum(s => s.Key.Length * (long)s.Value.Count);
         var uniqueStringCharCount = tallyByString.Keys.Sum(s => s.Length);
         var wastedBytes = tallyByString.Values.Sum(t => (long)t.WastedBytes);
-        var stringOverhead = ((double)stringByteCount - (charCount * 2)) / stringCount;
+        var stringOverhead = stringCount == 0 ? 0 : (uint)Math.Round(((double)stringByteCount - (charCount * 2)) / stringCount);
 
         return new StringSummary(
             tallyByString.OrderByDescending(p => p.Value.WastedBytes)
@@ -223,7 +223,7 @@ public sealed class HeapAnalyzer
             (ulong)uniqueStringCount,
             ulong.MaxValue, // TODO review
             (ulong)wastedBytes,
-            (uint)Math.Round(stringOverhead));
+            stringOverhead);
     }
 
     public IDisposable GetLease()
