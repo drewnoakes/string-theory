@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
@@ -102,17 +103,17 @@ public sealed class PercentageConverter : IValueConverter
 [ValueConversion(typeof(string), typeof(string))]
 internal sealed class FirstLineOnlyConverter : IValueConverter
 {
-    private static readonly char[] s_newLineChars = ['\r', '\n'];
+    private static readonly SearchValues<char> s_newLineChars = SearchValues.Create(['\r', '\n']);
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is string s)
         {
-            var i = s.IndexOfAny(s_newLineChars);
+            var i = s.AsSpan().IndexOfAny(s_newLineChars);
 
             if (i != -1)
             {
-                return s.Substring(0, i) + "...";
+                return s[..i] + "...";
             }
 
             return s;
