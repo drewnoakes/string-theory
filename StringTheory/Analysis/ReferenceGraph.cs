@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
@@ -114,13 +115,13 @@ public static class ReferenceGraphBuilder
             var containingType = reference.Field?.ContainingType;
             var key = (containingType?.MetadataToken ?? 0, reference.Offset);
 
-            if (!chainCache.TryGetValue(key, out var chain))
+            ref var chain = ref CollectionsMarshal.GetValueRefOrAddDefault(chainCache, key, out bool exists);
+            if (!exists)
             {
                 chain = BuildChain(reference);
-                chainCache[key] = chain;
             }
 
-            return chain;
+            return chain!;
 
             List<FieldReference> BuildChain(ClrReference r)
             {
