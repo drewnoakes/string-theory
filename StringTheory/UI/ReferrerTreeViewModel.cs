@@ -39,10 +39,12 @@ public enum ReferrerTreeNodeType
     Finalizer
 }
 
-public sealed class ReferrerTreeNode
+public sealed partial class ReferrerTreeNode
 {
     private static readonly object _placeholderChild = new object();
-    private static readonly Regex _typeNameRegex = new Regex(@"^(?<scope>[\w.]+\.)(?<name>[\w<>.+]+)$", RegexOptions.Compiled | RegexOptions.Singleline);
+
+    [GeneratedRegex(@"^(?<scope>[\w.]+\.)(?<name>[\w<>.+]+)$", RegexOptions.Singleline)]
+    private static partial Regex TypeNameRegex();
 
     private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
 
@@ -96,7 +98,7 @@ public sealed class ReferrerTreeNode
         string? scope;
         string name;
 
-        var match = _typeNameRegex.Match(referrerType?.Name ?? "");
+        var match = TypeNameRegex().Match(referrerType?.Name ?? "");
 
         if (match.Success)
         {
