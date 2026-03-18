@@ -6,6 +6,10 @@
     <UseWPF>true</UseWPF>
     <Copyright>Copyright © Drew Noakes 2018-$([System.DateTime]::Now.Year)</Copyright>
     <Nullable>enable</Nullable>
+    <Authors>Drew Noakes</Authors>
+    <Description>Identifies opportunities to improve heap memory consumption by strings. Finds duplicate strings and shows what object graphs are keeping them alive.</Description>
+    <RepositoryUrl>https://github.com/drewnoakes/string-theory</RepositoryUrl>
+    <LicenseExpression>Apache-2.0</LicenseExpression>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>UI\App.ico</ApplicationIcon>
