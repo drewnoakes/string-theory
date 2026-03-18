@@ -31,11 +31,12 @@ public sealed class HeapAnalyzer
         var clrInfo = _dataTarget.ClrVersions.FirstOrDefault();
 
         if (clrInfo == null)
-            throw new Exception("Could not find any CLR version in the target.");
+            throw new InvalidOperationException("Could not find any CLR version in the target.");
 
         _heap = clrInfo.CreateRuntime().Heap;
 
-        // TODO if !_heap.CanWalkHeap then the process/dump may be in a state where walking is unreliable (e.g. middle of GC)
+        if (!_heap.CanWalkHeap)
+            throw new InvalidOperationException("The heap is not in a walkable state. The process may have been in the middle of a garbage collection.");
     }
 
     public StringSummary GetStringSummary(Action<double>? progressCallback = null, CancellationToken token = default)
