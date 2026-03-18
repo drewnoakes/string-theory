@@ -74,6 +74,32 @@ public sealed partial class ReferrerTreeNode
 
     private ReferrerTreeNode CreateGCRootNode(RootGraphNode node)
     {
+        if (node.StaticFieldName != null)
+        {
+            // Root was resolved to a static field — show type name + field name
+            var typeName = node.StaticFieldTypeName ?? "";
+            var match = TypeNameRegex().Match(typeName);
+
+            string? scope;
+            string name;
+
+            if (match.Success)
+            {
+                scope = match.Groups["scope"].Value;
+                name = match.Groups["name"].Value;
+            }
+            else
+            {
+                scope = null;
+                name = typeName;
+            }
+
+            var fieldChain = "." + node.StaticFieldName;
+            var nodeType = node.IsThreadStatic ? ReferrerTreeNodeType.ThreadStaticVar : ReferrerTreeNodeType.StaticVar;
+
+            return new ReferrerTreeNode(this, [node], scope, name, fieldChain, null, -1, null, false, true, nodeType, null);
+        }
+
         var rootName = node.ClrRoot.Object.Type?.Name ?? node.ClrRoot.RootKind.ToString();
         return new ReferrerTreeNode(this, [node], null, rootName, null, null, -1, null, false, true, GetNodeType(), null);
 
