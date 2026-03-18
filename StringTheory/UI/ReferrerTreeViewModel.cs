@@ -43,7 +43,7 @@ public sealed partial class ReferrerTreeNode
 {
     private static readonly object _placeholderChild = new object();
 
-    [GeneratedRegex(@"^(?<scope>[\w.]+\.)(?<name>[\w<>.+]+)$", RegexOptions.Singleline)]
+    [GeneratedRegex(@"^(?<scope>[\w.]+\.)(?<name>[\w<>.+]+)$", RegexOptions.ExplicitCapture)]
     private static partial Regex TypeNameRegex();
 
     private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
