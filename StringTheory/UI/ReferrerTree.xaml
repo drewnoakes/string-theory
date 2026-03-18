@@ -15,7 +15,7 @@
                 <TextBlock Text="{Binding Count, StringFormat=N0}" Foreground="#888" Margin="0,0,6,0" />
                 <Rectangle Name="Icon" Width="16" Height="16" Margin="0,0,6,0" />
                 <TextBlock Text="{Binding Scope}" Foreground="#999" />
-                <TextBlock Text="{Binding Name}" Foreground="DodgerBlue" />
+                <TextBlock Text="{Binding Name}" Foreground="DodgerBlue" ToolTip="{Binding NameToolTip}" />
                 <TextBlock Text="{Binding FieldChain}" Foreground="Purple" />
                 <TextBlock Visibility="{Binding CanShowStringsReferencedByField, Converter={x:Static local:Converters.VisibleWhenTrue}}" Margin="4,0,0,0">
                     <Hyperlink Command="{Binding ShowStringReferencedByFieldCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type local:ReferrerTree}}}"

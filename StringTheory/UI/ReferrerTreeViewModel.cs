@@ -55,6 +55,7 @@ public sealed class ReferrerTreeNode
 
     public string Scope { get; }
     public string Name { get; }
+    public string? NameToolTip { get; }
     public string FieldChain { get; }
     public bool IsCycle { get; }
     public bool IsLeaf { get; }
@@ -62,13 +63,17 @@ public sealed class ReferrerTreeNode
 
     public static ReferrerTreeNode CreateStringNode(IReadOnlyList<ReferenceGraphNode> backingItems, string content)
     {
-        return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null, false, false, ReferrerTreeNodeType.TargetString);
+        var firstNewLine = content.AsSpan().IndexOfAny('\r', '\n');
+        var displayName = firstNewLine >= 0 ? content[..firstNewLine] + " \u2026" : content;
+        var toolTip = firstNewLine >= 0 ? content : null;
+
+        return new ReferrerTreeNode(null, backingItems, null, displayName, null, null, -1, null, false, false, ReferrerTreeNodeType.TargetString, toolTip);
     }
 
     private ReferrerTreeNode CreateGCRootNode(RootGraphNode node)
     {
         var rootName = node.ClrRoot.Object.Type?.Name ?? node.ClrRoot.RootKind.ToString();
-        return new ReferrerTreeNode(this, [node], null, rootName, null, null, -1, null, false, true, GetNodeType());
+        return new ReferrerTreeNode(this, [node], null, rootName, null, null, -1, null, false, true, GetNodeType(), null);
 
         ReferrerTreeNodeType GetNodeType()
         {
@@ -113,15 +118,16 @@ public sealed class ReferrerTreeNode
             fieldChain = "." + fieldChain;
         }
 
-        return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain, isCycle, false, ReferrerTreeNodeType.FieldReference);
+        return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain, isCycle, false, ReferrerTreeNodeType.FieldReference, null);
     }
 
-    private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle, bool isLeaf, ReferrerTreeNodeType type)
+    private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle, bool isLeaf, ReferrerTreeNodeType type, string nameToolTip)
     {
         _parent = parent;
         _backingItems = backingItems;
         Scope = scope;
         Name = name;
+        NameToolTip = nameToolTip;
         FieldChain = fieldChain;
         FieldOffset = fieldOffset;
         ReferrerChain = referrerChain;
