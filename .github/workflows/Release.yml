@@ -4,6 +4,9 @@ on:
   release:
     types: [ published ]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write
 
@@ -13,6 +16,7 @@ jobs:
     runs-on: windows-latest
     env:
       DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
