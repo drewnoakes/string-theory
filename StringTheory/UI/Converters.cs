@@ -20,7 +20,7 @@ internal static class Converters
 internal sealed class BooleanVisibilityConverter(Visibility trueValue, Visibility falseValue) : IValueConverter
 {
     private static readonly object _boxedTrue = true;
-    private static readonly object _boxedFalse = true;
+    private static readonly object _boxedFalse = false;
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
