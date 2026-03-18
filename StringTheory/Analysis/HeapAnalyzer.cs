@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
 
@@ -81,13 +82,13 @@ public sealed class HeapAnalyzer
                     charCount += value.Length;
                     stringCount++;
 
-                    if (!tallyByString.TryGetValue(value, out var tally))
+                    ref var tally = ref CollectionsMarshal.GetValueRefOrAddDefault(tallyByString, value, out bool exists);
+                    if (!exists)
                     {
                         tally = new ObjectTally(size);
-                        tallyByString[value] = tally;
                     }
 
-                    stringByteCount += tally.InstanceSize;
+                    stringByteCount += tally!.InstanceSize;
                     tally.Add(clrObj.Address, segKind, generation);
                 }
             }
@@ -181,17 +182,17 @@ public sealed class HeapAnalyzer
                 charCount += value.Length;
                 stringCount++;
 
-                if (!tallyByString.TryGetValue(value, out var tally))
+                ref var tally = ref CollectionsMarshal.GetValueRefOrAddDefault(tallyByString, value, out bool exists);
+                if (!exists)
                 {
                     tally = new ObjectTally(strObj.Size);
-                    tallyByString[value] = tally;
                 }
 
                 var strSeg = _heap.GetSegmentByAddress(strObj.Address);
                 if (strSeg == null)
                     continue;
                 var generation = strSeg.GetGeneration(strObj.Address);
-                if (tally.Add(strObj.Address, segKind, generation))
+                if (tally!.Add(strObj.Address, segKind, generation))
                 {
                     stringByteCount += tally.InstanceSize;
                 }
