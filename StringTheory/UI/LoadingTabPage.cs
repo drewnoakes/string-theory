@@ -62,7 +62,7 @@ public sealed class LoadingTabPage : ITabPage, INotifyPropertyChanged, IDisposab
             }
         };
 
-        operation.Start();
+        _ = operation.Start();
 
         void Close()
         {

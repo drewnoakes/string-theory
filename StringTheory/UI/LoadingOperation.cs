@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,34 +15,27 @@ public sealed class LoadingOperation(Func<Action<double>, CancellationToken, ITa
     private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
     private int _isDisposed;
 
-    public void Start()
+    public async Task Start()
     {
         Dispatcher.CurrentDispatcher.VerifyAccess();
 
-        var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-
-        var task = Task.Run(
-            () => operation(SetProgress, _cancellationTokenSource.Token),
-            _cancellationTokenSource.Token);
-
-        task.ContinueWith(t =>
+        try
         {
-            if (t.IsCanceled)
-            {
-                return;
-            }
+            var result = await Task.Run(
+                () => operation(SetProgress, _cancellationTokenSource.Token),
+                _cancellationTokenSource.Token);
 
-            if (t.IsFaulted)
-            {
-                Debug.Assert(t.Exception != null, "t.Exception != null");
-                Clipboard.SetText(t.Exception.ToString());
-                MessageBox.Show($"Operation failed: {t.Exception.Message}\n\nFull details copied to clipboard.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Completed?.Invoke(null);
-                return;
-            }
-
-            Completed?.Invoke(t.Result);
-        }, scheduler);
+            Completed?.Invoke(result);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (Exception ex)
+        {
+            Clipboard.SetText(ex.ToString());
+            MessageBox.Show($"Operation failed: {ex.Message}\n\nFull details copied to clipboard.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Completed?.Invoke(null);
+        }
 
         void SetProgress(double d) => ProgressChanged?.Invoke(d);
     }
