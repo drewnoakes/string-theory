@@ -2,7 +2,7 @@
 
 # StringTheory
 
-[![Build Status](https://drewnoakes.visualstudio.com/StringTheory/_apis/build/status/StringTheory-CI?branchName=main)](https://drewnoakes.visualstudio.com/StringTheory/_build/latest?definitionId=1&branchName=main)
+[![CI](https://github.com/drewnoakes/string-theory/actions/workflows/CI.yml/badge.svg)](https://github.com/drewnoakes/string-theory/actions/workflows/CI.yml)
 
 Identifies opportunities to improve heap memory consumption by strings.
 
