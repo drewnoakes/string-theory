@@ -45,9 +45,7 @@ public sealed class HeapAnalyzer
 
         ulong stringCount = 0;
         ulong stringByteCount = 0;
-        ulong totalManagedObjectCount = 0;
         ulong totalManagedObjectByteCount = 0;
-        long charCount = 0;
 
         for (var i = 0; i < _heap.Segments.Length; i++)
         {
@@ -71,7 +69,6 @@ public sealed class HeapAnalyzer
 
                 var size = clrObj.Size;
 
-                totalManagedObjectCount++;
                 totalManagedObjectByteCount += size;
 
                 if (type.IsString)
@@ -80,7 +77,6 @@ public sealed class HeapAnalyzer
                     if (value == null)
                         continue;
 
-                    charCount += value.Length;
                     stringCount++;
 
                     ref var tally = ref CollectionsMarshal.GetValueRefOrAddDefault(tallyByString, value, out bool exists);
@@ -98,10 +94,7 @@ public sealed class HeapAnalyzer
         progressCallback?.Invoke(1.0);
 
         var uniqueStringCount = tallyByString.Count;
-        var stringCharCount = tallyByString.Sum(s => s.Key.Length*(long)s.Value.Count);
-        var uniqueStringCharCount = tallyByString.Keys.Sum(s => s.Length);
         var wastedBytes = tallyByString.Values.Sum(t => (long)t.WastedBytes);
-        var stringOverhead = stringCount == 0 ? 0 : (uint)Math.Round(((double)stringByteCount - (charCount*2))/stringCount);
 
         return new StringSummary(
             tallyByString.OrderByDescending(p => p.Value.WastedBytes)
@@ -115,13 +108,9 @@ public sealed class HeapAnalyzer
                         p.Value.CountByGeneration)).ToList(),
             totalManagedObjectByteCount,
             stringByteCount,
-            (ulong)stringCharCount,
-            (ulong)uniqueStringCharCount,
             stringCount,
             (ulong)uniqueStringCount,
-            totalManagedObjectCount,
-            (ulong)wastedBytes,
-            stringOverhead);
+            (ulong)wastedBytes);
     }
 
     public StringSummary GetTypeReferenceStringSummary(ClrType referrerType, int fieldOffset, CancellationToken token = default)
@@ -131,7 +120,6 @@ public sealed class HeapAnalyzer
         ulong stringCount = 0;
         ulong stringByteCount = 0;
         ulong totalManagedObjectByteCount = 0;
-        long charCount = 0;
 
         ClrInstanceField? stringField = null;
         foreach (var f in referrerType.Fields)
@@ -180,7 +168,6 @@ public sealed class HeapAnalyzer
                 if (value == null)
                     continue;
 
-                charCount += value.Length;
                 stringCount++;
 
                 ref var tally = ref CollectionsMarshal.GetValueRefOrAddDefault(tallyByString, value, out bool exists);
@@ -201,10 +188,7 @@ public sealed class HeapAnalyzer
         }
 
         var uniqueStringCount = tallyByString.Count;
-        var stringCharCount = tallyByString.Sum(s => s.Key.Length * (long)s.Value.Count);
-        var uniqueStringCharCount = tallyByString.Keys.Sum(s => s.Length);
         var wastedBytes = tallyByString.Values.Sum(t => (long)t.WastedBytes);
-        var stringOverhead = stringCount == 0 ? 0 : (uint)Math.Round(((double)stringByteCount - (charCount * 2)) / stringCount);
 
         return new StringSummary(
             tallyByString.OrderByDescending(p => p.Value.WastedBytes)
@@ -218,13 +202,9 @@ public sealed class HeapAnalyzer
                         p.Value.CountByGeneration)).ToList(),
             totalManagedObjectByteCount,
             stringByteCount,
-            (ulong)stringCharCount,
-            (ulong)uniqueStringCharCount,
             stringCount,
             (ulong)uniqueStringCount,
-            ulong.MaxValue, // TODO review
-            (ulong)wastedBytes,
-            stringOverhead);
+            (ulong)wastedBytes);
     }
 
     public IDisposable GetLease()
