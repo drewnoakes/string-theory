@@ -12,7 +12,8 @@
         MinHeight="200"
         MinWidth="500"
         WindowStartupLocation="CenterOwner"
-        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        FocusManager.FocusedElement="{Binding ElementName=_searchBox}">
     
     <DockPanel>
 
@@ -21,6 +22,17 @@
             <Button Command="{Binding Path=AttachToProcessCommand}" CommandParameter="{Binding Processes/}" Content="Attach" Padding="4" Margin="4"
                     IsEnabled="{Binding ElementName=_grid, Path=SelectedItem, Converter={x:Static local:Converters.TrueWhenNonNull}}"/>
         </UniformGrid>
+
+        <TextBox x:Name="_searchBox"
+                 DockPanel.Dock="Top"
+                 Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}"
+                 VerticalContentAlignment="Center"
+                 Margin="4"
+                 Padding="4,2">
+            <local:Watermark.Content>
+                <TextBlock FontSize="10" Opacity="0.5">Filter by name, PID, title, or path...</TextBlock>
+            </local:Watermark.Content>
+        </TextBox>
 
         <DataGrid
             x:Name="_grid"
@@ -35,9 +47,39 @@
             AlternatingRowBackground="{StaticResource AlternatingRowColor}">
 
             <DataGrid.Columns>
-                <DataGridTextColumn Width="Auto" Header="PID" Binding="{Binding Id}" MinWidth="70" />
-                <DataGridTextColumn Width="Auto" Header="File"  Binding="{Binding ProcessName}" MinWidth="170" SortMemberPath="ProcessName" SortDirection="Ascending" />
-                <DataGridTextColumn Width="*" Header="Title" Binding="{Binding MainWindowTitle}" />
+                <DataGridTemplateColumn Width="Auto" Header="PID" MinWidth="70" SortMemberPath="Id">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <local:HighlightTextBlock
+                                SourceText="{Binding IdText}"
+                                HighlightText="{Binding DataContext.FilterText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                Margin="2,0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Width="Auto" Header="File" MinWidth="170" SortMemberPath="ProcessName" SortDirection="Ascending">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <local:HighlightTextBlock
+                                SourceText="{Binding ProcessName}"
+                                HighlightText="{Binding DataContext.FilterText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                ToolTip="{Binding FilePath}"
+                                Margin="2,0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTemplateColumn Width="*" Header="Title" SortMemberPath="MainWindowTitle">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <local:HighlightTextBlock
+                                SourceText="{Binding MainWindowTitle}"
+                                HighlightText="{Binding DataContext.FilterText, RelativeSource={RelativeSource AncestorType=Window}}"
+                                Margin="2,0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
 
             <DataGrid.InputBindings>

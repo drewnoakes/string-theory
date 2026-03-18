@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Data;
 using System.Windows.Input;
@@ -9,9 +10,25 @@ namespace StringTheory.UI;
 
 public sealed partial class AttachToProcessWindow : INotifyPropertyChanged
 {
-    public Process[]? Processes { get; private set; }
+    private string _filterText = "";
+    private ProcessInfo[]? _allProcesses;
+
+    public ProcessInfo[]? Processes { get; private set; }
     public ICommand? RefreshProcessesCommand { get; }
     public ICommand? AttachToProcessCommand { get; }
+
+    public string FilterText
+    {
+        get => _filterText;
+        set
+        {
+            if (_filterText == value)
+                return;
+            _filterText = value;
+            OnPropertyChanged();
+            ApplyFilter();
+        }
+    }
 
     public AttachToProcessWindow()
     {
@@ -21,7 +38,7 @@ public sealed partial class AttachToProcessWindow : INotifyPropertyChanged
     public AttachToProcessWindow(MainWindow mainWindow)
     {
         RefreshProcessesCommand = new DelegateCommand(RefreshProcesses);
-        AttachToProcessCommand = new DelegateCommand<Process>(
+        AttachToProcessCommand = new DelegateCommand<ProcessInfo>(
             process =>
             {
                 if (process == null)
@@ -51,12 +68,29 @@ public sealed partial class AttachToProcessWindow : INotifyPropertyChanged
 
     private void RefreshProcesses()
     {
-        Processes = Process.GetProcesses();
+        _allProcesses = Process.GetProcesses()
+            .Select(p => new ProcessInfo(p))
+            .ToArray();
+
+        ApplyFilter();
+    }
+
+    private void ApplyFilter()
+    {
+        if (_allProcesses is null)
+            return;
+
+        var filter = _filterText;
+
+        Processes = string.IsNullOrWhiteSpace(filter)
+            ? _allProcesses
+            : _allProcesses.Where(p => p.MatchesFilter(filter)).ToArray();
+
         OnPropertyChanged(nameof(Processes));
 
         var view = CollectionViewSource.GetDefaultView(Processes);
         view.SortDescriptions.Clear();
-        view.SortDescriptions.Add(new SortDescription(nameof(Process.ProcessName), ListSortDirection.Ascending));
+        view.SortDescriptions.Add(new SortDescription(nameof(ProcessInfo.ProcessName), ListSortDirection.Ascending));
     }
 
     #region INotifyPropertyChanged
