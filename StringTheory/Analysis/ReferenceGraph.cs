@@ -12,7 +12,7 @@ namespace StringTheory.Analysis
         {
             var graph = new ReferenceGraph();
 
-            var seen = new HashSet<ulong>();
+            var seen = new ObjectSet(heap);
 
             var stack = new HeapWalkStack();
 
