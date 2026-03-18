@@ -54,7 +54,7 @@ public sealed class StringListPage : ITabPage, IDisposable
             if (value == null)
                 view.Filter = null;
             else
-                view.Filter = i => ((StringItem) i).Content.IndexOf(value, StringComparison.CurrentCultureIgnoreCase) != -1;
+                view.Filter = i => ((StringItem) i).Content.Contains(value, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 
