@@ -38,7 +38,7 @@ public sealed class ReferrersPage : ITabPage, IDisposable
             var operation = new LoadingOperation(
                 (progressCallback, token) =>
                 {
-                    var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset);
+                    var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset, token);
 
                     var description = $"Strings referenced by field {FieldReference.DescribeFieldReferences(node.ReferrerChain)} of type {node.ReferrerType.Name}";
 

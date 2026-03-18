@@ -98,7 +98,7 @@ public sealed class StringListPage : ITabPage, IDisposable
             var operation = new LoadingOperation(
                 (progressCallback, token) =>
                 {
-                    var graph = analyzer.GetReferenceGraph(stringItem.ValueAddresses);
+                    var graph = analyzer.GetReferenceGraph(stringItem.ValueAddresses, token);
 
                     var referrerTree = new ReferrerTreeViewModel(graph, stringItem.Content);
 
