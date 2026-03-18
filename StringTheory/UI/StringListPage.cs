@@ -51,7 +51,7 @@ public sealed class StringListPage : ITabPage, IDisposable
                 return;
             _filterText = value;
             var view = CollectionViewSource.GetDefaultView(StringItems);
-            if (value == null)
+            if (value.Length == 0)
                 view.Filter = null;
             else
                 view.Filter = i => ((StringItem) i).Content.Contains(value, StringComparison.CurrentCultureIgnoreCase);
