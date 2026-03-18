@@ -77,20 +77,14 @@ public sealed partial class ReferrerTreeNode
         var rootName = node.ClrRoot.Object.Type?.Name ?? node.ClrRoot.RootKind.ToString();
         return new ReferrerTreeNode(this, [node], null, rootName, null, null, -1, null, false, true, GetNodeType(), null);
 
-        ReferrerTreeNodeType GetNodeType()
+        ReferrerTreeNodeType GetNodeType() => node.ClrRoot.RootKind switch
         {
-            switch (node.ClrRoot.RootKind)
-            {
-                case ClrRootKind.StrongHandle:      return ReferrerTreeNodeType.StrongHandle;
-                case ClrRootKind.PinnedHandle:      return ReferrerTreeNodeType.Pinning;
-                case ClrRootKind.AsyncPinnedHandle: return ReferrerTreeNodeType.AsyncPinning;
-                case ClrRootKind.Stack:             return ReferrerTreeNodeType.LocalVar;
-                case ClrRootKind.RefCountedHandle:  return ReferrerTreeNodeType.StrongHandle;
-                case ClrRootKind.SizedRefHandle:    return ReferrerTreeNodeType.StrongHandle;
-                case ClrRootKind.FinalizerQueue:    return ReferrerTreeNodeType.Finalizer;
-                default:                            return ReferrerTreeNodeType.StrongHandle;
-            }
-        }
+            ClrRootKind.PinnedHandle      => ReferrerTreeNodeType.Pinning,
+            ClrRootKind.AsyncPinnedHandle => ReferrerTreeNodeType.AsyncPinning,
+            ClrRootKind.Stack             => ReferrerTreeNodeType.LocalVar,
+            ClrRootKind.FinalizerQueue    => ReferrerTreeNodeType.Finalizer,
+            _                             => ReferrerTreeNodeType.StrongHandle,
+        };
     }
 
     private ReferrerTreeNode CreateChildNode(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType? referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
