@@ -7,22 +7,14 @@ using System.Windows.Threading;
 
 namespace StringTheory.UI;
 
-public sealed class LoadingOperation : IDisposable
+public sealed class LoadingOperation(Func<Action<double>, CancellationToken, ITabPage> operation) : IDisposable
 {
     public event Action<ITabPage> Completed;
 
     public event Action<double> ProgressChanged;
 
     private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-
-    private readonly Func<Action<double>, CancellationToken, ITabPage> _operation;
-
     private int _isDisposed;
-
-    public LoadingOperation(Func<Action<double>, CancellationToken, ITabPage> operation)
-    {
-        _operation = operation;
-    }
 
     public void Start()
     {
@@ -31,7 +23,7 @@ public sealed class LoadingOperation : IDisposable
         var scheduler = TaskScheduler.FromCurrentSynchronizationContext();
 
         var task = Task.Run(
-            () => _operation(SetProgress, _cancellationTokenSource.Token),
+            () => operation(SetProgress, _cancellationTokenSource.Token),
             _cancellationTokenSource.Token);
 
         task.ContinueWith(t =>

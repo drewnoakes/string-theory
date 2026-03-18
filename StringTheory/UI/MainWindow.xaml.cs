@@ -19,10 +19,10 @@ public sealed partial class MainWindow : INotifyPropertyChanged
 
     public MainWindow()
     {
-        TabPages = new ObservableCollection<ITabPage>
-        {
+        TabPages =
+        [
             new HomePage(this)
-        };
+        ];
 
         CloseCommand = new DelegateCommand<ITabPage>(RemoveTabPage);
 

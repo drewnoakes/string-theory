@@ -82,10 +82,10 @@ public static class ReferenceGraphBuilder
                                 
                                 ref var levelBefore = ref stack[i - 1];
                                 
-                                var referenceChain = level.Reference.HasValue ? GetChain(level.Reference.Value) : new List<FieldReference>();
+                                var referenceChain = level.Reference.HasValue ? GetChain(level.Reference.Value) : [];
 
                                 level.GraphNode.Referrers.Add((node: levelBefore.GraphNode, referenceChain, fieldOffset: level.Reference?.Offset ?? -1));
-//                                    levelBefore.GraphNode.References.Add((node: level.GraphNode, referenceChain));
+//                                levelBefore.GraphNode.References.Add((node: level.GraphNode, referenceChain));
                             }
                         }
 
@@ -150,15 +150,10 @@ public static class ReferenceGraphBuilder
         public ReferenceGraphNode GraphNode { get; set; }
     }
 
-    private sealed class HeapWalkStack
+    private sealed class HeapWalkStack(int capacity = 128)
     {
-        private HeapWalkStackLevel[] _levels;
+        private HeapWalkStackLevel[] _levels = new HeapWalkStackLevel[capacity];
         private int _last = -1;
-
-        public HeapWalkStack(int capacity = 128)
-        {
-            _levels = new HeapWalkStackLevel[capacity];
-        }
 
         public void Push(ClrObject obj, ClrReference? reference = null)
         {
@@ -204,16 +199,10 @@ public static class ReferenceGraphBuilder
     }
 }
 
-public readonly struct FieldReference
+public readonly struct FieldReference(ClrInstanceField field)
 {
-    public FieldReference(ClrInstanceField field)
-    {
-        Name = field.Name;
-        Type = field.Type;
-    }
-
-    public string Name { get; }
-    public ClrType Type { get; }
+    public string Name { get; } = field.Name;
+    public ClrType Type { get; } = field.Type;
 
     #region Equality & hashing
 
@@ -245,34 +234,23 @@ public readonly struct FieldReference
 
 public sealed class ReferenceGraph
 {
-    public List<RootGraphNode> Roots { get; } = new List<RootGraphNode>();
-    public List<ReferenceGraphNode> TargetSet { get; } = new List<ReferenceGraphNode>();
+    public List<RootGraphNode> Roots { get; } = [];
+    public List<ReferenceGraphNode> TargetSet { get; } = [];
 }
 
-public sealed class RootGraphNode : ReferenceGraphNode
+public sealed class RootGraphNode(ClrRoot clrRoot) : ReferenceGraphNode(clrRoot.Object)
 {
-    public ClrRoot ClrRoot { get; }
-
-    public RootGraphNode(ClrRoot clrRoot) 
-        : base(clrRoot.Object)
-    {
-        ClrRoot = clrRoot;
-    }
+    public ClrRoot ClrRoot { get; } = clrRoot;
 }
 
-public class ReferenceGraphNode
+public class ReferenceGraphNode(ClrObject o)
 {
-//        public int Count { get; }
-    public ClrObject Object { get; }
-
-    public ReferenceGraphNode(ClrObject o)
-    {
-        Object = o;
-    }
+    //        public int Count { get; }
+    public ClrObject Object { get; } = o;
 
     // NOTE for referrers, the field reference list is backwards
 
-//        public List<(ReferenceGraphNode node, List<FieldReference> referenceChain)> References { get; } = new List<(ReferenceGraphNode node, List<FieldReference> referenceChain)>(2);
+    //        public List<(ReferenceGraphNode node, List<FieldReference> referenceChain)> References { get; } = new List<(ReferenceGraphNode node, List<FieldReference> referenceChain)>(2);
     public List<(ReferenceGraphNode node, List<FieldReference> referenceChain, int fieldOffset)> Referrers { get; } = new List<(ReferenceGraphNode node, List<FieldReference> referenceChain, int fieldOffset)>(2);
 
     public override string ToString() => Object.ToString();

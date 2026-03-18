@@ -3,32 +3,20 @@ using System.Windows.Input;
 
 namespace StringTheory.UI;
 
-internal sealed class DelegateCommand : ICommand
+internal sealed class DelegateCommand(Action execute) : ICommand
 {
-    private readonly Action _execute;
-
-    public DelegateCommand(Action execute) => _execute = execute;
-
     public bool CanExecute(object parameter) => true;
 
-    public void Execute(object parameter) => _execute();
+    public void Execute(object parameter) => execute();
 
-#pragma warning disable CS0067
-    public event EventHandler CanExecuteChanged;
-#pragma warning restore CS0067
+    event EventHandler ICommand.CanExecuteChanged {  add { } remove { } }
 }
 
-internal sealed class DelegateCommand<T> : ICommand
+internal sealed class DelegateCommand<T>(Action<T> execute) : ICommand
 {
-    private readonly Action<T> _execute;
-
-    public DelegateCommand(Action<T> execute) => _execute = execute;
-
     public bool CanExecute(object parameter) => true;
 
-    public void Execute(object parameter) => _execute((T) parameter);
+    public void Execute(object parameter) => execute((T) parameter);
 
-#pragma warning disable CS0067
-    public event EventHandler CanExecuteChanged;
-#pragma warning restore CS0067
+    event EventHandler ICommand.CanExecuteChanged { add { } remove { } }
 }

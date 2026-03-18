@@ -21,7 +21,7 @@ public sealed class ReferrerTreeViewModel
 
         rootNode.Expand();
 
-        Roots = new[] { rootNode };
+        Roots = [rootNode];
     }
 }
 
@@ -48,7 +48,7 @@ public sealed class ReferrerTreeNode
 
     private readonly ReferrerTreeNode _parent;
 
-    public ObservableCollection<object> Children { get; } = new ObservableCollection<object>();
+    public ObservableCollection<object> Children { get; } = [];
     public int FieldOffset { get; }
     public List<FieldReference> ReferrerChain { get; }
     public ClrType ReferrerType { get; }
@@ -68,7 +68,7 @@ public sealed class ReferrerTreeNode
     private ReferrerTreeNode CreateGCRootNode(RootGraphNode node)
     {
         var rootName = node.ClrRoot.Object.Type?.Name ?? node.ClrRoot.RootKind.ToString();
-        return new ReferrerTreeNode(this, new[] {node}, null, rootName, null, null, -1, null, false, true, GetNodeType());
+        return new ReferrerTreeNode(this, [node], null, rootName, null, null, -1, null, false, true, GetNodeType());
 
         ReferrerTreeNodeType GetNodeType()
         {

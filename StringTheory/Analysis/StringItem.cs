@@ -5,7 +5,7 @@ namespace StringTheory.Analysis;
 
 public sealed class StringItem
 {
-    private static readonly char[] s_newLineCharacters = {'\r', '\n'};
+    private static readonly char[] s_newLineCharacters = ['\r', '\n'];
 
     public string FirstLine { get; }
     public string Content { get; }

@@ -2,40 +2,26 @@
 
 namespace StringTheory.Analysis;
 
-public sealed class StringSummary
+public sealed class StringSummary(
+    IReadOnlyList<StringItem> strings,
+    ulong heapByteCount,
+    ulong stringByteCount,
+    ulong stringCharacterCount,
+    ulong uniqueStringCharCount,
+    ulong stringCount,
+    ulong uniqueStringCount,
+    ulong managedObjectCount,
+    ulong wastedBytes,
+    uint stringOverhead)
 {
-    public IReadOnlyList<StringItem> Strings { get; }
-    public ulong HeapByteCount { get; }
-    public ulong StringByteCount { get; }
-    public ulong StringCharacterCount { get; }
-    public ulong UniqueStringCharCount { get; }
-    public ulong StringCount { get; }
-    public ulong UniqueStringCount { get; }
-    public ulong ManagedObjectCount { get; }
-    public ulong WastedBytes { get; }
-    public uint StringOverhead { get; }
-
-    public StringSummary(
-        IReadOnlyList<StringItem> strings,
-        ulong heapByteCount,
-        ulong stringByteCount,
-        ulong stringCharacterCount,
-        ulong uniqueStringCharCount,
-        ulong stringCount,
-        ulong uniqueStringCount,
-        ulong managedObjectCount,
-        ulong wastedBytes,
-        uint stringOverhead)
-    {
-        Strings = strings;
-        HeapByteCount = heapByteCount;
-        StringByteCount = stringByteCount;
-        StringCharacterCount = stringCharacterCount;
-        UniqueStringCharCount = uniqueStringCharCount;
-        StringCount = stringCount;
-        UniqueStringCount = uniqueStringCount;
-        ManagedObjectCount = managedObjectCount;
-        WastedBytes = wastedBytes;
-        StringOverhead = stringOverhead;
-    }
+    public IReadOnlyList<StringItem> Strings { get; } = strings;
+    public ulong HeapByteCount { get; } = heapByteCount;
+    public ulong StringByteCount { get; } = stringByteCount;
+    public ulong StringCharacterCount { get; } = stringCharacterCount;
+    public ulong UniqueStringCharCount { get; } = uniqueStringCharCount;
+    public ulong StringCount { get; } = stringCount;
+    public ulong UniqueStringCount { get; } = uniqueStringCount;
+    public ulong ManagedObjectCount { get; } = managedObjectCount;
+    public ulong WastedBytes { get; } = wastedBytes;
+    public uint StringOverhead { get; } = stringOverhead;
 }

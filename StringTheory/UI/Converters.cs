@@ -17,25 +17,16 @@ internal static class Converters
 }
 
 [ValueConversion(typeof(bool), typeof(Visibility))]
-internal sealed class BooleanVisibilityConverter : IValueConverter
+internal sealed class BooleanVisibilityConverter(Visibility trueValue, Visibility falseValue) : IValueConverter
 {
     private static readonly object _boxedTrue = true;
     private static readonly object _boxedFalse = true;
-
-    private readonly Visibility _trueValue;
-    private readonly Visibility _falseValue;
-
-    public BooleanVisibilityConverter(Visibility trueValue, Visibility falseValue)
-    {
-        _trueValue = trueValue;
-        _falseValue = falseValue;
-    }
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is bool b)
         {
-            return b ? _trueValue : _falseValue;
+            return b ? trueValue : falseValue;
         }
 
         return DependencyProperty.UnsetValue;
@@ -45,8 +36,8 @@ internal sealed class BooleanVisibilityConverter : IValueConverter
     {
         if (value is Visibility v)
         {
-            if (v == _trueValue) return _boxedTrue;
-            if (v == _falseValue) return _boxedFalse;
+            if (v == trueValue) return _boxedTrue;
+            if (v == falseValue) return _boxedFalse;
         }
 
         return DependencyProperty.UnsetValue;
@@ -54,16 +45,10 @@ internal sealed class BooleanVisibilityConverter : IValueConverter
 }
 
 [ValueConversion(typeof(object), typeof(Visibility))]
-internal sealed class NullVisibilityConverter : IValueConverter
+internal sealed class NullVisibilityConverter(Visibility nullValue, Visibility nonNullValue) : IValueConverter
 {
-    private readonly object _nullValue;
-    private readonly object _nonNullValue;
-
-    public NullVisibilityConverter(Visibility nullValue, Visibility nonNullValue)
-    {
-        _nullValue = nullValue;
-        _nonNullValue = nonNullValue;
-    }
+    private readonly object _nullValue = nullValue;
+    private readonly object _nonNullValue = nonNullValue;
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -77,16 +62,10 @@ internal sealed class NullVisibilityConverter : IValueConverter
 }
 
 [ValueConversion(typeof(object), typeof(bool))]
-internal sealed class NullBooleanConverter : IValueConverter
+internal sealed class NullBooleanConverter(bool nullValue) : IValueConverter
 {
-    private readonly object _nullValue;
-    private readonly object _nonNullValue;
-
-    public NullBooleanConverter(bool nullValue)
-    {
-        _nullValue = nullValue;
-        _nonNullValue = !nullValue;
-    }
+    private readonly object _nullValue = nullValue;
+    private readonly object _nonNullValue = !nullValue;
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -123,7 +102,7 @@ public sealed class PercentageConverter : IValueConverter
 [ValueConversion(typeof(string), typeof(string))]
 internal sealed class FirstLineOnlyConverter : IValueConverter
 {
-    private static readonly char[] s_newLineChars = { '\r', '\n' };
+    private static readonly char[] s_newLineChars = ['\r', '\n'];
 
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
