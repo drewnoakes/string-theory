@@ -210,7 +210,7 @@ public readonly struct FieldReference(ClrInstanceField field)
 
     public override bool Equals(object obj) => obj is FieldReference other && Equals(other);
 
-    public override int GetHashCode() => unchecked((Name.GetHashCode()*397) ^ (Type?.GetHashCode() ?? 0));
+    public override int GetHashCode() => HashCode.Combine(Name, Type);
 
     #endregion
 
