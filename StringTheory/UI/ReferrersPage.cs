@@ -4,54 +4,53 @@ using System.Windows.Input;
 using System.Windows.Media;
 using StringTheory.Analysis;
 
-namespace StringTheory.UI
+namespace StringTheory.UI;
+
+public sealed class ReferrersPage : ITabPage, IDisposable
 {
-    public sealed class ReferrersPage : ITabPage, IDisposable
+    public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("ReferrerTreeIconBrush");
+
+    event Action ITabPage.CloseRequested { add { } remove { } }
+
+    private readonly IDisposable _analyzerLease;
+
+    public ICommand ShowStringReferencedByFieldCommand { get; }
+    public ReferrerTreeViewModel ReferrerTree { get; }
+    public string HeaderText { get; }
+
+    DrawingBrush ITabPage.IconDrawingBrush => IconDrawingBrush;
+
+    public bool CanClose => true;
+
+    public ReferrersPage(MainWindow mainWindow, ReferrerTreeViewModel referrerTree, HeapAnalyzer analyzer, string headerText)
     {
-        public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("ReferrerTreeIconBrush");
+        ReferrerTree = referrerTree ?? throw new ArgumentNullException(nameof(referrerTree));
+        HeaderText = headerText;
 
-        event Action ITabPage.CloseRequested { add { } remove { } }
+        _analyzerLease = analyzer.GetLease();
 
-        private readonly IDisposable _analyzerLease;
+        ShowStringReferencedByFieldCommand = new DelegateCommand<ReferrerTreeNode>(ShowStringReferencedByField);
 
-        public ICommand ShowStringReferencedByFieldCommand { get; }
-        public ReferrerTreeViewModel ReferrerTree { get; }
-        public string HeaderText { get; }
-
-        DrawingBrush ITabPage.IconDrawingBrush => IconDrawingBrush;
-
-        public bool CanClose => true;
-
-        public ReferrersPage(MainWindow mainWindow, ReferrerTreeViewModel referrerTree, HeapAnalyzer analyzer, string headerText)
+        void ShowStringReferencedByField(ReferrerTreeNode node)
         {
-            ReferrerTree = referrerTree ?? throw new ArgumentNullException(nameof(referrerTree));
-            HeaderText = headerText;
+            var title = $"Refs of {FieldReference.DescribeFieldReferences(node.ReferrerChain)}";
 
-            _analyzerLease = analyzer.GetLease();
+            var operation = new LoadingOperation(
+                (progressCallback, token) =>
+                {
+                    var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset);
 
-            ShowStringReferencedByFieldCommand = new DelegateCommand<ReferrerTreeNode>(ShowStringReferencedByField);
+                    var description = $"Strings referenced by field {FieldReference.DescribeFieldReferences(node.ReferrerChain)} of type {node.ReferrerType.Name}";
 
-            void ShowStringReferencedByField(ReferrerTreeNode node)
-            {
-                var title = $"Refs of {FieldReference.DescribeFieldReferences(node.ReferrerChain)}";
+                    return new StringListPage(mainWindow, summary, analyzer, title, description);
+                });
 
-                var operation = new LoadingOperation(
-                    (progressCallback, token) =>
-                    {
-                        var summary = analyzer.GetTypeReferenceStringSummary(node.ReferrerType, node.FieldOffset);
-
-                        var description = $"Strings referenced by field {FieldReference.DescribeFieldReferences(node.ReferrerChain)} of type {node.ReferrerType.Name}";
-
-                        return new StringListPage(mainWindow, summary, analyzer, title, description);
-                    });
-
-                mainWindow.AddTab(new LoadingTabPage(title, StringListPage.IconDrawingBrush, operation));
-            }
+            mainWindow.AddTab(new LoadingTabPage(title, StringListPage.IconDrawingBrush, operation));
         }
+    }
 
-        public void Dispose()
-        {
-            _analyzerLease.Dispose();
-        }
+    public void Dispose()
+    {
+        _analyzerLease.Dispose();
     }
 }

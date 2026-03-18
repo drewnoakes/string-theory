@@ -2,25 +2,24 @@
 using System.Diagnostics;
 using System.Windows.Navigation;
 
-namespace StringTheory.UI
+namespace StringTheory.UI;
+
+public sealed partial class AboutWindow
 {
-    public sealed partial class AboutWindow
+    public AboutWindow()
     {
-        public AboutWindow()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        private void OnGitHubLinkClicked(object sender, RequestNavigateEventArgs e)
-        {
-            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
-            e.Handled = true;
-        }
+    private void OnGitHubLinkClicked(object sender, RequestNavigateEventArgs e)
+    {
+        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+        e.Handled = true;
+    }
 
-        protected override void OnDeactivated(EventArgs e)
-        {
-            base.OnDeactivated(e);
-            Close();
-        }
+    protected override void OnDeactivated(EventArgs e)
+    {
+        base.OnDeactivated(e);
+        Close();
     }
 }

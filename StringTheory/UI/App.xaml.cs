@@ -1,6 +1,5 @@
-﻿namespace StringTheory.UI
+﻿namespace StringTheory.UI;
+
+public partial class App
 {
-    public partial class App
-    {
-    }
 }

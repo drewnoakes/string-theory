@@ -7,209 +7,208 @@ using System.Text.RegularExpressions;
 using Microsoft.Diagnostics.Runtime;
 using StringTheory.Analysis;
 
-namespace StringTheory.UI
+namespace StringTheory.UI;
+
+// This file projects a reference graph into a reference tree, dealing with parallel paths and cycles
+
+public sealed class ReferrerTreeViewModel
 {
-    // This file projects a reference graph into a reference tree, dealing with parallel paths and cycles
+    public IReadOnlyList<ReferrerTreeNode> Roots { get; }
 
-    public sealed class ReferrerTreeViewModel
+    public ReferrerTreeViewModel(ReferenceGraph graph, string targetString)
     {
-        public IReadOnlyList<ReferrerTreeNode> Roots { get; }
+        var rootNode = ReferrerTreeNode.CreateStringNode(graph.TargetSet, targetString);
 
-        public ReferrerTreeViewModel(ReferenceGraph graph, string targetString)
-        {
-            var rootNode = ReferrerTreeNode.CreateStringNode(graph.TargetSet, targetString);
+        rootNode.Expand();
 
-            rootNode.Expand();
+        Roots = new[] { rootNode };
+    }
+}
 
-            Roots = new[] { rootNode };
-        }
+public enum ReferrerTreeNodeType
+{
+    TargetString,
+    FieldReference,
+    StaticVar,
+    ThreadStaticVar,
+    Pinning,
+    AsyncPinning,
+    LocalVar,
+    StrongHandle,
+    WeakHandle,
+    Finalizer
+}
+
+public sealed class ReferrerTreeNode
+{
+    private static readonly object _placeholderChild = new object();
+    private static readonly Regex _typeNameRegex = new Regex(@"^(?<scope>[\w.]+\.)(?<name>[\w<>.+]+)$", RegexOptions.Compiled | RegexOptions.Singleline);
+
+    private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
+
+    private readonly ReferrerTreeNode _parent;
+
+    public ObservableCollection<object> Children { get; } = new ObservableCollection<object>();
+    public int FieldOffset { get; }
+    public List<FieldReference> ReferrerChain { get; }
+    public ClrType ReferrerType { get; }
+
+    public string Scope { get; }
+    public string Name { get; }
+    public string FieldChain { get; }
+    public bool IsCycle { get; }
+    public bool IsLeaf { get; }
+    public ReferrerTreeNodeType Type { get; }
+
+    public static ReferrerTreeNode CreateStringNode(IReadOnlyList<ReferenceGraphNode> backingItems, string content)
+    {
+        return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null, false, false, ReferrerTreeNodeType.TargetString);
     }
 
-    public enum ReferrerTreeNodeType
+    private ReferrerTreeNode CreateGCRootNode(RootGraphNode node)
     {
-        TargetString,
-        FieldReference,
-        StaticVar,
-        ThreadStaticVar,
-        Pinning,
-        AsyncPinning,
-        LocalVar,
-        StrongHandle,
-        WeakHandle,
-        Finalizer
-    }
+        var rootName = node.ClrRoot.Object.Type?.Name ?? node.ClrRoot.RootKind.ToString();
+        return new ReferrerTreeNode(this, new[] {node}, null, rootName, null, null, -1, null, false, true, GetNodeType());
 
-    public sealed class ReferrerTreeNode
-    {
-        private static readonly object _placeholderChild = new object();
-        private static readonly Regex _typeNameRegex = new Regex(@"^(?<scope>[\w.]+\.)(?<name>[\w<>.+]+)$", RegexOptions.Compiled | RegexOptions.Singleline);
-
-        private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
-
-        private readonly ReferrerTreeNode _parent;
-
-        public ObservableCollection<object> Children { get; } = new ObservableCollection<object>();
-        public int FieldOffset { get; }
-        public List<FieldReference> ReferrerChain { get; }
-        public ClrType ReferrerType { get; }
-
-        public string Scope { get; }
-        public string Name { get; }
-        public string FieldChain { get; }
-        public bool IsCycle { get; }
-        public bool IsLeaf { get; }
-        public ReferrerTreeNodeType Type { get; }
-
-        public static ReferrerTreeNode CreateStringNode(IReadOnlyList<ReferenceGraphNode> backingItems, string content)
+        ReferrerTreeNodeType GetNodeType()
         {
-            return new ReferrerTreeNode(null, backingItems, null, content, null, null, -1, null, false, false, ReferrerTreeNodeType.TargetString);
-        }
-
-        private ReferrerTreeNode CreateGCRootNode(RootGraphNode node)
-        {
-            var rootName = node.ClrRoot.Object.Type?.Name ?? node.ClrRoot.RootKind.ToString();
-            return new ReferrerTreeNode(this, new[] {node}, null, rootName, null, null, -1, null, false, true, GetNodeType());
-
-            ReferrerTreeNodeType GetNodeType()
+            switch (node.ClrRoot.RootKind)
             {
-                switch (node.ClrRoot.RootKind)
-                {
-                    case ClrRootKind.StrongHandle:      return ReferrerTreeNodeType.StrongHandle;
-                    case ClrRootKind.PinnedHandle:      return ReferrerTreeNodeType.Pinning;
-                    case ClrRootKind.AsyncPinnedHandle: return ReferrerTreeNodeType.AsyncPinning;
-                    case ClrRootKind.Stack:             return ReferrerTreeNodeType.LocalVar;
-                    case ClrRootKind.RefCountedHandle:  return ReferrerTreeNodeType.StrongHandle;
-                    case ClrRootKind.SizedRefHandle:    return ReferrerTreeNodeType.StrongHandle;
-                    case ClrRootKind.FinalizerQueue:    return ReferrerTreeNodeType.Finalizer;
-                    default:                            return ReferrerTreeNodeType.StrongHandle;
-                }
+                case ClrRootKind.StrongHandle:      return ReferrerTreeNodeType.StrongHandle;
+                case ClrRootKind.PinnedHandle:      return ReferrerTreeNodeType.Pinning;
+                case ClrRootKind.AsyncPinnedHandle: return ReferrerTreeNodeType.AsyncPinning;
+                case ClrRootKind.Stack:             return ReferrerTreeNodeType.LocalVar;
+                case ClrRootKind.RefCountedHandle:  return ReferrerTreeNodeType.StrongHandle;
+                case ClrRootKind.SizedRefHandle:    return ReferrerTreeNodeType.StrongHandle;
+                case ClrRootKind.FinalizerQueue:    return ReferrerTreeNodeType.Finalizer;
+                default:                            return ReferrerTreeNodeType.StrongHandle;
             }
         }
+    }
 
-        private ReferrerTreeNode CreateChildNode(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
+    private ReferrerTreeNode CreateChildNode(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
+    {
+        string scope;
+        string name;
+
+        var match = _typeNameRegex.Match(referrerType.Name);
+
+        if (match.Success)
         {
-            string scope;
-            string name;
+            scope = match.Groups["scope"].Value;
+            name = match.Groups["name"].Value;
+        }
+        else
+        {
+            scope = null;
+            name = referrerType.Name;
+        }
 
-            var match = _typeNameRegex.Match(referrerType.Name);
+        Debug.Assert(!string.IsNullOrEmpty(name), "Node shouldn't have empty name");
 
-            if (match.Success)
+        var fieldChain = FieldReference.DescribeFieldReferences(referrerChain);
+
+        if (fieldChain.Length != 0)
+        {
+            fieldChain = "." + fieldChain;
+        }
+
+        return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain, isCycle, false, ReferrerTreeNodeType.FieldReference);
+    }
+
+    private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle, bool isLeaf, ReferrerTreeNodeType type)
+    {
+        _parent = parent;
+        _backingItems = backingItems;
+        Scope = scope;
+        Name = name;
+        FieldChain = fieldChain;
+        FieldOffset = fieldOffset;
+        ReferrerChain = referrerChain;
+        IsCycle = isCycle;
+        Type = type;
+        IsLeaf = isLeaf;
+        ReferrerType = referrerType;
+
+        if (!isLeaf)
+        {
+            Children.Add(_placeholderChild);
+        }
+    }
+
+    public bool CanShowStringsReferencedByField => _parent != null && _parent._parent == null;
+
+    public int Count => _backingItems.Count;
+
+    public bool IsExpanded { get; set; }
+
+    public void Expand()
+    {
+        // Create child nodes by grouping backing items
+        // TODO don't add placeholder child then clear it during auto expand construction (unless logic becomes ugly)
+
+        var node = this;
+
+        var ancestors = GetAncestors();
+
+        // Limit the depth to which this can recur, defending against overflows here or in later arrange/layout
+        var remaining = 50;
+
+        while (remaining-- != 0)
+        {
+            if (node.IsLeaf || node.IsCycle)
+                return;
+
+            ancestors.Add((node.ReferrerType, node.FieldOffset));
+
+            node.Children.Clear();
+            node.IsExpanded = true;
+
+            var roots = node._backingItems.OfType<RootGraphNode>().ToList();
+
+            var nonRoots = roots.Count == 0 ? node._backingItems : node._backingItems.Where(n => !(n is RootGraphNode));
+
+            var groups = nonRoots
+                .SelectMany(i => i.Referrers)
+                .GroupBy(referrer => (referrerType: referrer.node.Object.Type, referrer.referenceChain, referrer.fieldOffset))
+                .OrderByDescending(g => g.Count());
+
+            foreach (var group in groups)
             {
-                scope = match.Groups["scope"].Value;
-                name = match.Groups["name"].Value;
+                var backingItems = group.Select(i => i.node).ToList();
+
+                var isCycle = ancestors.Contains((group.Key.referrerType, group.Key.fieldOffset));
+
+                node.Children.Add(node.CreateChildNode(backingItems, group.Key.referrerType, group.Key.fieldOffset, group.Key.referenceChain, isCycle));
+            }
+
+            foreach (var root in roots)
+            {
+                node.Children.Add(node.CreateGCRootNode(root));
+            }
+
+            if (node.Children.Count == 1)
+            {
+                node = (ReferrerTreeNode)node.Children[0];
             }
             else
             {
-                scope = null;
-                name = referrerType.Name;
-            }
-
-            Debug.Assert(!string.IsNullOrEmpty(name), "Node shouldn't have empty name");
-
-            var fieldChain = FieldReference.DescribeFieldReferences(referrerChain);
-
-            if (fieldChain.Length != 0)
-            {
-                fieldChain = "." + fieldChain;
-            }
-
-            return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain, isCycle, false, ReferrerTreeNodeType.FieldReference);
-        }
-
-        private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle, bool isLeaf, ReferrerTreeNodeType type)
-        {
-            _parent = parent;
-            _backingItems = backingItems;
-            Scope = scope;
-            Name = name;
-            FieldChain = fieldChain;
-            FieldOffset = fieldOffset;
-            ReferrerChain = referrerChain;
-            IsCycle = isCycle;
-            Type = type;
-            IsLeaf = isLeaf;
-            ReferrerType = referrerType;
-
-            if (!isLeaf)
-            {
-                Children.Add(_placeholderChild);
+                break;
             }
         }
 
-        public bool CanShowStringsReferencedByField => _parent != null && _parent._parent == null;
-
-        public int Count => _backingItems.Count;
-
-        public bool IsExpanded { get; set; }
-
-        public void Expand()
+        HashSet<(ClrType ReferrerType, int fieldOffset)> GetAncestors()
         {
-            // Create child nodes by grouping backing items
-            // TODO don't add placeholder child then clear it during auto expand construction (unless logic becomes ugly)
+            var set = new HashSet<(ClrType ReferrerType, int fieldOffset)>();
+            var n = _parent;
 
-            var node = this;
-
-            var ancestors = GetAncestors();
-
-            // Limit the depth to which this can recur, defending against overflows here or in later arrange/layout
-            var remaining = 50;
-
-            while (remaining-- != 0)
+            while (n?.ReferrerType != null)
             {
-                if (node.IsLeaf || node.IsCycle)
-                    return;
-
-                ancestors.Add((node.ReferrerType, node.FieldOffset));
-
-                node.Children.Clear();
-                node.IsExpanded = true;
-
-                var roots = node._backingItems.OfType<RootGraphNode>().ToList();
-
-                var nonRoots = roots.Count == 0 ? node._backingItems : node._backingItems.Where(n => !(n is RootGraphNode));
-
-                var groups = nonRoots
-                    .SelectMany(i => i.Referrers)
-                    .GroupBy(referrer => (referrerType: referrer.node.Object.Type, referrer.referenceChain, referrer.fieldOffset))
-                    .OrderByDescending(g => g.Count());
-
-                foreach (var group in groups)
-                {
-                    var backingItems = group.Select(i => i.node).ToList();
-
-                    var isCycle = ancestors.Contains((group.Key.referrerType, group.Key.fieldOffset));
-
-                    node.Children.Add(node.CreateChildNode(backingItems, group.Key.referrerType, group.Key.fieldOffset, group.Key.referenceChain, isCycle));
-                }
-
-                foreach (var root in roots)
-                {
-                    node.Children.Add(node.CreateGCRootNode(root));
-                }
-
-                if (node.Children.Count == 1)
-                {
-                    node = (ReferrerTreeNode)node.Children[0];
-                }
-                else
-                {
-                    break;
-                }
+                set.Add((n.ReferrerType, n.FieldOffset));
+                n = n._parent;
             }
 
-            HashSet<(ClrType ReferrerType, int fieldOffset)> GetAncestors()
-            {
-                var set = new HashSet<(ClrType ReferrerType, int fieldOffset)>();
-                var n = _parent;
-
-                while (n?.ReferrerType != null)
-                {
-                    set.Add((n.ReferrerType, n.FieldOffset));
-                    n = n._parent;
-                }
-
-                return set;
-            }
+            return set;
         }
     }
 }

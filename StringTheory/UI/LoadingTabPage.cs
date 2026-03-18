@@ -4,87 +4,86 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace StringTheory.UI
+namespace StringTheory.UI;
+
+public sealed class LoadingTabPage : ITabPage, INotifyPropertyChanged, IDisposable
 {
-    public sealed class LoadingTabPage : ITabPage, INotifyPropertyChanged, IDisposable
+    public event Action CloseRequested;
+
+    private readonly LoadingOperation _operation;
+
+    public string HeaderText { get; private set; }
+    public DrawingBrush IconDrawingBrush { get; private set; }
+    public bool IsIndeterminate { get; private set; } = true;
+    public double ProgressRatio { get; private set; }
+
+    public ITabPage Page { get; private set; }
+
+    public ICommand CancelCommand { get; }
+
+    public bool CanClose => true;
+
+    public LoadingTabPage(string tabTitle, DrawingBrush iconDrawingBrush, LoadingOperation operation)
     {
-        public event Action CloseRequested;
+        _operation = operation;
+        HeaderText = tabTitle;
+        IconDrawingBrush = iconDrawingBrush;
 
-        private readonly LoadingOperation _operation;
+        CancelCommand = new DelegateCommand(Close);
 
-        public string HeaderText { get; private set; }
-        public DrawingBrush IconDrawingBrush { get; private set; }
-        public bool IsIndeterminate { get; private set; } = true;
-        public double ProgressRatio { get; private set; }
-
-        public ITabPage Page { get; private set; }
-
-        public ICommand CancelCommand { get; }
-
-        public bool CanClose => true;
-
-        public LoadingTabPage(string tabTitle, DrawingBrush iconDrawingBrush, LoadingOperation operation)
+        operation.Completed += page =>
         {
-            _operation = operation;
-            HeaderText = tabTitle;
-            IconDrawingBrush = iconDrawingBrush;
-
-            CancelCommand = new DelegateCommand(Close);
-
-            operation.Completed += page =>
+            if (page == null)
             {
-                if (page == null)
-                {
-                    Close();
-                    return;
-                }
-
-                Page = page;
-                OnPropertyChanged(nameof(Page));
-                HeaderText = page.HeaderText;
-                OnPropertyChanged(nameof(HeaderText));
-                IconDrawingBrush = page.IconDrawingBrush;
-                OnPropertyChanged(nameof(IconDrawingBrush));
-            };
-
-            operation.ProgressChanged += ratio =>
-            {
-                if (IsIndeterminate)
-                {
-                    IsIndeterminate = false;
-                    OnPropertyChanged(nameof(IsIndeterminate));
-                }
-
-                if (ProgressRatio != ratio)
-                {
-                    ProgressRatio = ratio;
-                    OnPropertyChanged(nameof(ProgressRatio));
-                }
-            };
-
-            operation.Start();
-
-            void Close()
-            {
-                operation.Cancel();
-                CloseRequested?.Invoke();
+                Close();
+                return;
             }
-        }
 
-        public void Dispose()
+            Page = page;
+            OnPropertyChanged(nameof(Page));
+            HeaderText = page.HeaderText;
+            OnPropertyChanged(nameof(HeaderText));
+            IconDrawingBrush = page.IconDrawingBrush;
+            OnPropertyChanged(nameof(IconDrawingBrush));
+        };
+
+        operation.ProgressChanged += ratio =>
         {
-            _operation.Dispose();
-        }
+            if (IsIndeterminate)
+            {
+                IsIndeterminate = false;
+                OnPropertyChanged(nameof(IsIndeterminate));
+            }
 
-        #region INotifyPropertyChanged
+            if (ProgressRatio != ratio)
+            {
+                ProgressRatio = ratio;
+                OnPropertyChanged(nameof(ProgressRatio));
+            }
+        };
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        operation.Start();
 
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        void Close()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            operation.Cancel();
+            CloseRequested?.Invoke();
         }
-
-        #endregion
     }
+
+    public void Dispose()
+    {
+        _operation.Dispose();
+    }
+
+    #region INotifyPropertyChanged
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    #endregion
 }

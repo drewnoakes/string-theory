@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Windows.Media;
 
-namespace StringTheory.UI
+namespace StringTheory.UI;
+
+public interface ITabPage
 {
-    public interface ITabPage
-    {
-        event Action CloseRequested;
+    event Action CloseRequested;
 
-        string HeaderText { get; }
+    string HeaderText { get; }
 
-        bool CanClose { get; }
+    bool CanClose { get; }
 
-        DrawingBrush IconDrawingBrush { get; }
-    }
+    DrawingBrush IconDrawingBrush { get; }
 }
