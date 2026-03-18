@@ -13,7 +13,7 @@ public sealed partial class AboutWindow
 
     private void OnGitHubLinkClicked(object sender, RequestNavigateEventArgs e)
     {
-        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+        Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
         e.Handled = true;
     }
 
