@@ -84,7 +84,7 @@ public static class ReferenceGraphBuilder
                                 
                                 var referenceChain = level.Reference.HasValue ? GetChain(level.Reference.Value) : [];
 
-                                level.GraphNode.Referrers.Add((node: levelBefore.GraphNode, referenceChain, fieldOffset: level.Reference?.Offset ?? -1));
+                                level.GraphNode.Referrers.Add((node: levelBefore.GraphNode!, referenceChain, fieldOffset: level.Reference?.Offset ?? -1));
 //                                levelBefore.GraphNode.References.Add((node: level.GraphNode, referenceChain));
                             }
                         }
@@ -147,7 +147,7 @@ public static class ReferenceGraphBuilder
         public ClrObject Object { get; set; }
         public ClrReference? Reference { get; set; }
         public IEnumerator<ClrReference> Enumerator { get; set; }
-        public ReferenceGraphNode GraphNode { get; set; }
+        public ReferenceGraphNode? GraphNode { get; set; }
     }
 
     private sealed class HeapWalkStack(int capacity = 128)
@@ -201,14 +201,14 @@ public static class ReferenceGraphBuilder
 
 public readonly struct FieldReference(ClrInstanceField field)
 {
-    public string Name { get; } = field.Name;
-    public ClrType Type { get; } = field.Type;
+    public string? Name { get; } = field.Name;
+    public ClrType? Type { get; } = field.Type;
 
     #region Equality & hashing
 
     public bool Equals(FieldReference other) => string.Equals(Name, other.Name) && Equals(Type, other.Type);
 
-    public override bool Equals(object obj) => obj is FieldReference other && Equals(other);
+    public override bool Equals(object? obj) => obj is FieldReference other && Equals(other);
 
     public override int GetHashCode() => HashCode.Combine(Name, Type);
 

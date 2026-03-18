@@ -9,9 +9,9 @@ namespace StringTheory.UI;
 
 public sealed class LoadingOperation(Func<Action<double>, CancellationToken, ITabPage> operation) : IDisposable
 {
-    public event Action<ITabPage> Completed;
+    public event Action<ITabPage?>? Completed;
 
-    public event Action<double> ProgressChanged;
+    public event Action<double>? ProgressChanged;
 
     private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
     private int _isDisposed;

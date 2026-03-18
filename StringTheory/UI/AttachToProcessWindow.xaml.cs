@@ -9,9 +9,9 @@ namespace StringTheory.UI;
 
 public sealed partial class AttachToProcessWindow : INotifyPropertyChanged
 {
-    public Process[] Processes { get; private set; }
-    public ICommand RefreshProcessesCommand { get; }
-    public ICommand AttachToProcessCommand { get; }
+    public Process[]? Processes { get; private set; }
+    public ICommand? RefreshProcessesCommand { get; }
+    public ICommand? AttachToProcessCommand { get; }
 
     public AttachToProcessWindow()
     {
@@ -61,9 +61,9 @@ public sealed partial class AttachToProcessWindow : INotifyPropertyChanged
 
     #region INotifyPropertyChanged
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }

@@ -46,17 +46,17 @@ public sealed class ReferrerTreeNode
 
     private readonly IReadOnlyList<ReferenceGraphNode> _backingItems;
 
-    private readonly ReferrerTreeNode _parent;
+    private readonly ReferrerTreeNode? _parent;
 
     public ObservableCollection<object> Children { get; } = [];
     public int FieldOffset { get; }
-    public List<FieldReference> ReferrerChain { get; }
-    public ClrType ReferrerType { get; }
+    public List<FieldReference>? ReferrerChain { get; }
+    public ClrType? ReferrerType { get; }
 
-    public string Scope { get; }
+    public string? Scope { get; }
     public string Name { get; }
     public string? NameToolTip { get; }
-    public string FieldChain { get; }
+    public string? FieldChain { get; }
     public bool IsCycle { get; }
     public bool IsLeaf { get; }
     public ReferrerTreeNodeType Type { get; }
@@ -91,12 +91,12 @@ public sealed class ReferrerTreeNode
         }
     }
 
-    private ReferrerTreeNode CreateChildNode(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
+    private ReferrerTreeNode CreateChildNode(IReadOnlyList<ReferenceGraphNode> backingItems, ClrType? referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle)
     {
-        string scope;
+        string? scope;
         string name;
 
-        var match = _typeNameRegex.Match(referrerType.Name);
+        var match = _typeNameRegex.Match(referrerType?.Name ?? "");
 
         if (match.Success)
         {
@@ -106,7 +106,7 @@ public sealed class ReferrerTreeNode
         else
         {
             scope = null;
-            name = referrerType.Name;
+            name = referrerType?.Name ?? "";
         }
 
         Debug.Assert(!string.IsNullOrEmpty(name), "Node shouldn't have empty name");
@@ -121,7 +121,7 @@ public sealed class ReferrerTreeNode
         return new ReferrerTreeNode(this, backingItems, scope, name, fieldChain, referrerType, fieldOffset, referrerChain, isCycle, false, ReferrerTreeNodeType.FieldReference, null);
     }
 
-    private ReferrerTreeNode(ReferrerTreeNode parent, IReadOnlyList<ReferenceGraphNode> backingItems, string scope, string name, string fieldChain, ClrType referrerType, int fieldOffset, List<FieldReference> referrerChain, bool isCycle, bool isLeaf, ReferrerTreeNodeType type, string nameToolTip)
+    private ReferrerTreeNode(ReferrerTreeNode? parent, IReadOnlyList<ReferenceGraphNode> backingItems, string? scope, string name, string? fieldChain, ClrType? referrerType, int fieldOffset, List<FieldReference>? referrerChain, bool isCycle, bool isLeaf, ReferrerTreeNodeType type, string? nameToolTip)
     {
         _parent = parent;
         _backingItems = backingItems;
@@ -203,9 +203,9 @@ public sealed class ReferrerTreeNode
             }
         }
 
-        HashSet<(ClrType ReferrerType, int fieldOffset)> GetAncestors()
+        HashSet<(ClrType? ReferrerType, int fieldOffset)> GetAncestors()
         {
-            var set = new HashSet<(ClrType ReferrerType, int fieldOffset)>();
+            var set = new HashSet<(ClrType? ReferrerType, int fieldOffset)>();
             var n = _parent;
 
             while (n?.ReferrerType != null)

@@ -5,7 +5,7 @@ namespace StringTheory.UI;
 
 public interface ITabPage
 {
-    event Action CloseRequested;
+    event Action? CloseRequested;
 
     string HeaderText { get; }
 

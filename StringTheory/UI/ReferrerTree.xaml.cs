@@ -14,15 +14,15 @@ public sealed partial class ReferrerTree
         InitializeComponent();
     }
 
-    public ReferrerTreeViewModel Tree
+    public ReferrerTreeViewModel? Tree
     {
-        get => (ReferrerTreeViewModel)GetValue(TreeProperty);
+        get => (ReferrerTreeViewModel?)GetValue(TreeProperty);
         set => SetValue(TreeProperty, value);
     }
 
-    public ICommand ShowStringReferencedByFieldCommand
+    public ICommand? ShowStringReferencedByFieldCommand
     {
-        get => (ICommand)GetValue(ShowStringReferencedByFieldCommandProperty);
+        get => (ICommand?)GetValue(ShowStringReferencedByFieldCommandProperty);
         set => SetValue(ShowStringReferencedByFieldCommandProperty, value);
     }
 

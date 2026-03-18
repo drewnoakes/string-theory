@@ -10,7 +10,7 @@ namespace StringTheory.UI;
 
 public sealed class HomePage : ITabPage
 {
-    event Action ITabPage.CloseRequested { add { } remove { } }
+    event Action? ITabPage.CloseRequested { add { } remove { } }
 
     public ICommand OpenDumpCommand { get; }
     public ICommand AttachToProcessCommand { get; }

@@ -11,9 +11,9 @@ public sealed partial class StringList
         InitializeComponent();
     }
 
-    public StringListPage StringListPage
+    public StringListPage? StringListPage
     {
-        get => (StringListPage) GetValue(StringListPageProperty);
+        get => (StringListPage?) GetValue(StringListPageProperty);
         set => SetValue(StringListPageProperty, value);
     }
 }

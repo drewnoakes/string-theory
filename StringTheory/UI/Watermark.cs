@@ -14,8 +14,8 @@ public static class Watermark
         typeof(Watermark),
         new FrameworkPropertyMetadata(null, OnContentChanged));
 
-    public static object GetContent(DependencyObject d) => d.GetValue(ContentProperty);
-    public static void SetContent(DependencyObject d, object value) => d.SetValue(ContentProperty, value);
+    public static object? GetContent(DependencyObject d) => d.GetValue(ContentProperty);
+    public static void SetContent(DependencyObject d, object? value) => d.SetValue(ContentProperty, value);
 
     private static void OnContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -80,7 +80,9 @@ public static class Watermark
             void ShowWatermark()
             {
                 var layer = AdornerLayer.GetAdornerLayer(textBox);
-                layer?.Add(new WatermarkAdorner(textBox, GetContent(textBox)));
+                var content = GetContent(textBox);
+                if (content != null)
+                    layer?.Add(new WatermarkAdorner(textBox, content));
             }
         }
     }

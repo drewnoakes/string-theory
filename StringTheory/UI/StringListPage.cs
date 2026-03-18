@@ -13,10 +13,10 @@ namespace StringTheory.UI;
 
 public sealed class StringListPage : ITabPage, IDisposable
 {
-    event Action ITabPage.CloseRequested { add { } remove { } }
+    event Action? ITabPage.CloseRequested { add { } remove { } }
 
     private readonly IDisposable _analyzerLease;
-    private string _filterText;
+    private string _filterText = "";
 
     public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("StringListIconBrush");
 

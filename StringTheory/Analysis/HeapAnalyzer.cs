@@ -37,7 +37,7 @@ public sealed class HeapAnalyzer
         // TODO if !_heap.CanWalkHeap then the process/dump may be in a state where walking is unreliable (e.g. middle of GC)
     }
 
-    public StringSummary GetStringSummary(Action<double> progressCallback = null, CancellationToken token = default)
+    public StringSummary GetStringSummary(Action<double>? progressCallback = null, CancellationToken token = default)
     {
         var tallyByString = new Dictionary<string, ObjectTally>();
 
@@ -75,6 +75,8 @@ public sealed class HeapAnalyzer
                 if (type.IsString)
                 {
                     var value = clrObj.AsString(int.MaxValue);
+                    if (value == null)
+                        continue;
 
                     charCount += value.Length;
                     stringCount++;
@@ -129,7 +131,7 @@ public sealed class HeapAnalyzer
         ulong totalManagedObjectByteCount = 0;
         long charCount = 0;
 
-        ClrInstanceField stringField = null;
+        ClrInstanceField? stringField = null;
         foreach (var f in referrerType.Fields)
         {
             if (f.Offset == fieldOffset && f.IsObjectReference)
@@ -186,6 +188,8 @@ public sealed class HeapAnalyzer
                 }
 
                 var strSeg = _heap.GetSegmentByAddress(strObj.Address);
+                if (strSeg == null)
+                    continue;
                 var generation = strSeg.GetGeneration(strObj.Address);
                 if (tally.Add(strObj.Address, segKind, generation))
                 {

@@ -8,7 +8,7 @@ namespace StringTheory.UI;
 
 public sealed class LoadingTabPage : ITabPage, INotifyPropertyChanged, IDisposable
 {
-    public event Action CloseRequested;
+    public event Action? CloseRequested;
 
     private readonly LoadingOperation _operation;
 
@@ -17,7 +17,7 @@ public sealed class LoadingTabPage : ITabPage, INotifyPropertyChanged, IDisposab
     public bool IsIndeterminate { get; private set; } = true;
     public double ProgressRatio { get; private set; }
 
-    public ITabPage Page { get; private set; }
+    public ITabPage? Page { get; private set; }
 
     public ICommand CancelCommand { get; }
 
@@ -78,9 +78,9 @@ public sealed class LoadingTabPage : ITabPage, INotifyPropertyChanged, IDisposab
 
     #region INotifyPropertyChanged
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
-    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
