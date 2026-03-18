@@ -88,7 +88,7 @@ public sealed class PercentageConverter : IValueConverter
     {
         if (value is double d && d != 0)
         {
-            return ((int) (d * 100)).ToString();
+            return ((int)Math.Round(d * 100)).ToString();
         }
 
         return DependencyProperty.UnsetValue;
