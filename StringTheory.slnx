@@ -9,5 +9,7 @@
     <File Path=".github/workflows/CI.yml" />
     <File Path=".github/workflows/Release.yml" />
   </Folder>
-  <Project Path="StringTheory/StringTheory.csproj" />
+  <Project Path="StringTheory.Analysis/StringTheory.Analysis.csproj" />
+  <Project Path="StringTheory.Wpf/StringTheory.Wpf.csproj" />
+  <Project Path="StringTheory.Avalonia/StringTheory.Avalonia.csproj" />
 </Solution>

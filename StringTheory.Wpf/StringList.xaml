@@ -1,0 +1,126 @@
+﻿<UserControl x:Class="StringTheory.Wpf.StringList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:StringTheory.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" 
+             d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <Style TargetType="{x:Type TextBlock}" x:Key="StatisticStyle">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+        <Style TargetType="{x:Type MenuItem}">
+            <Setter Property="CommandParameter"
+                    Value="{Binding RelativeSource={RelativeSource AncestorType={x:Type DataGrid}},
+                                    Path=SelectedItems}" />
+        </Style>
+    </UserControl.Resources>
+
+    <DockPanel DataContext="{Binding Path=StringListPage, RelativeSource={RelativeSource FindAncestor, AncestorType=local:StringList}}">
+        
+        <!-- Summary -->
+        <Grid DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Path=Description}" FontWeight="Bold" Margin="4" />
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" MinWidth="200" Margin="4" Padding="2">
+                <local:Watermark.Content>
+                    <TextBlock FontSize="10">Search</TextBlock>
+                </local:Watermark.Content>
+            </TextBox>
+            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="4,4,4,8" TextWrapping="WrapWithOverflow">
+                <Run Text="{Binding Path=StringCount, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="strings," />
+                <Run Text="{Binding Path=UniqueStringCount, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="unique." />
+                <Run Text="{Binding Path=TotalStringBytes, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="total string bytes, of which" />
+                <Run Text="{Binding Path=WastedBytes, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding Path=WastedBytesPercentageOfStrings, Mode=OneWay, StringFormat={}(0.#%)}" />
+                <Run Text="are wasted on duplicates" />
+                <Run Text="{Binding Path=WastedBytesPercentageOfHeap, Mode=OneWay, StringFormat={}(0.#%}" />
+                <Run Text="of" />
+                <Run Text="{Binding Path=TotalManagedHeapBytes, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="managed heap bytes)." />
+            </TextBlock>
+        </Grid>
+
+        <!-- Details -->
+        <DataGrid
+            ItemsSource="{Binding Path=StringItems}" 
+            IsReadOnly="True"
+            AutoGenerateColumns="False"
+            HeadersVisibility="Column"
+            VerticalGridLinesBrush="Transparent"
+            HorizontalGridLinesBrush="Transparent"
+            RowBackground="White"
+            AlternatingRowBackground="{StaticResource AlternatingRowColor}"
+            local:DataGridExtensions.SortDesc="True">
+
+            <DataGrid.InputBindings>
+                <KeyBinding Modifiers="Control" Key="C" Command="{Binding CopyStringsCommand}" CommandParameter="{Binding Path=SelectedItems, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding ShowReferrersCommand}" CommandParameter="{Binding Path=SelectedItems, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" />
+            </DataGrid.InputBindings>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Wasted Bytes" Binding="{Binding WastedBytes, StringFormat=n0}" SortDirection="Descending" local:DataGridExtensions.SortDesc="True" />
+                <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Count"  Binding="{Binding Count, StringFormat=n0}"  local:DataGridExtensions.SortDesc="True" />
+                <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Length" Binding="{Binding Length, StringFormat=n0}" local:DataGridExtensions.SortDesc="True" />
+                <DataGridTemplateColumn Width="*" Header="String" SortMemberPath="FirstLine">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <local:HighlightTextBlock
+                                SourceText="{Binding FirstLine}"
+                                HighlightText="{Binding DataContext.FilterText, RelativeSource={RelativeSource AncestorType=DockPanel}}"
+                                TextWrapping="NoWrap"
+                                ToolTip="{Binding Content}"
+                                Margin="2,0" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen0%"  Binding="{Binding Gen0Percent, Converter={x:Static local:PercentageConverter.Default}}" local:DataGridExtensions.SortDesc="True" />
+                <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen1%"  Binding="{Binding Gen1Percent, Converter={x:Static local:PercentageConverter.Default}}" local:DataGridExtensions.SortDesc="True" />
+                <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="Gen2%"  Binding="{Binding Gen2Percent, Converter={x:Static local:PercentageConverter.Default}}" local:DataGridExtensions.SortDesc="True" />
+                <DataGridTextColumn Width="Auto" ElementStyle="{StaticResource StatisticStyle}" Header="LOH%"   Binding="{Binding LohPercent,  Converter={x:Static local:PercentageConverter.Default}}" local:DataGridExtensions.SortDesc="True" />
+            </DataGrid.Columns>
+
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Show referrers" Command="{Binding ShowReferrersCommand}">
+                        <MenuItem.Icon>
+                            <Rectangle Width="16" Height="16" Fill="{StaticResource ReferrerTreeIconBrush}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator />
+                    <MenuItem Header="Copy string(s)" Command="{Binding CopyStringsCommand}" InputGestureText="Ctrl+C">
+                        <MenuItem.Icon>
+                            <Rectangle Width="16" Height="16" Fill="{StaticResource CopyToClipboardIconBrush}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Copy CSV"       Command="{Binding CopyCsvCommand}">
+                        <MenuItem.Icon>
+                            <Rectangle Width="16" Height="16" Fill="{StaticResource CopyToClipboardIconBrush}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="Copy Markdown"  Command="{Binding CopyMarkdownCommand}">
+                        <MenuItem.Icon>
+                            <Rectangle Width="16" Height="16" Fill="{StaticResource CopyToClipboardIconBrush}" />
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+        </DataGrid>
+
+    </DockPanel>
+
+</UserControl>

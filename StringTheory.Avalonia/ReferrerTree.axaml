@@ -1,0 +1,43 @@
+<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:StringTheory.Avalonia"
+    mc:Ignorable="d"
+    x:Class="StringTheory.Avalonia.ReferrerTree"
+    x:Name="Root">
+
+    <TreeView
+        x:Name="TreeViewControl"
+        ItemsSource="{Binding #Root.Tree.Roots}">
+
+        <TreeView.Styles>
+            <Style Selector="TreeViewItem">
+                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+            </Style>
+        </TreeView.Styles>
+
+        <TreeView.ItemTemplate>
+            <TreeDataTemplate ItemsSource="{Binding Children}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Count, StringFormat=N0}" Foreground="{DynamicResource MutedForeground}" Margin="0,0,6,0" />
+                    <Image Width="16" Height="16" Margin="0,0,6,0" Source="{Binding Type, Converter={x:Static local:Converters.NodeTypeIcon}}" />
+                    <TextBlock Text="{Binding Scope}" Foreground="{DynamicResource DimForeground}" />
+                    <TextBlock Text="{Binding Name}" Foreground="{DynamicResource TypeNameForeground}" ToolTip.Tip="{Binding NameToolTip}" />
+                    <TextBlock Text="{Binding FieldChain}" Foreground="{DynamicResource FieldChainForeground}" />
+                    <Button IsVisible="{Binding CanShowStringsReferencedByField}"
+                            Margin="4,0,0,0"
+                            Command="{Binding #Root.ShowStringReferencedByFieldCommand}"
+                            CommandParameter="{Binding}"
+                            Background="Transparent"
+                            Foreground="{DynamicResource ActionLinkForeground}"
+                            Padding="0"
+                            Content="Show all strings referenced by this field" />
+                </StackPanel>
+            </TreeDataTemplate>
+        </TreeView.ItemTemplate>
+
+    </TreeView>
+
+</UserControl>

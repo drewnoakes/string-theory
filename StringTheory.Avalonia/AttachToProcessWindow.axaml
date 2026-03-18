@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StringTheory.Avalonia"
+        mc:Ignorable="d"
+        x:Class="StringTheory.Avalonia.AttachToProcessWindow"
+        Icon="avares://StringTheory.Avalonia/App.ico"
+        Title="Attach to Process"
+        Height="400"
+        Width="700"
+        MinHeight="200"
+        MinWidth="500"
+        WindowStartupLocation="CenterOwner"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+
+    <DockPanel>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="4">
+            <Button DockPanel.Dock="Left" Command="{Binding RefreshProcessesCommand}" Content="Refresh" Padding="4" />
+            <Button DockPanel.Dock="Right" Command="{Binding AttachToProcessCommand}" CommandParameter="{Binding #_grid.SelectedItem}" Content="Attach" Padding="4"
+                    IsEnabled="{Binding #_grid.SelectedItem, Converter={x:Static local:Converters.TrueWhenNonNull}}" />
+        </DockPanel>
+
+        <TextBox x:Name="_searchBox"
+                 DockPanel.Dock="Top"
+                 Text="{Binding FilterText}"
+                 Watermark="Filter by name, PID, title, or path..."
+                 VerticalContentAlignment="Center"
+                 Margin="4"
+                 Padding="4,2" />
+
+        <DataGrid
+            x:Name="_grid"
+            ItemsSource="{Binding Processes}"
+            IsReadOnly="True"
+            AutoGenerateColumns="False"
+            HeadersVisibility="Column"
+            GridLinesVisibility="None"
+            SelectionMode="Single"
+            DoubleTapped="OnGridDoubleTapped">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="Auto" Header="PID" MinWidth="70" Binding="{Binding IdText}" />
+                <DataGridTextColumn Width="Auto" Header="File" MinWidth="170" Binding="{Binding ProcessName}" />
+                <DataGridTextColumn Width="*" Header="Title" Binding="{Binding MainWindowTitle}" />
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+    </DockPanel>
+
+</Window>

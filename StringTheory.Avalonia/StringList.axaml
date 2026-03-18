@@ -1,0 +1,79 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:StringTheory.Avalonia"
+             xmlns:analysis="clr-namespace:StringTheory.Analysis;assembly=StringTheory.Analysis"
+             mc:Ignorable="d"
+             d:DesignHeight="450"
+             d:DesignWidth="800"
+             x:Class="StringTheory.Avalonia.StringList"
+             x:Name="Root">
+
+    <DockPanel DataContext="{Binding #Root.StringListPage}">
+
+        <!-- Summary -->
+        <Grid DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="{Binding Description}" FontWeight="Bold" Margin="4" />
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding FilterText}" Watermark="Search" VerticalContentAlignment="Center" MinWidth="200" Margin="4" Padding="2" />
+            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="4,4,4,8" TextWrapping="WrapWithOverflow">
+                <Run Text="{Binding StringCount, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="strings," />
+                <Run Text="{Binding UniqueStringCount, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="unique." />
+                <Run Text="{Binding TotalStringBytes, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="total string bytes, of which" />
+                <Run Text="{Binding WastedBytes, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="{Binding WastedBytesPercentageOfStrings, Mode=OneWay, StringFormat=\{0:0.#%\}}" />
+                <Run Text="are wasted on duplicates" />
+                <Run Text="{Binding WastedBytesPercentageOfHeap, Mode=OneWay, StringFormat=\{0:0.#%\}}" />
+                <Run Text="of" />
+                <Run Text="{Binding TotalManagedHeapBytes, Mode=OneWay, StringFormat=N0}" />
+                <Run Text="managed heap bytes)." />
+            </TextBlock>
+        </Grid>
+
+        <!-- Details -->
+        <DataGrid
+            x:Name="StringGrid"
+            ItemsSource="{Binding StringItems}"
+            IsReadOnly="True"
+            AutoGenerateColumns="False"
+            HeadersVisibility="Column"
+            GridLinesVisibility="None"
+            DoubleTapped="OnGridDoubleTapped">
+
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Show referrers" Command="{Binding ShowReferrersCommand}" CommandParameter="{Binding #StringGrid.SelectedItems}" />
+                    <Separator />
+                    <MenuItem Header="Copy string(s)" Command="{Binding CopyStringsCommand}" CommandParameter="{Binding #StringGrid.SelectedItems}" InputGesture="Ctrl+C" />
+                    <MenuItem Header="Copy CSV" Command="{Binding CopyCsvCommand}" CommandParameter="{Binding #StringGrid.SelectedItems}" />
+                    <MenuItem Header="Copy Markdown" Command="{Binding CopyMarkdownCommand}" CommandParameter="{Binding #StringGrid.SelectedItems}" />
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="120" Header="Wasted Bytes" Binding="{Binding WastedBytes, StringFormat=n0}" />
+                <DataGridTextColumn Width="70" Header="Count" Binding="{Binding Count, StringFormat=n0}" />
+                <DataGridTextColumn Width="70" Header="Length" Binding="{Binding Length, StringFormat=n0}" />
+                <DataGridTextColumn Width="*" Header="String" Binding="{Binding FirstLine}" />
+                <DataGridTextColumn Width="60" Header="Gen0%" Binding="{Binding Gen0Percent, Converter={x:Static local:PercentageConverter.Default}}" />
+                <DataGridTextColumn Width="60" Header="Gen1%" Binding="{Binding Gen1Percent, Converter={x:Static local:PercentageConverter.Default}}" />
+                <DataGridTextColumn Width="60" Header="Gen2%" Binding="{Binding Gen2Percent, Converter={x:Static local:PercentageConverter.Default}}" />
+                <DataGridTextColumn Width="60" Header="LOH%" Binding="{Binding LohPercent, Converter={x:Static local:PercentageConverter.Default}}" />
+            </DataGrid.Columns>
+
+        </DataGrid>
+
+    </DockPanel>
+
+</UserControl>

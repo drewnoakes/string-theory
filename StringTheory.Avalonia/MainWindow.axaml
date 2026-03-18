@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StringTheory.Avalonia"
+        mc:Ignorable="d"
+        x:Class="StringTheory.Avalonia.MainWindow"
+        Title="String Theory"
+        Height="450"
+        Width="800"
+        MinWidth="700"
+        MinHeight="400"
+        x:DataType="local:MainWindow"
+        Icon="avares://StringTheory.Avalonia/App.ico">
+
+    <TabControl SelectedIndex="{Binding SelectedTabIndex}" ItemsSource="{Binding TabPages}">
+
+        <TabControl.DataTemplates>
+
+            <DataTemplate DataType="{x:Type local:HomePage}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Bottom" HorizontalAlignment="Right" Margin="4">
+                        <InlineUIContainer>
+                            <Button Command="{Binding ShowAboutCommand}" Content="About" Classes="hyperlink" Background="Transparent" Padding="0" />
+                        </InlineUIContainer>
+                    </TextBlock>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Button Command="{Binding OpenDumpCommand}" Width="200" Height="200" Margin="50"
+                                Background="{DynamicResource HomeButtonBackground}" BorderBrush="{DynamicResource HomeButtonBorderBrush}" BorderThickness="1" CornerRadius="4">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Image Height="32" Width="32" Source="{StaticResource OpenDumpFileIconImage}" HorizontalAlignment="Center" />
+                                <TextBlock Margin="0,8,0,0" HorizontalAlignment="Center">Open dump file...</TextBlock>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{Binding AttachToProcessCommand}" Width="200" Height="200" Margin="50"
+                                Background="{DynamicResource HomeButtonBackground}" BorderBrush="{DynamicResource HomeButtonBorderBrush}" BorderThickness="1" CornerRadius="4">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Image Height="32" Width="32" Source="{StaticResource AttachToProcessIconImage}" HorizontalAlignment="Center" />
+                                <TextBlock Margin="0,8,0,0" HorizontalAlignment="Center">Attach to process...</TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type local:StringListPage}">
+                <local:StringList StringListPage="{Binding}" />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type local:ReferrersPage}">
+                <local:ReferrerTree
+                    Tree="{Binding ReferrerTree}"
+                    ShowStringReferencedByFieldCommand="{Binding ShowStringReferencedByFieldCommand}" />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type local:LoadingTabPage}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <ProgressBar Height="16" IsIndeterminate="{Binding IsIndeterminate, Mode=OneWay}" Value="{Binding ProgressRatio, Mode=OneWay}" Minimum="0" Maximum="1" MinWidth="120" />
+                    <Button Content="Cancel" Command="{Binding CancelCommand}" Margin="0,16,0,0" Padding="6" />
+                </StackPanel>
+            </DataTemplate>
+
+        </TabControl.DataTemplates>
+
+        <TabControl.ItemTemplate>
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal" PointerPressed="OnTabHeaderPointerPressed">
+                    <Image Width="16" Height="16" Source="{Binding IconDrawingImage}" Margin="0,0,4,0" Opacity="0.6" VerticalAlignment="Center" />
+                    <TextBlock
+                        Text="{Binding HeaderText, Converter={x:Static local:Converters.FirstLineOnly}}"
+                        MaxWidth="200"
+                        ToolTip.Tip="{Binding HeaderText}"
+                        TextTrimming="CharacterEllipsis"
+                        VerticalAlignment="Center" />
+                    <Button
+                        IsVisible="{Binding CanClose}"
+                        Margin="6,2,-1,0"
+                        VerticalAlignment="Center"
+                        Command="{Binding $parent[Window].((local:MainWindow)DataContext).CloseCommand}"
+                        CommandParameter="{Binding}"
+                        Padding="4,2"
+                        Background="Transparent"
+                        FontSize="10"
+                        Content="&#x2715;" />
+                </StackPanel>
+            </DataTemplate>
+        </TabControl.ItemTemplate>
+
+    </TabControl>
+
+</Window>

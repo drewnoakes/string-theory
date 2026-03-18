@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Description>Heap string analysis engine for StringTheory. Identifies duplicate strings and shows what object graphs keep them alive.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Diagnostics.Runtime" Version="4.0.0-beta.24360.3" />
+  </ItemGroup>
+</Project>

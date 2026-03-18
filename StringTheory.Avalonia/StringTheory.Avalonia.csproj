@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <Description>Identifies opportunities to improve heap memory consumption by strings. Finds duplicate strings and shows what object graphs are keeping them alive.</Description>
+    <ApplicationIcon>App.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\StringTheory.Analysis\StringTheory.Analysis.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.7" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.7" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.7" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.2.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="App.ico" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,129 @@
+using System;
+using System.Buffers;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
+
+namespace StringTheory.Wpf;
+
+internal static class Converters
+{
+    public static IValueConverter VisibleWhenTrue { get; } = new BooleanVisibilityConverter(trueValue: Visibility.Visible, falseValue: Visibility.Collapsed);
+
+    public static IValueConverter FirstLineOnly { get; } = new FirstLineOnlyConverter();
+
+    public static IValueConverter VisibleWhenNull { get; } = new NullVisibilityConverter(nullValue: Visibility.Visible, nonNullValue: Visibility.Collapsed);
+
+    public static IValueConverter TrueWhenNonNull { get; } = new NullBooleanConverter(nullValue: false);
+}
+
+[ValueConversion(typeof(bool), typeof(Visibility))]
+internal sealed class BooleanVisibilityConverter(Visibility trueValue, Visibility falseValue) : IValueConverter
+{
+    private static readonly object _boxedTrue = true;
+    private static readonly object _boxedFalse = false;
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is bool b)
+        {
+            return b ? trueValue : falseValue;
+        }
+
+        return DependencyProperty.UnsetValue;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is Visibility v)
+        {
+            if (v == trueValue) return _boxedTrue;
+            if (v == falseValue) return _boxedFalse;
+        }
+
+        return DependencyProperty.UnsetValue;
+    }
+}
+
+[ValueConversion(typeof(object), typeof(Visibility))]
+internal sealed class NullVisibilityConverter(Visibility nullValue, Visibility nonNullValue) : IValueConverter
+{
+    private readonly object _nullValue = nullValue;
+    private readonly object _nonNullValue = nonNullValue;
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value is null ? _nullValue : _nonNullValue;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return Binding.DoNothing;
+    }
+}
+
+[ValueConversion(typeof(object), typeof(bool))]
+internal sealed class NullBooleanConverter(bool nullValue) : IValueConverter
+{
+    private readonly object _nullValue = nullValue;
+    private readonly object _nonNullValue = !nullValue;
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return value is null ? _nullValue : _nonNullValue;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return Binding.DoNothing;
+    }
+}
+
+[ValueConversion(typeof(double), typeof(string))]
+public sealed class PercentageConverter : IValueConverter
+{
+    public static readonly PercentageConverter Default = new PercentageConverter();
+    
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is double d && d != 0)
+        {
+            return ((int)Math.Round(d * 100)).ToString();
+        }
+
+        return DependencyProperty.UnsetValue;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return Binding.DoNothing;
+    }
+}
+
+[ValueConversion(typeof(string), typeof(string))]
+internal sealed class FirstLineOnlyConverter : IValueConverter
+{
+    private static readonly SearchValues<char> s_newLineChars = SearchValues.Create(['\r', '\n']);
+
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is string s)
+        {
+            var i = s.AsSpan().IndexOfAny(s_newLineChars);
+
+            if (i != -1)
+            {
+                return s[..i] + "...";
+            }
+
+            return s;
+        }
+
+        return DependencyProperty.UnsetValue;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return Binding.DoNothing;
+    }
+}

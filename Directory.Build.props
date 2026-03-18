@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Copyright>Copyright © Drew Noakes 2018-$([System.DateTime]::Now.Year)</Copyright>
+    <Authors>Drew Noakes</Authors>
+    <RepositoryUrl>https://github.com/drewnoakes/string-theory</RepositoryUrl>
+    <LicenseExpression>Apache-2.0</LicenseExpression>
+  </PropertyGroup>
+</Project>
