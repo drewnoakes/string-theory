@@ -88,7 +88,7 @@ public sealed partial class MainWindow : INotifyPropertyChanged
                 case Key.W when CanCloseCurrentTab():
                 {
                     // Closes the active tab (if it is closeable)
-                    TabPages.RemoveAt(SelectedTabIndex);
+                    RemoveTabPage(TabPages[SelectedTabIndex]);
                     e.Handled = true;
                     return;
                 }
