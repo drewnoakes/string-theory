@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Buffers;
+using System.Collections.Generic;
 using Microsoft.Diagnostics.Runtime;
 
 namespace StringTheory.Analysis;
 
 public sealed class StringItem
 {
-    private static readonly char[] s_newLineCharacters = ['\r', '\n'];
+    private static readonly SearchValues<char> s_newLineCharacters = SearchValues.Create(['\r', '\n']);
 
     public string FirstLine { get; }
     public string Content { get; }
@@ -33,8 +35,8 @@ public sealed class StringItem
         CountBySegmentType = countBySegmentType;
         CountByGeneration = countByGeneration;
 
-        var newLineIndex = content.IndexOfAny(s_newLineCharacters);
-        FirstLine = newLineIndex != -1 ? content.Substring(0, newLineIndex) : content;
+        var newLineIndex = content.AsSpan().IndexOfAny(s_newLineCharacters);
+        FirstLine = newLineIndex != -1 ? content[..newLineIndex] : content;
 
         WastedBytes = Count == 0 ? 0 : ((ulong)Count - 1) * InstanceSize;
     }
