@@ -14,12 +14,12 @@ namespace StringTheory.Analysis
         private int _leaseCount;
 
         public HeapAnalyzer(string dumpFilePath)
-            : this(DataTarget.LoadCrashDump(dumpFilePath))
+            : this(DataTarget.LoadDump(dumpFilePath))
         {
         }
 
         public HeapAnalyzer(int pid)
-            : this(DataTarget.AttachToProcess(pid, 5000, AttachFlag.NonInvasive))
+            : this(DataTarget.AttachToProcess(pid, suspend: false))
         {
         }
 
@@ -47,36 +47,34 @@ namespace StringTheory.Analysis
             ulong totalManagedObjectByteCount = 0;
             long charCount = 0;
 
-            for (var i = 0; i < _heap.Segments.Count; i++)
+            for (var i = 0; i < _heap.Segments.Length; i++)
             {
-                progressCallback?.Invoke((double)i / _heap.Segments.Count);
+                progressCallback?.Invoke((double)i / _heap.Segments.Length);
 
                 var seg = _heap.Segments[i];
-                var segType = seg.IsEphemeral
-                    ? GCSegmentType.Ephemeral
-                    : seg.IsLarge
-                        ? GCSegmentType.LargeObject
-                        : GCSegmentType.Regular;
+                var segKind = seg.Kind;
 
-                for (ulong obj = seg.GetFirstObject(out ClrType type); obj != 0; obj = seg.NextObject(obj, out type))
+                foreach (var clrObj in seg.EnumerateObjects())
                 {
-                    if (type == null)
-                    {
+                    if (!clrObj.IsValid)
                         continue;
-                    }
+
+                    var type = clrObj.Type;
+                    if (type == null)
+                        continue;
 
                     token.ThrowIfCancellationRequested();
 
-                    int generation = seg.GetGeneration(obj);
+                    var generation = seg.GetGeneration(clrObj);
 
-                    var size = type.GetSize(obj);
+                    var size = clrObj.Size;
 
                     totalManagedObjectCount++;
                     totalManagedObjectByteCount += size;
 
                     if (type.IsString)
                     {
-                        var value = (string) type.GetValue(obj);
+                        var value = clrObj.AsString(int.MaxValue);
 
                         charCount += value.Length;
                         stringCount++;
@@ -88,7 +86,7 @@ namespace StringTheory.Analysis
                         }
 
                         stringByteCount += tally.InstanceSize;
-                        tally.Add(obj, segType, generation);
+                        tally.Add(clrObj.Address, segKind, generation);
                     }
                 }
             }
@@ -131,53 +129,65 @@ namespace StringTheory.Analysis
             ulong totalManagedObjectByteCount = 0;
             long charCount = 0;
 
+            ClrInstanceField stringField = null;
+            foreach (var f in referrerType.Fields)
+            {
+                if (f.Offset == fieldOffset && f.IsObjectReference)
+                {
+                    stringField = f;
+                    break;
+                }
+            }
+
             foreach (var seg in _heap.Segments)
             {
-                var segType = seg.IsEphemeral
-                    ? GCSegmentType.Ephemeral
-                    : seg.IsLarge
-                        ? GCSegmentType.LargeObject
-                        : GCSegmentType.Regular;
+                var segKind = seg.Kind;
 
-                for (ulong refObj = seg.GetFirstObject(out ClrType referringType); refObj != 0; refObj = seg.NextObject(refObj, out referringType))
+                foreach (var clrObj in seg.EnumerateObjects())
                 {
-                    if (referringType == null)
-                    {
+                    if (!clrObj.IsValid)
                         continue;
-                    }
 
-                    totalManagedObjectByteCount += referringType.GetSize(refObj);
+                    var referringType = clrObj.Type;
+                    if (referringType == null)
+                        continue;
+
+                    totalManagedObjectByteCount += clrObj.Size;
 
                     if (!ReferenceEquals(referringType, referrerType))
-                    {
                         continue;
-                    }
 
                     token.ThrowIfCancellationRequested();
 
-                    if (!_heap.ReadPointer(refObj + (ulong)fieldOffset, out var strObjRef) || strObjRef == 0)
+                    ClrObject strObj;
+                    if (stringField != null)
+                    {
+                        strObj = stringField.ReadObject(clrObj.Address, false);
+                    }
+                    else
                     {
                         continue;
                     }
 
-                    var type = _heap.GetObjectType(strObjRef);
-                    if (type == null)
+                    if (strObj.IsNull || !strObj.IsValid)
                         continue;
-                    var value = (string) type.GetValue(strObjRef);
+
+                    var value = strObj.AsString(int.MaxValue);
+                    if (value == null)
+                        continue;
 
                     charCount += value.Length;
                     stringCount++;
 
                     if (!tallyByString.TryGetValue(value, out var tally))
                     {
-                        var size = type.GetSize(strObjRef);
-                        tally = new ObjectTally(size);
+                        tally = new ObjectTally(strObj.Size);
                         tallyByString[value] = tally;
                     }
 
-                    var strSeg = _heap.GetSegmentByAddress(strObjRef);
-                    int generation = strSeg.GetGeneration(strObjRef);
-                    if (tally.Add(strObjRef, segType, generation))
+                    var strSeg = _heap.GetSegmentByAddress(strObj.Address);
+                    var generation = strSeg.GetGeneration(strObj.Address);
+                    if (tally.Add(strObj.Address, segKind, generation))
                     {
                         stringByteCount += tally.InstanceSize;
                     }
@@ -227,8 +237,8 @@ namespace StringTheory.Analysis
 
         private sealed class ObjectTally
         {
-            public ulong[] CountBySegmentType { get; } = new ulong[3];
-            public ulong[] CountByGeneration { get; } = new ulong[4]; // offset by one so that -1 becomes 0
+            public ulong[] CountBySegmentType { get; } = new ulong[7];
+            public ulong[] CountByGeneration { get; } = new ulong[7];
             public ulong WastedBytes => Count == 0 ? 0ul : (Count - 1) * InstanceSize;
             public ulong Count => (ulong) Addresses.Count;
             public ulong InstanceSize { get; }
@@ -241,12 +251,12 @@ namespace StringTheory.Analysis
                 InstanceSize = size;
             }
 
-            public bool Add(ulong address, GCSegmentType segmentType, int generation)
+            public bool Add(ulong address, GCSegmentKind segmentKind, Generation generation)
             {
                 if (Addresses.Add(address))
                 {
-                    CountBySegmentType[(int) segmentType]++;
-                    CountByGeneration[generation + 1]++;
+                    CountBySegmentType[(int) segmentKind]++;
+                    CountByGeneration[(int) generation]++;
                     return true;
                 }
 

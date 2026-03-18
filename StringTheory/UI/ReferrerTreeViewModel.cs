@@ -67,21 +67,21 @@ namespace StringTheory.UI
 
         private ReferrerTreeNode CreateGCRootNode(RootGraphNode node)
         {
-            return new ReferrerTreeNode(this, new[] {node}, null, node.ClrRoot.Name, null, null, -1, null, false, true, GetNodeType());
+            var rootName = node.ClrRoot.Object.Type?.Name ?? node.ClrRoot.RootKind.ToString();
+            return new ReferrerTreeNode(this, new[] {node}, null, rootName, null, null, -1, null, false, true, GetNodeType());
 
             ReferrerTreeNodeType GetNodeType()
             {
-                switch (node.ClrRoot.Kind)
+                switch (node.ClrRoot.RootKind)
                 {
-                    case GCRootKind.StaticVar:       return ReferrerTreeNodeType.StaticVar;       // "static var StringTheory.SampleApp.Program.E"
-                    case GCRootKind.ThreadStaticVar: return ReferrerTreeNodeType.ThreadStaticVar;
-                    case GCRootKind.Pinning:         return ReferrerTreeNodeType.Pinning;         // "Pinned handle"
-                    case GCRootKind.AsyncPinning:    return ReferrerTreeNodeType.AsyncPinning;
-                    case GCRootKind.LocalVar:        return ReferrerTreeNodeType.LocalVar;
-                    case GCRootKind.Strong:          return ReferrerTreeNodeType.StrongHandle;    // "Strong handle"
-                    case GCRootKind.Weak:            return ReferrerTreeNodeType.WeakHandle;
-                    case GCRootKind.Finalizer:       return ReferrerTreeNodeType.Finalizer;
-                    default: throw new ArgumentOutOfRangeException();
+                    case ClrRootKind.StrongHandle:      return ReferrerTreeNodeType.StrongHandle;
+                    case ClrRootKind.PinnedHandle:      return ReferrerTreeNodeType.Pinning;
+                    case ClrRootKind.AsyncPinnedHandle: return ReferrerTreeNodeType.AsyncPinning;
+                    case ClrRootKind.Stack:             return ReferrerTreeNodeType.LocalVar;
+                    case ClrRootKind.RefCountedHandle:  return ReferrerTreeNodeType.StrongHandle;
+                    case ClrRootKind.SizedRefHandle:    return ReferrerTreeNodeType.StrongHandle;
+                    case ClrRootKind.FinalizerQueue:    return ReferrerTreeNodeType.Finalizer;
+                    default:                            return ReferrerTreeNodeType.StrongHandle;
                 }
             }
         }

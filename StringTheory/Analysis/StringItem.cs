@@ -17,10 +17,10 @@ namespace StringTheory.Analysis
 
         public int Count => ValueAddresses.Count;
 
-        public double Gen0Percent => (double)CountByGeneration[1] / Count;
-        public double Gen1Percent => (double)CountByGeneration[2] / Count;
-        public double Gen2Percent => (double)CountByGeneration[3] / Count;
-        public double LohPercent  => (double)CountBySegmentType[(int)GCSegmentType.LargeObject] / Count;
+        public double Gen0Percent => (double)CountByGeneration[(int)Generation.Generation0] / Count;
+        public double Gen1Percent => (double)CountByGeneration[(int)Generation.Generation1] / Count;
+        public double Gen2Percent => (double)CountByGeneration[(int)Generation.Generation2] / Count;
+        public double LohPercent  => (double)CountBySegmentType[(int)GCSegmentKind.Large] / Count;
 
         public ulong WastedBytes { get; }
 

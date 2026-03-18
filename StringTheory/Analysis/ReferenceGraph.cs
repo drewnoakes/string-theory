@@ -12,26 +12,26 @@ namespace StringTheory.Analysis
         {
             var graph = new ReferenceGraph();
 
-            var seen = new ObjectSet(heap);
+            var seen = new HashSet<ulong>();
 
             var stack = new HeapWalkStack();
 
             var nodeByAddress = new Dictionary<ulong, ReferenceGraphNode>();
 
-            var chainCache = new Dictionary<(uint metadataToken, int fieldOffset), List<FieldReference>>();
+            var chainCache = new Dictionary<(int metadataToken, int fieldOffset), List<FieldReference>>();
 
             // For each root
-            foreach (var root in heap.EnumerateRoots(enumerateStatics: true))
+            foreach (var root in heap.EnumerateRoots())
             {
                 stack.Clear();
 
-                if (root.Type == null)
+                if (root.Object.Type == null)
                 {
                     // This happens, though not sure why
                     continue;
                 }
 
-                stack.Push(new ClrObjectReference(-1, root.Object, root.Type));
+                stack.Push(root.Object);
 
                 while (!stack.IsEmpty)
                 {
@@ -43,17 +43,17 @@ namespace StringTheory.Analysis
                     {
                         var o = top.Enumerator.Current;
 
-                        if (targetAddresses.Contains(o.Address))
+                        if (targetAddresses.Contains(o.Object.Address))
                         {
                             // Found a match
-                            stack.Push(o);
+                            stack.Push(o.Object, o);
 
                             // Ensure our stack's root is registered with the graph
                             ref var rootLevel = ref stack[0];
                             if (rootLevel.GraphNode == null)
                             {
                                 var rootNode = new RootGraphNode(root);
-                                nodeByAddress[root.Object] = rootNode;
+                                nodeByAddress[root.Object.Address] = rootNode;
                                 rootLevel.GraphNode = rootNode;
                                 graph.Roots.Add(rootNode);
                             }
@@ -67,10 +67,10 @@ namespace StringTheory.Analysis
                                 // Ensure all levels have a graph node object
                                 if (level.GraphNode == null)
                                 {
-                                    if (!nodeByAddress.TryGetValue(level.Reference.Address, out var node))
+                                    if (!nodeByAddress.TryGetValue(level.Object.Address, out var node))
                                     {
-                                        node = new ReferenceGraphNode(level.Reference.Object);
-                                        nodeByAddress[level.Reference.Address] = node;
+                                        node = new ReferenceGraphNode(level.Object);
+                                        nodeByAddress[level.Object.Address] = node;
 
                                         if (i == stack.Count - 1)
                                         {
@@ -82,9 +82,9 @@ namespace StringTheory.Analysis
                                     
                                     ref var levelBefore = ref stack[i - 1];
                                     
-                                    var referenceChain = GetChain(levelBefore.GraphNode.Object.Type, level.Reference);
+                                    var referenceChain = level.Reference.HasValue ? GetChain(level.Reference.Value) : new List<FieldReference>();
 
-                                    level.GraphNode.Referrers.Add((node: levelBefore.GraphNode, referenceChain, fieldOffset: level.Reference.FieldOffset));
+                                    level.GraphNode.Referrers.Add((node: levelBefore.GraphNode, referenceChain, fieldOffset: level.Reference?.Offset ?? -1));
 //                                    levelBefore.GraphNode.References.Add((node: level.GraphNode, referenceChain));
                                 }
                             }
@@ -92,11 +92,11 @@ namespace StringTheory.Analysis
                             stack.Pop();
                         }
                         
-                        if (!seen.Contains(o.Address))
+                        if (!seen.Contains(o.Object.Address))
                         {
                             // New object; push it to the stack to start exploring it
-                            stack.Push(o);
-                            seen.Add(o.Address);
+                            stack.Push(o.Object, o);
+                            seen.Add(o.Object.Address);
                         }
                     }
                     else
@@ -109,36 +109,32 @@ namespace StringTheory.Analysis
 
             return graph;
 
-            List<FieldReference> GetChain(ClrType sourceType, in ClrObjectReference reference)
+            List<FieldReference> GetChain(ClrReference reference)
             {
-                var key = (sourceType.MetadataToken, reference.FieldOffset);
+                var containingType = reference.Field?.ContainingType;
+                var key = (containingType?.MetadataToken ?? 0, reference.Offset);
 
                 if (!chainCache.TryGetValue(key, out var chain))
                 {
-                    chain = BuildChain(in reference);
+                    chain = BuildChain(reference);
                     chainCache[key] = chain;
                 }
 
                 return chain;
 
-                List<FieldReference> BuildChain(in ClrObjectReference r)
+                List<FieldReference> BuildChain(ClrReference r)
                 {
                     var list = new List<FieldReference>(1);
-                    var offset = r.FieldOffset;
-                    var type = sourceType;
-                    var inner = false;
 
-                    while (type.GetFieldForOffset(offset, inner, out var childField, out var childFieldOffset))
+                    if (r.Field != null)
+                        list.Add(new FieldReference(r.Field));
+
+                    var inner = r.InnerField;
+                    while (inner.HasValue)
                     {
-                        list.Add(new FieldReference(childField));
-
-                        // Only loop when digging through nested value types
-                        if (!childField.Type.IsValueClass)
-                            break;
-
-                        offset = childFieldOffset;
-                        type = childField.Type;
-                        inner = true;
+                        if (inner.Value.Field != null)
+                            list.Add(new FieldReference(inner.Value.Field));
+                        inner = inner.Value.InnerField;
                     }
 
                     return list;
@@ -148,8 +144,9 @@ namespace StringTheory.Analysis
 
         private struct HeapWalkStackLevel
         {
-            public ClrObjectReference Reference { get; set; }
-            public IEnumerator<ClrObjectReference> Enumerator { get; set; }
+            public ClrObject Object { get; set; }
+            public ClrReference? Reference { get; set; }
+            public IEnumerator<ClrReference> Enumerator { get; set; }
             public ReferenceGraphNode GraphNode { get; set; }
         }
 
@@ -163,9 +160,9 @@ namespace StringTheory.Analysis
                 _levels = new HeapWalkStackLevel[capacity];
             }
 
-            public void Push(ClrObjectReference o)
+            public void Push(ClrObject obj, ClrReference? reference = null)
             {
-                if (o.TargetType == null)
+                if (obj.Type == null)
                     return;
 
                 _last++;
@@ -179,9 +176,10 @@ namespace StringTheory.Analysis
                 }
 
                 ref var level = ref _levels[_last];
-                level.Reference = o;
+                level.Object = obj;
+                level.Reference = reference;
                 // TODO avoid allocation of enumerator?
-                level.Enumerator = o.TargetType.EnumerateObjectReferencesWithFields(o.Address, carefully: true).GetEnumerator();
+                level.Enumerator = obj.EnumerateReferencesWithFields(carefully: true, considerDependantHandles: false).GetEnumerator();
                 level.GraphNode = null;
             }
 
@@ -256,7 +254,7 @@ namespace StringTheory.Analysis
         public ClrRoot ClrRoot { get; }
 
         public RootGraphNode(ClrRoot clrRoot) 
-            : base(new ClrObject(clrRoot.Object, clrRoot.Type))
+            : base(clrRoot.Object)
         {
             ClrRoot = clrRoot;
         }
