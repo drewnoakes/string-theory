@@ -4,5 +4,10 @@
     <File Path="LICENSE.md" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/Solution Items/.github/" />
+  <Folder Name="/Solution Items/.github/workflows/">
+    <File Path=".github/workflows/CI.yml" />
+    <File Path=".github/workflows/Release.yml" />
+  </Folder>
   <Project Path="StringTheory/StringTheory.csproj" />
 </Solution>
