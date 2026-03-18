@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using Microsoft.Diagnostics.Runtime;
 
@@ -216,21 +216,7 @@ public readonly struct FieldReference(ClrInstanceField field)
     #endregion
 
     public static string DescribeFieldReferences(IEnumerable<FieldReference> referenceChain)
-    {
-        var sb = new StringBuilder();
-
-        foreach (var reference in referenceChain)
-        {
-            if (sb.Length != 0)
-            {
-                sb.Append('.');
-            }
-
-            sb.Append(reference.Name);
-        }
-
-        return sb.ToString();
-    }
+        => string.Join('.', referenceChain.Select(r => r.Name));
 }
 
 public sealed class ReferenceGraph
