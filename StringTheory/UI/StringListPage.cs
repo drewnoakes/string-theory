@@ -16,7 +16,6 @@ public sealed class StringListPage : ITabPage, IDisposable
     event Action? ITabPage.CloseRequested { add { } remove { } }
 
     private readonly IDisposable _analyzerLease;
-    private string _filterText = "";
 
     public static DrawingBrush IconDrawingBrush => (DrawingBrush)Application.Current.FindResource("StringListIconBrush");
 
@@ -44,19 +43,19 @@ public sealed class StringListPage : ITabPage, IDisposable
 
     public string FilterText
     {
-        get => _filterText;
+        get;
         set
         {
-            if (string.Equals(_filterText, value))
+            if (string.Equals(field, value))
                 return;
-            _filterText = value;
+            field = value;
             var view = CollectionViewSource.GetDefaultView(StringItems);
             if (value.Length == 0)
                 view.Filter = null;
             else
                 view.Filter = i => ((StringItem) i).Content.Contains(value, StringComparison.CurrentCultureIgnoreCase);
         }
-    }
+    } = "";
 
     public StringListPage(MainWindow mainWindow, StringSummary summary, HeapAnalyzer analyzer, string tabTitle, string description)
     {
